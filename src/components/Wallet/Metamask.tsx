@@ -2,17 +2,19 @@ import { useSDK } from "@metamask/sdk-react";
 import { formatAddress, formatBalance } from "../../utils/formatData";
 import React, { useEffect, useState } from "react";
 import { getETHBalance } from "../../utils/getBalance";
+import Modal from "../Modal/Modal"
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
+
 
 export const Metamask = () => {
     const msg = "Sign this message to connect your wallet";
     const [account, setAccount] = useState<string>();
     const [balance, setBalance] = useState<string>("0");
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const { sdk, connected, connecting, provider, chainId } = useSDK();
 
     const connect = async () => {
         try {
-            disconnect();
             const accounts = await window.ethereum?.request({ method: 'eth_requestAccounts' });
             await provider?.request({
                 method: "personal_sign",
@@ -42,10 +44,18 @@ export const Metamask = () => {
         setBalance("0");
     }
 
+    const openModal = () => {
+        setIsModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setIsModalVisible(false);
+    };
+
     return (
-        <div className="flex items-center justify-center bg-[#16162d] space-x-4 px-1 py-1 rounded-full relative">
-            {connected && (
-                <div className="text-[#e5e4fa] text-sm font-semibold ml-2">
+        <div className="flex items-center justify-center bg-[#16162d] px-1 py-1 rounded-full relative">
+            {account && (
+                <div className="text-[#e5e4fa] text-sm font-semibold ml-2 mr-4">
                     <div>{`${balance} ETH`}</div>
                 </div>
             )}
@@ -53,7 +63,7 @@ export const Metamask = () => {
                 className="bg-[#3e3e52] hover:bg-[#555571] rounded-full text-[#e5e4fa] font-semibold 
                             text-sm py-2 px-4 transition duration-400 ease-in-out transform
                             focus:outline-none focus:ring-0"
-                onClick={connect}
+                onClick={account ? openModal : connect}
             >
                 {account ? <div className="flex items-center justify-around w-full">
                     {formatAddress(account)}
@@ -61,17 +71,18 @@ export const Metamask = () => {
                 </div> : <span>Connect Wallet</span>}
 
             </button>
-            {/* {dropdownVisible && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
-                <button
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100
-                               focus:outline-none focus:bg-gray-200 transition duration-200 ease-in-out"
-                    onClick={disconnect}
-                >
-                    Disconnect
-                </button>
-            </div>
-            )} */}
+            <Modal isVisible={isModalVisible} onClose={closeModal}>
+                <div className="text-center">
+                    <h2 className="text-lg font-semibold mb-4">Modal Title</h2>
+                    <p className="mb-4">This is the modal content.</p>
+                    <button
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        onClick={closeModal}
+                    >
+                        Close
+                    </button>
+                </div>
+            </Modal>
         </div >
     );
 };
