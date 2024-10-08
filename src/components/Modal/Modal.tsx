@@ -12,13 +12,13 @@ const Modal: React.FC<ModalProps> = ({ isVisible, onClose, children }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 m-0">
-            <div className="bg-white rounded-lg shadow-lg w-1/3">
+            <div className="bg-[#16162d] rounded-[24px] shadow-lg pt-2 pl-6 pr-6 pb-1">
                 <div className="flex justify-end p-2">
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+                    <button onClick={onClose} className="text-gray-400 hover:text-white text-3xl absolute">
                         &times;
                     </button>
                 </div>
-                <div className="p-4">
+                <div className="pt-1 pb-4">
                     {children}
                 </div>
             </div>

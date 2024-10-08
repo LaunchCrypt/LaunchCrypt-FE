@@ -1,9 +1,11 @@
 import { useSDK } from "@metamask/sdk-react";
-import { formatAddress, formatBalance } from "../../utils/formatData";
-import React, { useEffect, useState } from "react";
+import { formatAddress, formatBalance, formatAddressLong } from "../../utils/formatData";
+import React, { useState } from "react";
 import { getETHBalance } from "../../utils/getBalance";
 import Modal from "../Modal/Modal"
+import GradientButton from "../common/GradientButton";
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
+import copyIcon from "../../../assets/icons/copy.svg";
 
 
 export const Metamask = () => {
@@ -73,14 +75,22 @@ export const Metamask = () => {
             </button>
             <Modal isVisible={isModalVisible} onClose={closeModal}>
                 <div className="text-center">
-                    <h2 className="text-lg font-semibold mb-4">Modal Title</h2>
-                    <p className="mb-4">This is the modal content.</p>
-                    <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        onClick={closeModal}
-                    >
-                        Close
-                    </button>
+                    <h2 className="text-xl mb-4 font-semibold">Connect Wallet</h2>
+                    <div className="flex flex-col items-center justify-center px-1 py-1 ">
+                        <div className="flex flex-row items-center justify-center px-1 py-1 border border-solid border-[#35354b] rounded-[24px]">
+                            <img src={metamaskIcon} className="w-12 h-12 bg-inherit inline ml-1 mr-3" />
+                            <div className="flex flex-col items-start justify-center px-1 py-1">
+                                <p className="text-[#737289] font-bold text-sm mb-3">Account address</p>
+                                <div className="flex flex-row items-center justify-center">
+                                    <p className="text-[#e5e4fa] font-normal text-base">{formatAddressLong(account!)}</p>
+                                    <img src={copyIcon} className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <GradientButton children={<p>Disconnect</p>}
+                        onClick={disconnect}
+                        style={"relative overflow-hidden text-white font-medium w-full p-[12px_20px] cursor-pointer rounded-[24px] mt-4 group"} />
                 </div>
             </Modal>
         </div >
