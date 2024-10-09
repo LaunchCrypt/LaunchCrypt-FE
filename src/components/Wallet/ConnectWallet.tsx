@@ -1,14 +1,14 @@
 import { useSDK } from "@metamask/sdk-react";
-import { formatAddress, formatBalance, formatAddressLong } from "../../utils/formatData";
+import { formatAddress, formatBalance, formatAddressLong, getETHBalance, copyToClipboard } from "../../utils/index";
 import React, { useState } from "react";
-import { getETHBalance } from "../../utils/getBalance";
 import Modal from "../Modal/Modal"
 import GradientButton from "../common/GradientButton";
+import Swal from 'sweetalert2'
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
 import copyIcon from "../../../assets/icons/copy.svg";
 
 
-export const Metamask = () => {
+function ConnectWallet() {
     const msg = "Sign this message to connect your wallet";
     const [account, setAccount] = useState<string>();
     const [balance, setBalance] = useState<string>("0");
@@ -44,6 +44,7 @@ export const Metamask = () => {
         })
         setAccount(undefined);
         setBalance("0");
+        setIsModalVisible(false);
     }
 
     const openModal = () => {
@@ -54,15 +55,32 @@ export const Metamask = () => {
         setIsModalVisible(false);
     };
 
+    const copyToClipboardDuccessfully = (text: string) => {
+        copyToClipboard(text);
+        Swal.fire({
+            icon: 'success',
+            title: 'Copied',
+            showConfirmButton: false,
+            timer: 1000,
+            iconColor: "#7b37c6",
+            width: "16rem",
+            background: "#28253e",
+            customClass: {
+                popup: 'rounded-[32px] bg-[#28253e] border border-[#35354b] shadow-lg',
+                title: 'text-white font-semibold text-2xl',
+            },
+        });
+    }
+
     return (
-        <div className="flex items-center justify-center bg-[#16162d] px-1 py-1 rounded-full relative">
+        <div className="flex items-center justify-center bg-[#16162d] px-1 rounded-full relative h-12">
             {account && (
-                <div className="text-[#e5e4fa] text-sm font-semibold ml-2 mr-4">
+                <div className="text-textPrimary text-sm font-semibold ml-2 mr-4">
                     <div>{`${balance} ETH`}</div>
                 </div>
             )}
             <button
-                className="bg-[#3e3e52] hover:bg-[#555571] rounded-full text-[#e5e4fa] font-semibold 
+                className="bg-[#3e3e52] hover:bg-[#555571] rounded-full text-textPrimary font-semibold 
                             text-sm py-2 px-4 transition duration-400 ease-in-out transform
                             focus:outline-none focus:ring-0"
                 onClick={account ? openModal : connect}
@@ -82,8 +100,9 @@ export const Metamask = () => {
                             <div className="flex flex-col items-start justify-center px-1 py-1">
                                 <p className="text-[#737289] font-bold text-sm mb-3">Account address</p>
                                 <div className="flex flex-row items-center justify-center">
-                                    <p className="text-[#e5e4fa] font-normal text-base">{formatAddressLong(account!)}</p>
-                                    <img src={copyIcon} className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
+                                    <p className="text-textPrimary font-normal text-base">{formatAddressLong(account!)}</p>
+                                    <img src={copyIcon} onClick={() => copyToClipboardDuccessfully(account!)}
+                                        className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
                                 </div>
                             </div>
                         </div>
@@ -96,3 +115,5 @@ export const Metamask = () => {
         </div >
     );
 };
+
+export default ConnectWallet;

@@ -2,7 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { router } from "./router/router";
 import { RouterProvider } from "react-router-dom";import "./index.css";
-import { INFURA_API_KEY } from "../constant";
+import { INFURA_API_KEY } from "./constant";
 import { MetaMaskProvider } from "@metamask/sdk-react";
 
 

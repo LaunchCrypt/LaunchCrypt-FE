@@ -2,11 +2,11 @@ import React from 'react'
 import {
     createBrowserRouter,
 } from "react-router-dom";
-import {Metamask} from "../components/Wallet/Metamask"
+import MainPage from "../pages/MainPage"
 
 export const router = createBrowserRouter([
     {
         path: "/",
-        element: <Metamask/>,
+        element: <MainPage/>,
     },
 ]);
