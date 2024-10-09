@@ -13,7 +13,6 @@ function NetworkButton() {
     const [network, setNetwork] = useState(NETWORK_LIST[0]);
 
     const handleNetworkChange = (newNetwork: any) => {
-        setNetwork(newNetwork);
         updateURLParameter('network', newNetwork.name.toLowerCase());
         setIsOpen(false);
     };
@@ -35,9 +34,13 @@ function NetworkButton() {
                         setNetwork({ name: 'Solana', image: solanaLogo });
                         break;
                     default:
-                        break;
+                        setNetwork({ name: 'Ethereum', image: ethereumLogo });;
                 }
             }
+        }
+        else {
+            // default case (no param in URL)
+            setNetwork({ name: 'Ethereum', image: ethereumLogo });
         }
     }, []);
 
@@ -50,8 +53,8 @@ function NetworkButton() {
                 className="flex flex-row items-center justify-between h-12 px-2 py-2 
                     text-sm font-medium text-white bg-[#14142f] rounded-full"
             >
-                <img src={network.image} alt="Ethereum-icon" className='h-7 w-7 mr-2' />
-                <div className='flex flex-col items-center justify-center mr-2'>
+                <img src={network.image} className='h-7 w-7 mr-2' />
+                <div className='flex flex-col items-start justify-center mr-2'>
                     <span className='text-[#6d6c84] text-xs'>Network</span>
                     <div className="flex items-center">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -76,7 +79,7 @@ function NetworkButton() {
                                 {_network.name}
                             </p>
                             {_network.name === network.name &&
-                               <img src={checkMark} alt='check-mark' className='w-4 h-4 ml-auto'/>
+                                <img src={checkMark} alt='check-mark' className='w-4 h-4 ml-auto' />
                             }
                         </div>)
                     )}
