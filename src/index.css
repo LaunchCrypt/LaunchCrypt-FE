@@ -33,6 +33,12 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-image: url(/assets/images/bg-image.svg);
+  background-position: top center;
+  background-repeat: no-repeat;
+  animation: fade 1s;
+  background-size: cover;
+  overflow: hidden;
 }
 
 h1 {

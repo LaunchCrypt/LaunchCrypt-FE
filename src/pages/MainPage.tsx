@@ -1,19 +1,16 @@
 import React from 'react'
-import ConnectWallet from "../components/Wallet/ConnectWallet"
-import NetworkButton from "../components/navbar/NetworkButton"
-import EllipsisButton from '../components/navbar/EllipsisButton'
-import BellButton from '../components/navbar/BellButton'
-import UserIcon from "../components/UserIcon"
 import NavbarLeft from '../components/navbar/NavbarLeft'
+import NavbarRight from '../components/navbar/NavbarRight'
+import Navbar from '../components/navbar/Navbar'
+import '../App.css'
+import IntellectualProperty from '../components/common/IntellectualProperty'
+import PairBanner from '../components/PairBanner/PairBanner'
 function MainPage() {
   return (
-    <div className='flex flex-row w-full'>
-        <NavbarLeft/>
-        <BellButton />
-        <ConnectWallet />
-        <NetworkButton />
-        <EllipsisButton />
-        <UserIcon />
+    <div className='flex flex-col align-middle w-full h-full items-center'>
+      <Navbar/>
+      <IntellectualProperty/>
+      <PairBanner/>
     </div>
   )
 }

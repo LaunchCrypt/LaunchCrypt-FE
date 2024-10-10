@@ -51,7 +51,7 @@ function NetworkButton() {
                     setIsOpen(!isOpen)
                 }}
                 className="flex flex-row items-center justify-between h-12 px-2 py-2 
-                    text-sm font-medium text-white bg-[#14142f] rounded-full"
+                    text-sm font-medium text-white bg-[#14142f] rounded-full w-max"
             >
                 <img src={network.image} className='h-7 w-7 mr-2' />
                 <div className='flex flex-col items-start justify-center mr-2'>

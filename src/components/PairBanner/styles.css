@@ -1,0 +1,32 @@
+.each-slide {
+    height: 84px;
+    width: 406px;
+    border-radius: 10px;
+    background: rgba(171, 174, 255, .1294117647);
+    background-image: url('assets/images/purple-background-gradient.svg');
+    align-items: center;
+    justify-content: space-around;
+    position: relative;
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+    overflow: clip;
+    display: flex;
+    align-items: center;
+}
+
+.react-slideshow-container {
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.text-gradient {
+    background: #9335CF;
+    background: linear-gradient(to right, #9335CF 0%, #CF2DBD 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.default-nav{
+    display: none !important;
+}

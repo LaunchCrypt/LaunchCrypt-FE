@@ -1,0 +1,11 @@
+.nav-button-partition::before{
+    position: absolute;
+    top: 8px;
+    left: -8px;
+    display: block;
+    width: 0;
+    height: 24px;
+    border-right: 1px solid #494954;
+    border-radius: 8px;
+    content: "";
+}
