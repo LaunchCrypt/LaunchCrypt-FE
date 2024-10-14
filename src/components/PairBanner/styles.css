@@ -4,6 +4,7 @@
     border-radius: 10px;
     background: rgba(171, 174, 255, .1294117647);
     background-image: url('assets/images/purple-background-gradient.svg');
+    background-position: top center;
     align-items: center;
     justify-content: space-around;
     position: relative;
