@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { NETWORK_LIST } from '../constant';
 
 export const formatAddress = (address: string) => {
     if (!address) return '';
@@ -34,3 +35,14 @@ export const updateURLParameter = (param: string, value: string) => {
     window.location.href = url.toString();
     window.history.pushState({}, '', url.toString());
 };
+
+
+export const get_network = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const networkParam = urlParams.get('network');
+    if (networkParam) {
+        const foundNetwork = NETWORK_LIST.find(net => net.name.toLowerCase() === networkParam);
+        return foundNetwork;
+    }
+    return NETWORK_LIST[0];
+}

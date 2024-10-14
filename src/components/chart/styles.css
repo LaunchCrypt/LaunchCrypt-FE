@@ -1,3 +1,21 @@
 .recharts-dot{
     display: none;
 }
+
+.recharts-cartesian-axis-tick-line{
+    display: none;
+}
+
+.recharts-cartesian-axis-line{
+    display: none;
+}
+
+.recharts-cartesian-axis-tick{
+    fill:"#696980" !important;
+    margin-left: 20px;
+}
+
+.recharts-curve.recharts-tooltip-cursor{
+    stroke: #414150;
+    stroke-width: 1.5px;
+}

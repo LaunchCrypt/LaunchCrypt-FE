@@ -17,7 +17,7 @@ const images = [
 function PairBanner() {
   return (
     <div className='h-[84px] w-[406px] mt-6'>
-      <Fade cssClass='overflow-visible' duration={3000}>
+      <Fade duration={3000}>
         <div className="each-slide">
           <div className='flex flex-row align-middle items-center justify-center'>
             <div className='flex flex-row align-middle items-center justify-center mr-4 -translate-x-6'>
