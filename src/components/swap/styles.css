@@ -1,0 +1,7 @@
+.swap-container{
+    box-shadow: #00000003 0 0 1px, #0000000a 0 4px 8px, #0000000a 0 16px 24px, #00000003 0 24px 32px;
+}
+
+.swap-slot{
+    box-shadow: #00000014 0 6px 10px;
+}

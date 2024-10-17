@@ -5,24 +5,8 @@ import Navbar from '../components/navbar/Navbar'
 import IntellectualProperty from '../components/common/IntellectualProperty'
 import PairBanner from '../components/PairBanner/PairBanner'
 import TokenPriceHistoryChart from '../components/chart/TokenPriceHistoryChart'
-
 import '../App.css'
-
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:3000');
-
-socket.on('connect', () => {
-  console.log('Connected to WebSocket server');
-});
-
-socket.on('btcPrice', (data) => {
-  console.log('BTC Price:', data.price, 'Time:', new Date(data.time));
-});
-
-socket.on('disconnect', () => {
-  console.log('Disconnected from WebSocket server');
-});
+import Swap from '../components/swap/Swap'
 
 function MainPage() {
   return (
@@ -31,6 +15,7 @@ function MainPage() {
       <IntellectualProperty/>
       <PairBanner/>
       <TokenPriceHistoryChart/>
+      <Swap/>
     </div>
   )
 }

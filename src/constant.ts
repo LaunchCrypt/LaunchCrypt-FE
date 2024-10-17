@@ -6,3 +6,5 @@ export const NETWORK_LIST: Inetwork[] = [
     { name: "Solana", symbol: "SOL", image: "Solana-logo.svg" },
     { name: "Aptos", symbol: "APT", image: "Aptos-logo.svg" },
 ]
+
+export const BACKEND_URL = "http://localhost:3000"

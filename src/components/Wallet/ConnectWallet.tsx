@@ -6,6 +6,8 @@ import GradientButton from "../common/GradientButton";
 import Swal from 'sweetalert2'
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
 import copyIcon from "../../../assets/icons/copy.svg";
+import { updateUserBalance } from "../../redux/slice/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 
 function ConnectWallet() {
@@ -13,6 +15,7 @@ function ConnectWallet() {
     const [account, setAccount] = useState<string>();
     const [balance, setBalance] = useState<string>("0");
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const dispatch = useDispatch()
     const { sdk, connected, connecting, provider, chainId } = useSDK();
 
     const connect = async () => {
@@ -26,8 +29,8 @@ function ConnectWallet() {
             setAccount(accounts?.[0]);
             getETHBalance(accounts?.[0]).then((userBalance) => {
                 setBalance(formatBalance(userBalance));
+                dispatch(updateUserBalance(userBalance));
             });
-
         } catch (err) {
             console.warn("failed to connect..", err);
         }

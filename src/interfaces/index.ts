@@ -9,3 +9,10 @@ export interface ItimeConfig {
     limit: number;
     type: 'dayMonth' | 'time';
 }
+
+export interface Itoken {
+    name: string;
+    symbol: string;
+    address: string;
+    image: string;
+}
