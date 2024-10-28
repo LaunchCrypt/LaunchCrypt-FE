@@ -1,0 +1,20 @@
+@keyframes smoothFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    25% {
+        transform: translateY(-4px);
+    }
+
+    75% {
+        transform: translateY(4px);
+    }
+}
+
+.animate-smooth-float:hover {
+    animation: smoothFloat 3s infinite;
+    animation-delay: 0;
+}

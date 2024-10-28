@@ -5,3 +5,7 @@
 .swap-slot{
     box-shadow: #00000014 0 6px 10px;
 }
+
+.btn-bg-image{
+    background-image: linear-gradient(90deg, #6e42ca 0%, #8d29c1 100%);
+}
