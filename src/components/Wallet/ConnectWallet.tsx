@@ -7,7 +7,7 @@ import Swal from 'sweetalert2'
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
 import copyIcon from "../../../assets/icons/copy.svg";
 import { updateUserBalance } from "../../redux/slice/userSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 
 function ConnectWallet() {
@@ -16,7 +16,7 @@ function ConnectWallet() {
     const [balance, setBalance] = useState<string>("0");
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const dispatch = useDispatch()
-    const { sdk, connected, connecting, provider, chainId } = useSDK();
+    const { provider } = useSDK();
 
     const connect = async () => {
         try {

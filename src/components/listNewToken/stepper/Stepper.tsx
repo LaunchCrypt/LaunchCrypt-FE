@@ -14,7 +14,7 @@ function Stepper({ steps, currentStep }: { steps: string[], currentStep: number 
             if (count == stepNumber) {
                 newSteps[count] = {
                     ...newSteps[count],
-                    Highlight: true,
+                    highlighted: true,
                     selected: true,
                     completed: true
                 }
@@ -24,7 +24,7 @@ function Stepper({ steps, currentStep }: { steps: string[], currentStep: number 
             else if (count < stepNumber) {
                 newSteps[count] = {
                     ...newSteps[count],
-                    Highlight: false,
+                    highlighted: false,
                     selected: true,
                     completed: true
                 }
@@ -34,7 +34,7 @@ function Stepper({ steps, currentStep }: { steps: string[], currentStep: number 
             else {
                 newSteps[count] = {
                     ...newSteps[count],
-                    Highlight: false,
+                    highlighted: false,
                     selected: false,
                     completed: false
                 }
@@ -55,7 +55,7 @@ function Stepper({ steps, currentStep }: { steps: string[], currentStep: number 
 
         stepRef.current = stepsState
         const current = updateStep(currentStep - 1, stepRef.current)
-        setNewStep(current)
+        setNewStep(current as any)
     }, [steps, currentStep])
 
     const displaySteps = newStep.map((step, index) => {

@@ -46,3 +46,9 @@ export const get_network = () => {
     }
     return NETWORK_LIST[0];
 }
+
+export const truncateText = (text: string, maxLength: number = 100) => {
+    if (!text) return "Not provided";
+    if (text.length <= maxLength) return text;
+    return `${text.substring(0, maxLength)}...`;
+  };

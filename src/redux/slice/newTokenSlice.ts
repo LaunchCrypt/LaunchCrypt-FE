@@ -5,17 +5,15 @@ export const newTokenSlice = createSlice({
     initialState: {
         name: "",
         symbol: "",
-        image:"",
+        image: File,
         description: "",
-        fee:0,
+        fee: 0,
         totalSupply: 1000000000,
-        website: "",
-        social: [],
-        whitepaper: "",
+        socialLinks: {website: "", twitter: "", telegram: "", discord: "", medium: ""},
     },
     reducers: {
         changeNewTokenData: (state, action) => {
-            state = action.payload;
+            return { ...state, ...action.payload };
         },
     },
 })

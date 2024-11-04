@@ -5,7 +5,6 @@ import TokenInformation from './steps/TokenInformation'
 import Tokenomics from './steps/Tokenomics'
 import LinkingSocials from './steps/LinkingSocials'
 import Final from './steps/Final'
-import { Rocket, Sparkles } from 'lucide-react'
 function NewTokenForm() {
     const [currentStep, setCurrentStep] = useState(0)
 
@@ -35,6 +34,9 @@ function NewTokenForm() {
         let newStep = currentStep;
         direction === 'next' ? newStep++ : newStep--;
         // check out of bounds
+        if (currentStep === steps.length - 1) {
+            
+        }
         newStep >= 0 && newStep <= steps.length && setCurrentStep(newStep)
     }
     return (
@@ -56,7 +58,7 @@ function NewTokenForm() {
                     </div>
                 </div>
                 <Stepper steps={steps} currentStep={currentStep} />
-                <div>
+                <div className='mt-12'>
                     {displaySteps(currentStep)}
                 </div>
             </div>

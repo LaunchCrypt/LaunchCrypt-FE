@@ -16,3 +16,11 @@ export interface Itoken {
     address: string;
     image: string;
 }
+
+export interface SocialLinks {
+    website: string;
+    twitter: string;
+    telegram: string;
+    discord: string;
+    medium: string;
+}

@@ -1,7 +1,35 @@
-import React from 'react'
-import { Upload, ChevronRight, Info } from 'lucide-react';
+import React, { useEffect, useState } from 'react'
+import { Upload, Info } from 'lucide-react';
+import { useDispatch } from "react-redux";
+import { useSelector } from 'react-redux';
+import { changeNewTokenData } from '../../../redux/slice/newTokenSlice';
 
 function TokenInformation() {
+  const dispatch = useDispatch();
+  const newTokenData = useSelector((state: any) => state.newToken);
+  const [tokenName, setTokenName] = useState("");
+  const [tokenSymbol, setTokenSymbol] = useState("");
+  const [description, setDescription] = useState("");
+  const [tokenImage, setTokenImage] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setTokenImage(e.target.files[0]);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      // This function runs when the component is unmounted
+      dispatch(changeNewTokenData({
+        ...newTokenData,
+        name: tokenName,
+        symbol: tokenSymbol,
+        description: description,
+        image: tokenImage,
+      }));
+    };
+  }, [tokenName, tokenSymbol, description, tokenImage]);
   return (
     <div className="bg-slate-800 rounded-xl p-6 shadow-xl mt-6">
       <div className="space-y-6">
@@ -15,6 +43,9 @@ function TokenInformation() {
             <input
               type="text"
               name="tokenName"
+              value={tokenName}
+              required
+              onChange={(e) => setTokenName(e.target.value)}
               placeholder="eg: Bitcoin"
               className="w-full px-4 py-3 bg-slate-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-400 focus:outline-none transition-all"
             />
@@ -31,6 +62,9 @@ function TokenInformation() {
             <input
               type="text"
               name="tokenSymbol"
+              value={tokenSymbol}
+              required
+              onChange={(e) => setTokenSymbol(e.target.value)}
               placeholder="eg: BTC"
               className="w-full px-4 py-3 bg-slate-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-400 focus:outline-none transition-all"
             />
@@ -45,6 +79,9 @@ function TokenInformation() {
           </label>
           <textarea
             name="description"
+            value={description}
+            required
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="eg: my token is the future"
             className="w-full px-4 py-3 bg-slate-700 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-purple-400 focus:outline-none transition-all"
           />
@@ -61,6 +98,9 @@ function TokenInformation() {
               <Upload className="w-8 h-8 text-gray-400 mb-2" />
               <input
                 type="file"
+                name="tokenImage"
+                required
+                onChange={handleFileChange}
                 className="opacity-0 absolute w-full h-full cursor-pointer"
                 accept="image/*"
               />

@@ -3,7 +3,7 @@ import React from 'react'
 
 function StepperControl({ handleClick, currentStep, steps }: { handleClick: any, currentStep: number, steps: string[] }) {
   return (
-    <div className='container flex justify-around mt-4 mb-8'>
+    <div className='container flex justify-around mt-4'>
       <button
         onClick={() => handleClick('back')}
         className={`px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-all
