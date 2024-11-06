@@ -79,47 +79,47 @@ function NewTokenForm() {
                 return;
             }
             const network = get_network()
-            // switch (network) {
-            //     case NETWORK_LIST[0]:
-            //         //TODO: change back to ETH_RPC_URL 
-            //         const fujiProvider = new ethers.providers.JsonRpcProvider(FUJI_RPC_URL)
+            switch (network) {
+                case NETWORK_LIST[0]:
+                    //TODO: change back to ETH_RPC_URL 
+                    const fujiProvider = new ethers.providers.JsonRpcProvider(FUJI_RPC_URL)
 
-            //         const abiCoder = new ethers.utils.Interface([
-            //             "function createToken(string memory name, string memory ticker, uint256 maxSupply)"
-            //         ]);
+                    const abiCoder = new ethers.utils.Interface([
+                        "function createToken(string memory name, string memory ticker, uint256 maxSupply)"
+                    ]);
 
-            //         const encodedData = abiCoder.encodeFunctionData("createToken", [
-            //             "Your Token Name",
-            //             "TKN",
-            //             ethers.utils.parseUnits("1000000000", 18)
-            //         ]);
+                    const encodedData = abiCoder.encodeFunctionData("createToken", [
+                        "Your Token Name",
+                        "TKN",
+                        ethers.utils.parseUnits("1000000000", 18)
+                    ]);
 
 
-            //         const fee = await estimateFee(fujiProvider, FACTORY_CONTRACT_ADDRESS, encodedData)
-            //         const finalFee = CREATE_TOKEN_FEE * parseFloat(fee)
+                    const fee = await estimateFee(fujiProvider, FACTORY_CONTRACT_ADDRESS, encodedData)
+                    const finalFee = CREATE_TOKEN_FEE * parseFloat(fee)
 
-            //         provider?.request({
-            //             method: 'eth_sendTransaction',
-            //             params: [
-            //                 {
-            //                     from: userAddress,
-            //                     to: ADMIN_ADDRESS,
-            //                     value: ethers.utils.parseEther(finalFee.toString()).toHexString()
-            //                 },
-            //             ],
-            //         })
-            //             .then((txHash) => console.log(txHash))
-            //             .catch((error) => console.error(error));
+                    provider?.request({
+                        method: 'eth_sendTransaction',
+                        params: [
+                            {
+                                from: userAddress,
+                                to: ADMIN_ADDRESS,
+                                value: ethers.utils.parseEther(finalFee.toString()).toHexString()
+                            },
+                        ],
+                    })
+                        .then((txHash) => console.log(txHash))
+                        .catch((error) => console.error(error));
 
-            //     case NETWORK_LIST[1]:
-            //         break;
-            //     case NETWORK_LIST[2]:
-            //         break;
-            //     case NETWORK_LIST[3]:
-            //         break;
-            //     default:
-            //         break;
-            // }
+                case NETWORK_LIST[1]:
+                    break;
+                case NETWORK_LIST[2]:
+                    break;
+                case NETWORK_LIST[3]:
+                    break;
+                default:
+                    break;
+            }
         }
 
         newStep >= 0 && newStep <= steps.length && setCurrentStep(newStep)
