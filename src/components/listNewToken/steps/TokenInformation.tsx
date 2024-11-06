@@ -7,9 +7,9 @@ import { changeNewTokenData } from '../../../redux/slice/newTokenSlice';
 function TokenInformation() {
   const dispatch = useDispatch();
   const newTokenData = useSelector((state: any) => state.newToken);
-  const [tokenName, setTokenName] = useState("");
-  const [tokenSymbol, setTokenSymbol] = useState("");
-  const [description, setDescription] = useState("");
+  const [tokenName, setTokenName] = useState(newTokenData.name);
+  const [tokenSymbol, setTokenSymbol] = useState(newTokenData.symbol);
+  const [description, setDescription] = useState(newTokenData.description);
   const [tokenImage, setTokenImage] = useState<File | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

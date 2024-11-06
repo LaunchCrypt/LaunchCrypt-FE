@@ -9,11 +9,11 @@ function LinkingSocials() {
   const dispatch = useDispatch();
   const newTokenData = useSelector((state: any) => state.newToken);
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({
-    website: '',
-    twitter: '',
-    telegram: '',
-    discord: '',
-    medium: ''
+    website: newTokenData.socialLinks.website,
+    twitter: newTokenData.socialLinks.twitter,
+    telegram: newTokenData.socialLinks.telegram,
+    discord: newTokenData.socialLinks.discord,
+    medium: newTokenData.socialLinks.medium
   });
 
   const handleChange = (platform: keyof SocialLinks, value: string) => {

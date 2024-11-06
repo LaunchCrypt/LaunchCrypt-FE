@@ -6,8 +6,8 @@ import { changeNewTokenData } from '../../../redux/slice/newTokenSlice';
 function Tokenomics() {
   const dispatch = useDispatch();
   const newTokenData = useSelector((state: any) => state.newToken);
-  const [tokenFee, setTokenFee] = useState('0');
-  const [totalSupply, setTotalSupply] = useState('1000000000');
+  const [tokenFee, setTokenFee] = useState(newTokenData.fee.toString() || '0');
+  const [totalSupply, setTotalSupply] = useState(newTokenData.totalSupply.toString() || '1000000000');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, type: "fee" | "supply") => {
     const value = e.target.value;

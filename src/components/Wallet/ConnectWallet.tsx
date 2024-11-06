@@ -6,7 +6,7 @@ import GradientButton from "../common/GradientButton";
 import Swal from 'sweetalert2'
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
 import copyIcon from "../../../assets/icons/copy.svg";
-import { updateUserBalance } from "../../redux/slice/userSlice";
+import { updateUserAddress, updateUserBalance } from "../../redux/slice/userSlice";
 import { useDispatch } from "react-redux";
 
 
@@ -30,6 +30,7 @@ function ConnectWallet() {
             getETHBalance(accounts?.[0]).then((userBalance) => {
                 setBalance(formatBalance(userBalance));
                 dispatch(updateUserBalance(userBalance));
+                dispatch(updateUserAddress(accounts?.[0]));
             });
         } catch (err) {
             console.warn("failed to connect..", err);

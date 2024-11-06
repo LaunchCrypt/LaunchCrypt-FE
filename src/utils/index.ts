@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { NETWORK_LIST } from '../constant';
 
 export const formatAddress = (address: string) => {
@@ -52,3 +52,19 @@ export const truncateText = (text: string, maxLength: number = 100) => {
     if (text.length <= maxLength) return text;
     return `${text.substring(0, maxLength)}...`;
   };
+
+
+export const estimateFee = async (provider:any, contractAddress: string, encodedData: string) => {
+    const gasEstimate = await provider.estimateGas({
+        to: contractAddress,
+        data: encodedData
+    });
+
+    const gasPrice = await provider.getGasPrice();
+    console.log(gasPrice.toString());
+
+    const gasCostInWei = gasEstimate.mul(gasPrice);
+
+    // Convert gas cost to Ether
+    return ethers.utils.formatEther(gasCostInWei);
+}
