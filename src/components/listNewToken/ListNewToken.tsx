@@ -14,7 +14,7 @@ function ListNewToken() {
                 <img src={listNewToken} className='animate-smooth-float w-12 h-12 transition-transform bg-[%6e42ca]' />
             </div>
 
-            <Modal isVisible={isModalVisible} onClose={()=>setIsModalVisible(false)} children={<NewTokenForm/>}/>
+            <Modal isVisible={isModalVisible} onClose={()=>setIsModalVisible(false)} children={<NewTokenForm setCloseModal={()=>setIsModalVisible(false)}/>}/>
         </>
     )
 }

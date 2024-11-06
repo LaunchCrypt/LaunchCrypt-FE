@@ -10,25 +10,26 @@ function TokenInformation() {
   const [tokenName, setTokenName] = useState(newTokenData.name);
   const [tokenSymbol, setTokenSymbol] = useState(newTokenData.symbol);
   const [description, setDescription] = useState(newTokenData.description);
-  const [tokenImage, setTokenImage] = useState<File | null>(null);
+  const [tokenImage, setTokenImage] = useState(newTokenData.image);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setTokenImage(e.target.files[0]);
+      const imageUrl = URL.createObjectURL(e.target.files[0]);
+      console.log(imageUrl);
+      setTokenImage(imageUrl);
+      console.log(e.target.files[0]);
     }
   };
 
   useEffect(() => {
-    return () => {
       // This function runs when the component is unmounted
       dispatch(changeNewTokenData({
         ...newTokenData,
         name: tokenName,
         symbol: tokenSymbol,
-        description: description,
         image: tokenImage,
+        description: description,
       }));
-    };
   }, [tokenName, tokenSymbol, description, tokenImage]);
   return (
     <div className="bg-slate-800 rounded-xl p-6 shadow-xl mt-6">
@@ -95,7 +96,7 @@ function TokenInformation() {
           </label>
           <div className="relative">
             <div className="w-full px-4 py-8 bg-slate-700 rounded-lg border-2 border-dashed border-gray-500 flex flex-col items-center justify-center cursor-pointer hover:border-purple-400 transition-all">
-              <Upload className="w-8 h-8 text-gray-400 mb-2" />
+              {!newTokenData.image && <Upload className="w-8 h-8 text-gray-400 mb-2" />}
               <input
                 type="file"
                 name="tokenImage"
@@ -104,9 +105,9 @@ function TokenInformation() {
                 className="opacity-0 absolute w-full h-full cursor-pointer"
                 accept="image/*"
               />
-              <span className="text-gray-400 text-sm">
+              {!newTokenData.image ? <span className="text-gray-400 text-sm">
                 {'No file selected.'}
-              </span>
+              </span> : <img src={newTokenData.image} alt="token" className="object-cover rounded-lg" />}
             </div>
           </div>
         </div>

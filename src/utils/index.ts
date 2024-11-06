@@ -68,3 +68,21 @@ export const estimateFee = async (provider:any, contractAddress: string, encoded
     // Convert gas cost to Ether
     return ethers.utils.formatEther(gasCostInWei);
 }
+
+export async function urlToFile(imageUrl) {
+    try {
+        // Fetch the image
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        
+        // Create file name from URL or use a default name
+        const fileName = imageUrl.split('/').pop() || 'image.jpg';
+        
+        // Create File object
+        const file = new File([blob], fileName, { type: blob.type });
+        return file;
+    } catch (error) {
+        console.error('Error converting URL to File:', error);
+        return null;
+    }
+}

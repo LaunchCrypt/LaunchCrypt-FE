@@ -5,10 +5,10 @@ export const newTokenSlice = createSlice({
     initialState: {
         name: "",
         symbol: "",
-        image: File,
+        image: "",
         description: "",
         fee: 0,
-        totalSupply: 1000000000,
+        totalSupply: "1000000000",
         socialLinks: {website: "", twitter: "", telegram: "", discord: "", medium: ""},
     },
     reducers: {

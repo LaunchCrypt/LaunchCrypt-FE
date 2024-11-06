@@ -18,7 +18,7 @@ function Tokenomics() {
         if (type === 'fee') {
           setTokenFee(value);
         } else {
-          setTotalSupply(value);
+          setTotalSupply(value.toString());
         }
       }
     }
@@ -30,7 +30,7 @@ function Tokenomics() {
       dispatch(changeNewTokenData({
         ...newTokenData,
         tokenFee: parseFloat(tokenFee) || 0,
-        totalSupply: parseFloat(totalSupply) || 1000000000,
+        totalSupply: totalSupply || "1000000000",
       }));
     };
   }, [tokenFee, totalSupply]);

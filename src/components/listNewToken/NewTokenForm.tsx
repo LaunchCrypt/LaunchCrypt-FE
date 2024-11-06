@@ -8,21 +8,27 @@ import Final from './steps/Final'
 import { ethers } from 'ethers'
 import Swal from 'sweetalert2'
 import { useSDK } from "@metamask/sdk-react";
-import { estimateFee, get_network } from '../../utils'
+import { estimateFee, get_network, urlToFile } from '../../utils'
 import Alert from '@mui/material/Alert';
 import { ADMIN_ADDRESS, CREATE_TOKEN_FEE, FACTORY_CONTRACT_ADDRESS, FUJI_RPC_URL, NETWORK_LIST } from '../../constant'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { POST_API } from '../../apis/POST/postApis'
+import { axiosInstance } from '../../apis/api'
+import Loading from '../common/Loading'
+import { changeNewTokenData } from '../../redux/slice/newTokenSlice'
 
-function NewTokenForm() {
+function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
     const [currentStep, setCurrentStep] = useState(0)
     const { provider } = useSDK()
     const userAddress = useSelector((state: any) => state.user.address);
     const newTokenInfo = useSelector((state: any) => state.newToken)
-    const [showAlert, setShowAlert] = useState(false);
+    const dispatch = useDispatch();
+    const [loading, setLoading] = useState(false)
 
     const validateFields = () => {
         const emptyFields = Object.entries(newTokenInfo)
             .filter(([_, value]) => {
+                console.log(value)
                 // Handle various empty cases
                 if (value === null || value === undefined) return true;
                 if (typeof value === 'string' && value.trim() === '') return true;
@@ -53,8 +59,6 @@ function NewTokenForm() {
                 return <LinkingSocials />
             case 3:
                 return <Final />
-            default:
-                return <TokenInformation />
         }
     }
 
@@ -69,8 +73,6 @@ function NewTokenForm() {
                     customClass: {
                         popup: 'rounded-lg shadow-xl',
                         title: 'text-gray-800 font-medium text-xl mb-2',
-                        // content: 'text-gray-600',
-                        // confirmButton: 'bg-[#6c5dd3] hover:bg-[#7b6ae0] text-white px-8 py-2 rounded-lg text-sm font-medium transition-colors',
                     },
                     title: 'Error!',
                     text: `Please fill in the following fields: ${emptyFields.join(', ')}`,
@@ -82,6 +84,8 @@ function NewTokenForm() {
             switch (network) {
                 case NETWORK_LIST[0]:
                     //TODO: change back to ETH_RPC_URL 
+
+                    // Estimate fee to create new token
                     const fujiProvider = new ethers.providers.JsonRpcProvider(FUJI_RPC_URL)
 
                     const abiCoder = new ethers.utils.Interface([
@@ -98,7 +102,7 @@ function NewTokenForm() {
                     const fee = await estimateFee(fujiProvider, FACTORY_CONTRACT_ADDRESS, encodedData)
                     const finalFee = CREATE_TOKEN_FEE * parseFloat(fee)
 
-                    provider?.request({
+                    await provider?.request({
                         method: 'eth_sendTransaction',
                         params: [
                             {
@@ -108,7 +112,52 @@ function NewTokenForm() {
                             },
                         ],
                     })
-                        .then((txHash) => console.log(txHash))
+                        .then(async (txHash) => {
+                            setLoading(true)
+                            console.log(txHash)
+                            const data = {
+                                ...newTokenInfo,
+                                image: await urlToFile(newTokenInfo.image),
+                                totalSupply: ethers.utils.parseUnits(newTokenInfo.totalSupply).toString(),
+                            }
+                            try {
+                                const response = await axiosInstance.post(POST_API.CREATE_NEW_TOKEN(), data)
+                                console.log(response)
+                                Swal.fire({
+                                    customClass: {
+                                        popup: 'rounded-lg shadow-xl',
+                                        title: 'text-gray-800 font-medium text-xl mb-2',
+                                        confirmButton: 'bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600',
+                                        actions: 'space-x-2',  // Add spacing between buttons
+                                    },
+                                    text: 'Your token has been created successfully',
+                                    icon: 'success',
+                                    iconColor: '#a855f7', // Purple-500 color
+                                    background: '#1a1a2e',
+                                    showConfirmButton: true,
+                                    confirmButtonText: 'OK',
+                                    showCloseButton: true,
+                                    html: `
+                                        <p class="mb-4 text-purple-200/80">Your token has been created successfully</p>
+                                        <a href="https://testnet.snowtrace.io/address/${response.data}" 
+                                           target="_blank" 
+                                           class="inline-flex items-center text-purple-500 hover:text-purple-600">
+                                            <span>View on Snowtrace</span>
+                                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                            </svg>
+                                        </a>
+                                    `
+                                });
+                                setCloseModal()
+                                dispatch(changeNewTokenData({}))
+                                setLoading(false)
+                            }
+                            catch (error) {
+                                console.log('Error:', error);
+                            }
+                        })
                         .catch((error) => console.error(error));
 
                 case NETWORK_LIST[1]:
@@ -125,35 +174,38 @@ function NewTokenForm() {
         newStep >= 0 && newStep <= steps.length && setCurrentStep(newStep)
     }
     return (
-        <div className='mx-auto shadow-xl rounded-2xl pb-2 w-[50vw] overflow-y-auto overflow-x-hidden'>
-            <div className="max-w-4xl mx-auto">
-                <div className="text-center mb-4 relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-purple-400/10 to-purple-500/10 blur-3xl -z-10" />
+        <>
+            {loading && <Loading />}
+            <div className='mx-auto shadow-xl rounded-2xl pb-2 w-[50vw] overflow-y-auto overflow-x-hidden'>
+                <div className="max-w-4xl mx-auto">
+                    <div className="text-center mb-4 relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-purple-400/10 to-purple-500/10 blur-3xl -z-10" />
 
-                    {/* Main Title Container */}
-                    <div className="relative">
-                        <div className="space-y-6">
-                            {/* Main Heading */}
-                            <div className="flex items-center justify-center space-x-4">
-                                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
-                                    Launch your own token
-                                </h1>
+                        {/* Main Title Container */}
+                        <div className="relative">
+                            <div className="space-y-6">
+                                {/* Main Heading */}
+                                <div className="flex items-center justify-center space-x-4">
+                                    <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-white bg-clip-text text-transparent">
+                                        Launch your own token
+                                    </h1>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <Stepper steps={steps} currentStep={currentStep} />
+                    <div className='mt-12'>
+                        {displaySteps(currentStep)}
+                    </div>
                 </div>
-                <Stepper steps={steps} currentStep={currentStep} />
-                <div className='mt-12'>
-                    {displaySteps(currentStep)}
-                </div>
-            </div>
 
-            <StepperControl
-                handleClick={handleClick}
-                currentStep={currentStep}
-                steps={steps}
-            />
-        </div>
+                <StepperControl
+                    handleClick={handleClick}
+                    currentStep={currentStep}
+                    steps={steps}
+                />
+            </div>
+        </>
     )
 }
 
