@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { NETWORK_LIST } from '../constant';
+import { FUJI_CHAIN_ID, NETWORK_LIST } from '../constant';
 
 export const formatAddress = (address: string) => {
     if (!address) return '';
@@ -84,5 +84,40 @@ export async function urlToFile(imageUrl) {
     } catch (error) {
         console.error('Error converting URL to File:', error);
         return null;
+    }
+}
+
+export const checkFujiNetwork = async () => {
+    const currentChainId = await window.ethereum?.request({ method: 'eth_chainId' });
+    if (currentChainId !== FUJI_CHAIN_ID) {
+        try {
+            await window.ethereum?.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: FUJI_CHAIN_ID }],
+            });
+        } catch (err) {
+            if (err.code === 4902) {
+                await window.ethereum?.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [
+                        {
+                            chainId: FUJI_CHAIN_ID,
+                            chainName: 'Avalanche Fuji Testnet',
+                            nativeCurrency: {
+                                name: 'AVAX',
+                                symbol: 'AVAX',
+                                decimals: 18,
+                            },
+                            rpcUrls: ['https://api.avax-test.network/ext/bc/C/rpc'],
+                            blockExplorerUrls: ['https://testnet.snowtrace.io/'],
+                        },
+                    ],
+                });
+                await window.ethereum?.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: FUJI_CHAIN_ID }],
+                });
+            }
+        }
     }
 }

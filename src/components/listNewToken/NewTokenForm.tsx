@@ -9,13 +9,12 @@ import { ethers } from 'ethers'
 import Swal from 'sweetalert2'
 import { useSDK } from "@metamask/sdk-react";
 import { estimateFee, get_network, urlToFile } from '../../utils'
-import Alert from '@mui/material/Alert';
 import { ADMIN_ADDRESS, CREATE_TOKEN_FEE, FACTORY_CONTRACT_ADDRESS, FUJI_RPC_URL, NETWORK_LIST } from '../../constant'
 import { useDispatch, useSelector } from 'react-redux'
 import { POST_API } from '../../apis/POST/postApis'
 import { axiosInstance } from '../../apis/api'
 import Loading from '../common/Loading'
-import { changeNewTokenData } from '../../redux/slice/newTokenSlice'
+import { resetNewTokenData } from '../../redux/slice/newTokenSlice'
 
 function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
     const [currentStep, setCurrentStep] = useState(0)
@@ -151,7 +150,7 @@ function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
                                     `
                                 });
                                 setCloseModal()
-                                dispatch(changeNewTokenData({}))
+                                dispatch(resetNewTokenData())
                                 setLoading(false)
                             }
                             catch (error) {

@@ -37,7 +37,7 @@ const Modal: React.FC<ModalProps> = ({ isVisible, onClose, children }) => {
                 <div className="flex justify-end p-2">
                     <button 
                         onClick={onClose} 
-                        className="text-gray-400 hover:text-white text-3xl absolute right-6"
+                        className="text-gray-400 hover:text-white text-3xl absolute right-6 z-40"
                     >
                         &times;
                     </button>

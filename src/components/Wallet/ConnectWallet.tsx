@@ -1,13 +1,13 @@
 import { useSDK } from "@metamask/sdk-react";
-import { formatAddress, formatBalance, formatAddressLong, getETHBalance, copyToClipboard } from "../../utils/index";
+import { formatAddress, formatBalance, formatAddressLong, getETHBalance, copyToClipboard, checkFujiNetwork } from "../../utils/index";
 import React, { useState } from "react";
 import Modal from "../Modal/Modal"
 import GradientButton from "../common/GradientButton";
 import Swal from 'sweetalert2'
 import metamaskIcon from "../../../assets/icons/MetaMask_Fox.svg";
 import copyIcon from "../../../assets/icons/copy.svg";
-import { updateUserAddress, updateUserBalance } from "../../redux/slice/userSlice";
-import { useDispatch } from "react-redux";
+import { resetUser, updateUserAddress, updateUserBalance } from "../../redux/slice/userSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 
 function ConnectWallet() {
@@ -15,10 +15,14 @@ function ConnectWallet() {
     const [account, setAccount] = useState<string>();
     const [balance, setBalance] = useState<string>("0");
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const userAddress = useSelector((state: any) => state.user.address);
     const dispatch = useDispatch()
     const { provider } = useSDK();
 
     const connect = async () => {
+
+        await checkFujiNetwork()
+        
         try {
             const accounts = await window.ethereum?.request({ method: 'eth_requestAccounts' });
             await provider?.request({
@@ -46,8 +50,7 @@ function ConnectWallet() {
                 },
             ],
         })
-        setAccount(undefined);
-        setBalance("0");
+        dispatch(resetUser())
         setIsModalVisible(false);
     }
 
@@ -78,7 +81,7 @@ function ConnectWallet() {
 
     return (
         <div className="flex items-center justify-center bg-[#16162d] px-1 rounded-full relative h-12">
-            {account && (
+            {userAddress != '' && (
                 <div className="text-textPrimary text-sm font-semibold ml-2 mr-4">
                     <div>{`${balance} ETH`}</div>
                 </div>
@@ -87,10 +90,10 @@ function ConnectWallet() {
                 className="bg-[#3e3e52] hover:bg-[#555571] rounded-full text-textPrimary font-semibold 
                             text-sm py-2 px-4 transition duration-400 ease-in-out transform
                             focus:outline-none focus:ring-0"
-                onClick={account ? openModal : connect}
+                onClick={userAddress != '' ? openModal : connect}
             >
-                {account ? <div className="flex items-center justify-around w-full">
-                    {formatAddress(account)}
+                {userAddress != '' ? <div className="flex items-center justify-around w-full">
+                    {formatAddress(userAddress)}
                     <img src={metamaskIcon} className="w-5 h-5 bg-inherit inline ml-1" />
                 </div> : <span>Connect Wallet</span>}
 
