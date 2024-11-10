@@ -2,6 +2,7 @@ export interface Inetwork {
     name: string;
     symbol: string;
     image: string;
+    chainId?: number;
 }
 
 export interface ItimeConfig {

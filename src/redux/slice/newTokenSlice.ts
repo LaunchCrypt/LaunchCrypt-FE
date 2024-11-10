@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
     name: "",
     symbol: "",
-    image: "",
+    // image will be load in another place
     description: "",
     fee: 0,
     totalSupply: "1000000000",

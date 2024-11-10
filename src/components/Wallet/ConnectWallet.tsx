@@ -13,9 +13,9 @@ import { useDispatch, useSelector } from "react-redux";
 function ConnectWallet() {
     const msg = "Sign this message to connect your wallet";
     const [account, setAccount] = useState<string>();
-    const [balance, setBalance] = useState<string>("0");
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const userAddress = useSelector((state: any) => state.user.address);
+    const userBalance = useSelector((state: any) => state.user.balance);
     const dispatch = useDispatch()
     const { provider } = useSDK();
 
@@ -32,7 +32,6 @@ function ConnectWallet() {
             console.log("connected..", accounts?.[0]);
             setAccount(accounts?.[0]);
             getETHBalance(accounts?.[0]).then((userBalance) => {
-                setBalance(formatBalance(userBalance));
                 dispatch(updateUserBalance(userBalance));
                 dispatch(updateUserAddress(accounts?.[0]));
             });
@@ -83,7 +82,7 @@ function ConnectWallet() {
         <div className="flex items-center justify-center bg-[#16162d] px-1 rounded-full relative h-12">
             {userAddress != '' && (
                 <div className="text-textPrimary text-sm font-semibold ml-2 mr-4">
-                    <div>{`${balance} ETH`}</div>
+                    <div>{`${formatBalance(userBalance)} ETH`}</div>
                 </div>
             )}
             <button

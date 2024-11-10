@@ -16,13 +16,15 @@ import { axiosInstance } from '../../apis/api'
 import Loading from '../common/Loading'
 import { resetNewTokenData } from '../../redux/slice/newTokenSlice'
 
-function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
+function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
     const [currentStep, setCurrentStep] = useState(0)
     const { provider } = useSDK()
     const userAddress = useSelector((state: any) => state.user.address);
     const newTokenInfo = useSelector((state: any) => state.newToken)
     const dispatch = useDispatch();
     const [loading, setLoading] = useState(false)
+    const [tokenImage, setTokenImage] = useState<File>()
+    
 
     const validateFields = () => {
         const emptyFields = Object.entries(newTokenInfo)
@@ -51,7 +53,7 @@ function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
     const displaySteps = (step) => {
         switch (step) {
             case 0:
-                return <TokenInformation />
+                return <TokenInformation tokenImage={tokenImage as File} setTokenImage={(image)=>setTokenImage(image)}/>
             case 1:
                 return <Tokenomics />
             case 2:
@@ -114,13 +116,35 @@ function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
                         .then(async (txHash) => {
                             setLoading(true)
                             console.log(txHash)
-                            const data = {
-                                ...newTokenInfo,
-                                image: await urlToFile(newTokenInfo.image),
-                                totalSupply: ethers.utils.parseUnits(newTokenInfo.totalSupply).toString(),
+                            const formData = new FormData();
+                            const parsedTotalSupply = ethers.utils.parseUnits(newTokenInfo.totalSupply).toString();
+                            
+                            // Create a data object with all fields except image
+                            const tokenData = {
+                                name: newTokenInfo.name,
+                                symbol: newTokenInfo.symbol,
+                                description: newTokenInfo.description,
+                                fee: newTokenInfo.fee,
+                                socialLinks: newTokenInfo.socialLinks,
+                                tokenFee: newTokenInfo.tokenFee,
+                                chainId: newTokenInfo.chainId,
+                                totalSupply: parsedTotalSupply // Include parsed totalSupply here
+                            };
+
+                            formData.append('data', JSON.stringify(tokenData));
+    
+                            // Append the image separately
+                            if (tokenImage) {
+                                formData.append('image', tokenImage);
                             }
+                            formData.append('totalSupply', ethers.utils.parseUnits(newTokenInfo.totalSupply).toString());
+                            
                             try {
-                                const response = await axiosInstance.post(POST_API.CREATE_NEW_TOKEN(), data)
+                                const response = await axiosInstance.post(POST_API.CREATE_NEW_TOKEN(), formData, {
+                                    headers: {
+                                        'Content-Type': 'multipart/form-data'
+                                    }
+                                })
                                 console.log(response)
                                 Swal.fire({
                                     customClass: {
@@ -151,6 +175,7 @@ function NewTokenForm({setCloseModal}:{setCloseModal:()=>void}) {
                                 });
                                 setCloseModal()
                                 dispatch(resetNewTokenData())
+                                setTokenImage(undefined)
                                 setLoading(false)
                             }
                             catch (error) {
