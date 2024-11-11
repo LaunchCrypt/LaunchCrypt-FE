@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { formatBalance, get_network, getETHBalance } from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useSelector } from 'react-redux'
+import WalletWarning from "../common/WalletWarning"
 import "./styles.css"
 
 import SwapToken from './SwapToken'
+import Modal from '../Modal/Modal'
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -13,7 +15,15 @@ function Swap() {
   const [secondToken, setSecondToken] = useState<Itoken>()
   const [secondValue, setSecondValue] = useState('');
   const [secondTokenValue, setSecondTokenValue] = useState('0');
+  const [isWalletWarningVisible, setIsWalletWarningVisible] = useState(false);
   const initBalance = useSelector((state: any) => state.user.balance);
+  const userAddress = useSelector((state: any) => state.user.address);
+
+  const handleSwap = () => {
+    if (userAddress == '') {
+      setIsWalletWarningVisible(true)
+    }
+  }
 
 
   useEffect(() => {
@@ -39,26 +49,33 @@ function Swap() {
   }
 
   return (
-    <div className='swap-container flex flex-col align-middle items-center justify-center p-2 rounded-3xl bg-[#16162d] mt-5 w-[480px] h-fit gap-2'>
-      <p className='self-start text-xl font-semibold text-textPrimary ml-3 mb-1 mt-1'>Swap</p>
-      <SwapToken value={firstValue}
-        handleChange={handleChangeFirstValue}
-        token={firstToken!} balance={firstTokenValue}
-        setToken={(token) => setFirstToken(token)}
-        setBalance={(balance) => setFirstTokenValue(balance)} />
-      <SwapToken value={secondValue}
-        handleChange={handleChangeSecondValue}
-        token={secondToken!} balance={'0'}
-        setToken={(token) => setSecondToken(token)}
-        setBalance={(balance) => setSecondTokenValue(balance)} />
-      {firstToken == null || secondToken == null ? <button disabled className="btn-bg-image w-full text-white font-medium 
-      py-4 px-6 rounded-2xl transition-colors duration-300 disabled:opacity-50">
-        Select token
-      </button> :
-        <button className="btn-bg-image w-full text-white font-medium py-4 px-6 rounded-2xl transition-colors duration-300">Swap </button>
+    <>
+      {isWalletWarningVisible && <Modal isVisible={isWalletWarningVisible}
+        onClose={() => setIsWalletWarningVisible(false)}
+        children={<WalletWarning closeModal={() => setIsWalletWarningVisible(false)} />} />
       }
-
-    </div>
+      <div className='swap-container flex flex-col align-middle items-center justify-center p-2 rounded-3xl bg-[#16162d] mt-5 w-[480px] h-fit gap-2'>
+        <p className='self-start text-xl font-semibold text-textPrimary ml-3 mb-1 mt-1'>Swap</p>
+        <SwapToken value={firstValue}
+          handleChange={handleChangeFirstValue}
+          token={firstToken!} balance={firstTokenValue}
+          setToken={(token) => setFirstToken(token)}
+          setBalance={(balance) => setFirstTokenValue(balance)} />
+        <SwapToken value={secondValue}
+          handleChange={handleChangeSecondValue}
+          token={secondToken!} balance={'0'}
+          setToken={(token) => setSecondToken(token)}
+          setBalance={(balance) => setSecondTokenValue(balance)} />
+        {firstToken == null || secondToken == null ? <button disabled className="btn-bg-image w-full text-white font-medium 
+      py-4 px-6 rounded-2xl transition-colors duration-300 disabled:opacity-50">
+          Select token
+        </button> :
+          <button
+            onClick={handleSwap}
+            className="btn-bg-image w-full text-white font-medium py-4 px-6 rounded-2xl transition-colors duration-300">Swap </button>
+        }
+      </div>
+    </>
   )
 }
 

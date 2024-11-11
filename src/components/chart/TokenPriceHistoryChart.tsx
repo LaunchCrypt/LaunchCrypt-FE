@@ -89,9 +89,12 @@ function TokenPriceHistoryChart() {
                 {priceDiff > 1 ? `+ ${((priceDiff - 1) * 100).toFixed(2)}%` : `- ${((1 - priceDiff) * 100).toFixed(2)}%`}
             </div>
 
-            <AreaChart width={600} height={340} data={priceData} 
-            margin={{ top: 5, right: 20, bottom: 5, left: 10 }}
-            onMouseLeave={()=>setCurrentPrice(initPrice)}>
+            <AreaChart width={600} height={340} data={priceData}
+                margin={{ top: 5, right: 20, bottom: 5, left: 10 }}
+                onMouseLeave={() => {
+                    setCurrentPrice(initPrice)
+                    setPriceDiff(initPrice / priceData[0].price)
+                }}>
                 <defs>
                     <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#113843" stopOpacity={1} />
