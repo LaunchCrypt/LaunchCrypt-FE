@@ -118,9 +118,10 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                             console.log(txHash)
                             const formData = new FormData();
                             const parsedTotalSupply = ethers.utils.parseUnits(newTokenInfo.totalSupply).toString();
-                            
+                            const creatorAddress = userAddress;
                             // Create a data object with all fields except image
                             const tokenData = {
+                                creator: creatorAddress,
                                 name: newTokenInfo.name,
                                 symbol: newTokenInfo.symbol,
                                 description: newTokenInfo.description,

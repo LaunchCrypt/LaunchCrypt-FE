@@ -14,7 +14,7 @@ export interface ItimeConfig {
 export interface Itoken {
     name: string;
     symbol: string;
-    address: string;
+    address?: string;
     image: string;
 }
 

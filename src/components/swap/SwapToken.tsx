@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import downArrow from '../../../assets/icons/down-arrow.svg'
 import { Itoken } from '../../interfaces';
+import TokenSelector from '../tokenSelector/TokenSelector';
 import './styles.css'
 
 
@@ -8,12 +9,14 @@ const formatNumber = (num: string) => {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-function SwapToken({ value, handleChange, token, balance }: {
+function SwapToken({ value, handleChange, token, setToken, balance }: {
     value: string,
     handleChange: (e) => void,
     token: Itoken | null,
+    setToken:(inputToken)=>void
     balance: string
 }) {
+    const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState(false);
     return (
         <div className='flex flex-col align-middle items-center justify-center'>
             <div className='flex flex-col align-middle justify-center items-center bg-[#31314e] rounded-xl pr-4 
@@ -28,9 +31,10 @@ function SwapToken({ value, handleChange, token, balance }: {
                     />
 
                     {token ?
-                        <button className='swap-slot flex flex-row justify-center items-center align-middle 
-          text-white bg-[#1c1c33] min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
-                            <img src={token?.image} className='w-6 h-6 mr-2' />
+                        <button onClick={() => setIsTokenSelectorOpen(true)}
+                        className='swap-slot flex flex-row justify-center items-center align-middle 
+                        text-white bg-[#1c1c33] min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
+                            <img src={"../../../assets/icons/"+token?.image} className='w-6 h-6 mr-2' />
                             <div className='mr-auto font-medium'>
                                 {token?.symbol}
                             </div>
@@ -38,7 +42,8 @@ function SwapToken({ value, handleChange, token, balance }: {
                         </button> :
                         <button className='swap-slot flex flex-row justify-center items-center align-middle bg-gradient-to-r from-[#327474]
                          to-emerald-400 hover:from-teal-600 hover:to-emerald-500 text-white font-medium transition-all duration-30
-                         min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
+                         min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'
+                            onClick={() => setIsTokenSelectorOpen(true)}>
                             <p className='mr-auto'>Select token</p>
                             <img src={downArrow} className='w-4 h-4 font-medium -translate-y-[2px]' />
                         </button>
@@ -48,6 +53,16 @@ function SwapToken({ value, handleChange, token, balance }: {
                     <p className='text-[#9594aa] text-sm mt-1 mb-2'>Balance: {parseFloat(balance).toFixed(2)}</p>
                 </div>
             </div>
+
+            {/* Token Selector */}
+            <TokenSelector
+                isOpen={isTokenSelectorOpen}
+                onClose={() => setIsTokenSelectorOpen(false)}
+                onSelect={(token) => {
+                    setToken(token);
+                    setIsTokenSelectorOpen(false);
+                }}
+            />
         </div>
     )
 }
