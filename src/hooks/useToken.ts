@@ -11,7 +11,7 @@ interface UseTokensReturn {
   refetch: () => Promise<void>; // Function to manually refetch tokens
 }
 
-const useTokens = (): UseTokensReturn => {
+const useTokens = (searchQuery?:{}): UseTokensReturn => {
   const [tokens, setTokens] = useState<Itoken[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +20,8 @@ const useTokens = (): UseTokensReturn => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axiosInstance.get(GET_API.GET_ALL_TOKENS());
+      const response = await axiosInstance.get(GET_API.GET_ALL_TOKENS(searchQuery));
+      console.log(response)
       setTokens(response.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tokens');
@@ -30,7 +31,6 @@ const useTokens = (): UseTokensReturn => {
     }
   };
 
-  // Initial fetch on mount
   useEffect(() => {
     fetchTokens();
   }, []);
@@ -39,7 +39,7 @@ const useTokens = (): UseTokensReturn => {
     tokens,
     loading,
     error,
-    refetch: fetchTokens // Expose refetch function
+    refetch: fetchTokens
   };
 };
 

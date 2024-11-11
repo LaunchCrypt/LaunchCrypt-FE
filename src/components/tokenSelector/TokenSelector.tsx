@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { Itoken } from "../../interfaces/index"
+import useTokens from "../../hooks/useToken";
+import { base64toUrl } from "../../utils";
 
 function TokenSelector({ isOpen, onClose, onSelect }) {
-  const tokens: Itoken[] = [
-    { symbol: 'ETH', name: 'Ethereum', image: "Ethereum-logo.svg" },
-    { symbol: 'APT', name: 'APT Token', image: "Aptos-logo.svg" },
-    { symbol: 'SOL', name: 'SOL Token', image: "Solana-logo.svg" },
-  ];
+  const [searchQuery, setSearchQuery] = useState({
+    page: 1,
+    limit:20,
+    sortField:"createdAt",
+    sortOrder:'asc'
+  });
+  const { tokens, loading, error, refetch } = useTokens(searchQuery);
 
-  const imgPath = "../../../assets/icons/"
 
   return (
     <>
@@ -65,7 +68,7 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
         <div className="overflow-y-auto h-[calc(100%-180px)] px-2">
           {tokens.map((token) => (
             <button
-              key={token.symbol}
+              key={token.address}
               onClick={() => {
                 onSelect(token);
                 onClose();
@@ -75,11 +78,11 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
                          transition-all duration-200 group"
             >
               <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10
-                            rounded-xl flex items-center justify-center mr-4
+                            rounded-full flex items-center justify-center mr-4 overflow-hidden
                             group-hover:from-purple-500/30 group-hover:to-purple-500/20
                             transition-all duration-200">
                 {token.image ? (
-                  <img src={imgPath+token.image} alt={token.symbol} className="w-8 h-8" />
+                  <img src={base64toUrl((token.image as any).buffer)} alt={token.symbol} className="w-full h-full" />
                 ) : (
                   <span className="text-purple-400 font-bold text-xl">{token.symbol[0]}</span>
                 )}
@@ -89,11 +92,6 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
                   {token.symbol}
                 </div>
                 <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-                  {token.name}
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-gray-400 group-hover:text-purple-300 transition-colors">
                   {token.name}
                 </div>
               </div>

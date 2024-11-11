@@ -15,6 +15,7 @@ function TokenPriceHistoryChart() {
     const [maxPrice, setMaxPrice] = useState<number>(0)
     const [network, setNetwork] = useState<Inetwork>(NETWORK_LIST[0])
     const [currentPrice, setCurrentPrice] = useState<number>(0)
+    const [initPrice, setInitPrice] = useState<number>(0)
     const [priceDiff, setPriceDiff] = useState<number>(0)
     // 0: 1h, 1: 1d, 2: 1w, 3: 6m, 4: 1y
     const [activeIndex, setActiveIndex] = useState<number>(0)
@@ -64,6 +65,7 @@ function TokenPriceHistoryChart() {
             setMaxPrice(parseFloat((tokenPriceData.maxPrice + priceDiff * 20 / 100).toFixed(2)))
             setPriceData(tokenPriceData.price)
             setCurrentPrice(tokenPriceData.price[tokenPriceData.price.length - 1].price)
+            setInitPrice(tokenPriceData.price[tokenPriceData.price.length - 1].price)
             // endPrice / startPrice
             setPriceDiff(tokenPriceData.price[tokenPriceData.price.length - 1].price / tokenPriceData.price[0].price)
         }
@@ -87,7 +89,9 @@ function TokenPriceHistoryChart() {
                 {priceDiff > 1 ? `+ ${((priceDiff - 1) * 100).toFixed(2)}%` : `- ${((1 - priceDiff) * 100).toFixed(2)}%`}
             </div>
 
-            <AreaChart width={600} height={340} data={priceData} margin={{ top: 5, right: 20, bottom: 5, left: network.symbol == "ETH" ? 20 : 10 }}>
+            <AreaChart width={600} height={340} data={priceData} 
+            margin={{ top: 5, right: 20, bottom: 5, left: 10 }}
+            onMouseLeave={()=>setCurrentPrice(initPrice)}>
                 <defs>
                     <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#113843" stopOpacity={1} />

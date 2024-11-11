@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { NETWORK_LIST } from '../../constant';
-import ethereumLogo from "../../../assets/icons/Ethereum-logo.svg"
+import avalancheLogo from "../../../assets/icons/Avalanche-logo.svg"
 import aptosLogo from "../../../assets/icons/Aptos-logo.svg"
 import solanaLogo from "../../../assets/icons/Solana-logo.svg"
 import dropdownIcon from "../../../assets/icons/dropdown-fill.svg"
@@ -24,23 +24,23 @@ function NetworkButton() {
             const foundNetwork = NETWORK_LIST.find(net => net.name.toLowerCase() === networkParam);
             if (foundNetwork) {
                 switch (foundNetwork.name) {
-                    case 'Ethereum':
-                        setNetwork({ name: 'Ethereum', image: ethereumLogo });
+                    case 'Avalanche':
+                        setNetwork({ name: 'Avalanche', symbol: 'AVAX', image: avalancheLogo });
                         break;
                     case 'Aptos':
-                        setNetwork({ name: 'Aptos', image: aptosLogo });
+                        setNetwork({ name: 'Aptos', symbol: 'APT', image: aptosLogo });
                         break;
                     case 'Solana':
-                        setNetwork({ name: 'Solana', image: solanaLogo });
+                        setNetwork({ name: 'Solana', symbol: 'SOL', image: solanaLogo });
                         break;
                     default:
-                        setNetwork({ name: 'Ethereum', image: ethereumLogo });;
+                        setNetwork({ name: 'Avalanche', symbol:'AVAX', image: avalancheLogo });;
                 }
             }
         }
         else {
             // default case (no param in URL)
-            setNetwork({ name: 'Ethereum', image: ethereumLogo });
+            setNetwork({ name: 'Avalanche', symbol: 'AVAX', image: avalancheLogo });
         }
     }, []);
 
@@ -69,7 +69,7 @@ function NetworkButton() {
                 <div className="absolute right-0 mt-1 origin-top-left bg-[#27253e] 
                     rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none cursor-pointer">
                     {NETWORK_LIST.map((_network, index) => (
-                        <div className={`flex flex-row items-center align-center px-3 py-2 hover:bg-[#3e3e52] w-32
+                        <div className={`flex flex-row items-center align-center px-3 py-2 hover:bg-[#3e3e52] w-[130px]
                             ${index == 0 ? `rounded-t-xl` : index == NETWORK_LIST.length - 1 && `rounded-b-xl`} 
                             ${_network.name === network.name && `bg-[#3e3e52]`}
                             ${index !== 0 && index !== NETWORK_LIST.length - 1 && `border-t border-b border-[#35354b]`}`}

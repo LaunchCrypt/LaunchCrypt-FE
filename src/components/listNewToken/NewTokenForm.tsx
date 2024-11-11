@@ -9,7 +9,7 @@ import { ethers } from 'ethers'
 import Swal from 'sweetalert2'
 import { useSDK } from "@metamask/sdk-react";
 import { estimateFee, get_network, urlToFile } from '../../utils'
-import { ADMIN_ADDRESS, CREATE_TOKEN_FEE, FACTORY_CONTRACT_ADDRESS, FUJI_RPC_URL, NETWORK_LIST } from '../../constant'
+import { ADMIN_ADDRESS, CREATE_TOKEN_FEE, FACTORY_CONTRACT_ADDRESS, FUJI_PROVIDER, FUJI_RPC_URL, NETWORK_LIST } from '../../constant'
 import { useDispatch, useSelector } from 'react-redux'
 import { POST_API } from '../../apis/POST/postApis'
 import { axiosInstance } from '../../apis/api'
@@ -86,9 +86,6 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                 case NETWORK_LIST[0]:
                     //TODO: change back to ETH_RPC_URL 
 
-                    // Estimate fee to create new token
-                    const fujiProvider = new ethers.providers.JsonRpcProvider(FUJI_RPC_URL)
-
                     const abiCoder = new ethers.utils.Interface([
                         "function createToken(string memory name, string memory ticker, uint256 maxSupply)"
                     ]);
@@ -100,7 +97,7 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                     ]);
 
 
-                    const fee = await estimateFee(fujiProvider, FACTORY_CONTRACT_ADDRESS, encodedData)
+                    const fee = await estimateFee(FUJI_PROVIDER, FACTORY_CONTRACT_ADDRESS, encodedData)
                     const finalFee = CREATE_TOKEN_FEE * parseFloat(fee)
 
                     await provider?.request({

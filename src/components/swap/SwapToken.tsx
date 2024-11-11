@@ -3,20 +3,24 @@ import downArrow from '../../../assets/icons/down-arrow.svg'
 import { Itoken } from '../../interfaces';
 import TokenSelector from '../tokenSelector/TokenSelector';
 import './styles.css'
+import { base64toUrl, getERC20Balance } from '../../utils';
+import { useSelector } from 'react-redux';
 
 
 const formatNumber = (num: string) => {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 };
 
-function SwapToken({ value, handleChange, token, setToken, balance }: {
+function SwapToken({ value, handleChange, token, setToken, balance, setBalance }: {
     value: string,
     handleChange: (e) => void,
     token: Itoken | null,
-    setToken:(inputToken)=>void
-    balance: string
+    setToken: (inputToken) => void
+    balance: string,
+    setBalance: (inputBalance) => void
 }) {
     const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState(false);
+    const userAddress = useSelector((state: any) => state.user.address);
     return (
         <div className='flex flex-col align-middle items-center justify-center'>
             <div className='flex flex-col align-middle justify-center items-center bg-[#31314e] rounded-xl pr-4 
@@ -32,9 +36,10 @@ function SwapToken({ value, handleChange, token, setToken, balance }: {
 
                     {token ?
                         <button onClick={() => setIsTokenSelectorOpen(true)}
-                        className='swap-slot flex flex-row justify-center items-center align-middle 
+                            className='swap-slot flex flex-row justify-center items-center align-middle 
                         text-white bg-[#1c1c33] min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
-                            <img src={"../../../assets/icons/"+token?.image} className='w-6 h-6 mr-2' />
+                            {(token.image as any).buffer ? <img src={base64toUrl((token.image as any).buffer)} className='w-6 h-6 mr-2' /> :
+                                <img src={token.image} className='w-6 h-6 mr-2' />}
                             <div className='mr-auto font-medium'>
                                 {token?.symbol}
                             </div>
@@ -58,8 +63,10 @@ function SwapToken({ value, handleChange, token, setToken, balance }: {
             <TokenSelector
                 isOpen={isTokenSelectorOpen}
                 onClose={() => setIsTokenSelectorOpen(false)}
-                onSelect={(token) => {
+                onSelect={async(token) => {
                     setToken(token);
+                    const balance = await getERC20Balance(userAddress, token.address);
+                    setBalance(balance);
                     setIsTokenSelectorOpen(false);
                 }}
             />

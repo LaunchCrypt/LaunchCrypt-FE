@@ -1,7 +1,7 @@
 export interface Inetwork {
     name: string;
     symbol: string;
-    image: string;
+    image?: string;
     chainId?: number;
 }
 
@@ -24,4 +24,11 @@ export interface SocialLinks {
     telegram: string;
     discord: string;
     medium: string;
+}
+
+export interface IqueryAll {
+    page?: number;
+    limit?: number;
+    sortField?: string;
+    sortOrder?: 'asc' | 'desc';
 }

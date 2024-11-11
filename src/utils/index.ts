@@ -1,5 +1,5 @@
 import { BigNumber, ethers } from 'ethers';
-import { FUJI_CHAIN_ID, NETWORK_LIST } from '../constant';
+import { FUJI_CHAIN_ID, FUJI_PROVIDER, NETWORK_LIST } from '../constant';
 
 export const formatAddress = (address: string) => {
     if (!address) return '';
@@ -51,10 +51,10 @@ export const truncateText = (text: string, maxLength: number = 100) => {
     if (!text) return "Not provided";
     if (text.length <= maxLength) return text;
     return `${text.substring(0, maxLength)}...`;
-  };
+};
 
 
-export const estimateFee = async (provider:any, contractAddress: string, encodedData: string) => {
+export const estimateFee = async (provider: any, contractAddress: string, encodedData: string) => {
     const gasEstimate = await provider.estimateGas({
         to: contractAddress,
         data: encodedData
@@ -74,10 +74,10 @@ export async function urlToFile(imageUrl) {
         // Fetch the image
         const response = await fetch(imageUrl);
         const blob = await response.blob();
-        
+
         // Create file name from URL or use a default name
         const fileName = imageUrl.split('/').pop() || 'image.jpg';
-        
+
         // Create File object
         const file = new File([blob], fileName, { type: blob.type });
         return file;
@@ -85,6 +85,10 @@ export async function urlToFile(imageUrl) {
         console.error('Error converting URL to File:', error);
         return null;
     }
+}
+
+export const base64toUrl = (base64: string) => {
+    return `data:image/svg+xml;base64,${base64}`
 }
 
 export const checkFujiNetwork = async () => {
@@ -120,4 +124,35 @@ export const checkFujiNetwork = async () => {
             }
         }
     }
+}
+
+export const getERC20Balance = async (account: string, contractAddress: string): Promise<string> => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const contract = new ethers.Contract(contractAddress, ['function balanceOf(address) view returns (uint)'], FUJI_PROVIDER);
+    const balance = await contract.balanceOf(account);
+    return ethers.utils.formatEther(balance);
+}
+
+export const swapWithNativeToken = async (
+    amount: string,
+    contractAddress: string,
+    type: 'buy' | 'sell'
+) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    let contract;
+    let tx;
+    if (type === 'buy') {
+        contract = new ethers.Contract(contractAddress, ['function buy(uint)'], signer);
+        tx = await contract.buy(amount);
+    } else {
+        contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
+        tx = await contract.sell(amount);
+    }
+    return tx;
 }
