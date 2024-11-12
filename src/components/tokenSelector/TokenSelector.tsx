@@ -68,7 +68,7 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
         <div className="overflow-y-auto h-[calc(100%-180px)] px-2">
           {tokens.map((token) => (
             <button
-              key={token.address}
+              key={token.contractAddress}
               onClick={() => {
                 onSelect(token);
                 onClose();

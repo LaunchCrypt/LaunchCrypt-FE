@@ -14,8 +14,9 @@ export interface ItimeConfig {
 export interface Itoken {
     name: string;
     symbol: string;
-    address?: string;
+    contractAddress?:string;
     image: string;
+    type: 'native' | 'ERC20';
 }
 
 export interface SocialLinks {

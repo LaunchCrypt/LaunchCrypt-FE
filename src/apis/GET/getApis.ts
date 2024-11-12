@@ -6,5 +6,11 @@ export const GET_API = {
     },
     GET_ALL_TOKENS: (queryAll?: IqueryAll) => {
         return `token?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}`;
+    },
+    GET_LIQUIDITY_PAIR_BY_TOKEN: (tokenAddress: string) => {
+        return `liquidity-pairs/token?address=${tokenAddress}`;
+    },
+    GET_LIQUIDITY_PAIR_BY_ADDRESS: (contractAddress: string) => {
+        return `liquidity-pairs/contract?address=${contractAddress}`;
     }
 };

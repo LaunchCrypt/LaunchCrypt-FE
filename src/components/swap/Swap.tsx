@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { formatBalance, get_network, getETHBalance } from '../../utils'
+import { formatBalance, get_network, getETHBalance, swapWithNativeToken } from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
@@ -7,6 +7,7 @@ import "./styles.css"
 
 import SwapToken from './SwapToken'
 import Modal from '../Modal/Modal'
+import { useLiquidityPair } from '../../hooks/useLiquidityPair'
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -18,18 +19,41 @@ function Swap() {
   const [isWalletWarningVisible, setIsWalletWarningVisible] = useState(false);
   const initBalance = useSelector((state: any) => state.user.balance);
   const userAddress = useSelector((state: any) => state.user.address);
+  // state for liquidityPair hook
+  const [searchParams, setSearchParams] = useState({})
 
-  const handleSwap = () => {
+  const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair(searchParams);
+
+  const handleSwap = async () => {
     if (userAddress == '') {
       setIsWalletWarningVisible(true)
+      return;
     }
+    console.log(firstToken, secondToken)
+    if(firstToken?.type === 'native' && secondToken?.type === 'native') {
+      alert('Native to Native swap not supported')
+      return;
+    }
+    if(firstToken?.contractAddress == secondToken?.contractAddress) {
+      alert('Cannot swap same token')
+      return;
+    }
+    else {
+      console.log(firstValue)
+      if(firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
+        await swapWithNativeToken(firstValue,(liquidityPair as any).poolAddress,'buy')
+      }
+      else if(firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
+        await swapWithNativeToken(firstValue,(liquidityPair as any).poolAddress,'sell')
+      }
+    } 
   }
 
 
   useEffect(() => {
     const network = get_network()
     setFirstTokenValue(initBalance)
-    setFirstToken({ ...network!, image: `../../../assets/icons/${network?.image}`, address: '' })
+    setFirstToken({ ...network!, image: `../../../assets/icons/${network?.image}`, contractAddress: '', type: 'native' })
   }, [initBalance])
 
   const handleChangeFirstValue = (e) => {
@@ -59,12 +83,35 @@ function Swap() {
         <SwapToken value={firstValue}
           handleChange={handleChangeFirstValue}
           token={firstToken!} balance={firstTokenValue}
-          setToken={(token) => setFirstToken(token)}
+          setToken={(token) => {
+            setFirstToken(token)
+            if (token.type === 'ERC20' && secondToken?.type === 'ERC20') {
+              setSearchParams({ pairAddress: { token0Address: token.contractAddress, token1Address: secondToken.contractAddress } })
+            }
+            else if (token.type === 'ERC20' && secondToken?.type === 'native') {
+              setSearchParams({ token0Address: token.contractAddress })
+            }
+            else if (token.type === 'native' && secondToken?.type === 'ERC20') {
+              setSearchParams({ token0Address: secondToken.contractAddress })
+            }
+          }}
           setBalance={(balance) => setFirstTokenValue(balance)} />
         <SwapToken value={secondValue}
           handleChange={handleChangeSecondValue}
           token={secondToken!} balance={'0'}
-          setToken={(token) => setSecondToken(token)}
+          setToken={(token) => {
+            setSecondToken(token)
+            if (token.type === 'ERC20' && firstToken?.type === 'ERC20') {
+              setSearchParams({ pairAddress: { token0Address: firstToken.contractAddress, token1Address: token.contractAddress } })
+            }
+            else if (token.type === 'ERC20' && firstToken?.type === 'native') {
+              setSearchParams({ token0Address: token.contractAddress })
+            }
+            else if (token.type === 'native' && firstToken?.type === 'ERC20') {
+              setSearchParams({ token0Address: firstToken.contractAddress })
+            }
+          }}
+
           setBalance={(balance) => setSecondTokenValue(balance)} />
         {firstToken == null || secondToken == null ? <button disabled className="btn-bg-image w-full text-white font-medium 
       py-4 px-6 rounded-2xl transition-colors duration-300 disabled:opacity-50">

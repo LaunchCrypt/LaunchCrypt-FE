@@ -63,9 +63,9 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
             <TokenSelector
                 isOpen={isTokenSelectorOpen}
                 onClose={() => setIsTokenSelectorOpen(false)}
-                onSelect={async(token) => {
+                onSelect={async (token) => {
                     setToken(token);
-                    const balance = await getERC20Balance(userAddress, token.address);
+                    const balance = await getERC20Balance(userAddress, token.contractAddress);
                     setBalance(balance);
                     setIsTokenSelectorOpen(false);
                 }}
