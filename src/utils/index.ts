@@ -131,7 +131,9 @@ export const getERC20Balance = async (account: string, contractAddress: string):
         throw new Error("Ethereum provider is not available");
     }
     const contract = new ethers.Contract(contractAddress, ['function balanceOf(address) view returns (uint)'], FUJI_PROVIDER);
-    const balance = await contract.balanceOf(account);
+    let balance = await contract.balanceOf(account);
+    balance = BigNumber.from(balance._hex);
+    console.log(ethers.utils.formatEther(balance));
     return ethers.utils.formatEther(balance);
 }
 
@@ -148,11 +150,23 @@ export const swapWithNativeToken = async (
     let contract;
     let tx;
     if (type === 'buy') {
-        contract = new ethers.Contract(contractAddress, ['function buy(uint)'], signer);
-        tx = await contract.buy(amount);
+        contract = new ethers.Contract(contractAddress, ['function buy() payable'], signer);
+        tx = await contract.buy({value: ethers.utils.parseEther(amount)});
     } else {
         contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
         tx = await contract.sell(amount);
     }
+    console.log(tx)
+    return tx;
+}
+
+export const approveERC20 = async (contractAddress: string, spender: string, amount: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function approve(address,uint)'], signer);
+    const tx = await contract.approve(spender, ethers.utils.parseEther(amount));
     return tx;
 }

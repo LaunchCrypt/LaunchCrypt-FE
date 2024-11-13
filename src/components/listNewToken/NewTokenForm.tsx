@@ -8,13 +8,14 @@ import Final from './steps/Final'
 import { ethers } from 'ethers'
 import Swal from 'sweetalert2'
 import { useSDK } from "@metamask/sdk-react";
-import { estimateFee, get_network, urlToFile } from '../../utils'
+import { estimateFee, get_network, getETHBalance, urlToFile } from '../../utils'
 import { ADMIN_ADDRESS, CREATE_TOKEN_FEE, FACTORY_CONTRACT_ADDRESS, FUJI_PROVIDER, FUJI_RPC_URL, NETWORK_LIST } from '../../constant'
 import { useDispatch, useSelector } from 'react-redux'
 import { POST_API } from '../../apis/POST/postApis'
 import { axiosInstance } from '../../apis/api'
 import Loading from '../common/Loading'
 import { resetNewTokenData } from '../../redux/slice/newTokenSlice'
+import { updateUserBalance } from '../../redux/slice/userSlice'
 
 function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
     const [currentStep, setCurrentStep] = useState(0)
@@ -143,7 +144,8 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                                         'Content-Type': 'multipart/form-data'
                                     }
                                 })
-                                console.log(response)
+                                const balance = await getETHBalance(userAddress)
+                                dispatch(updateUserBalance(balance))
                                 Swal.fire({
                                     customClass: {
                                         popup: 'rounded-lg shadow-xl',

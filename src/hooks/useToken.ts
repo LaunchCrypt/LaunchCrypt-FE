@@ -31,9 +31,9 @@ const useTokens = (searchQuery?:{}): UseTokensReturn => {
     }
   };
 
-  useEffect(() => {
-    fetchTokens();
-  }, []);
+  // useEffect(() => {
+  //   fetchTokens();
+  // }, []);
 
   return {
     tokens,

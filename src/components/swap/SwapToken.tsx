@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import downArrow from '../../../assets/icons/down-arrow.svg'
 import { Itoken } from '../../interfaces';
 import TokenSelector from '../tokenSelector/TokenSelector';
@@ -21,6 +21,15 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
 }) {
     const [isTokenSelectorOpen, setIsTokenSelectorOpen] = useState(false);
     const userAddress = useSelector((state: any) => state.user.address);
+    const userNativeBalance = useSelector((state: any) => state.user.balance);
+
+    useEffect(() => {
+        if (token) {
+            getERC20Balance(userAddress, token.contractAddress as any).then((res) => {
+                setBalance(res);
+            })
+        }
+    }, [token])
     return (
         <div className='flex flex-col align-middle items-center justify-center'>
             <div className='flex flex-col align-middle justify-center items-center bg-[#31314e] rounded-xl pr-4 
@@ -65,8 +74,13 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
                 onClose={() => setIsTokenSelectorOpen(false)}
                 onSelect={async (token) => {
                     setToken(token);
-                    const balance = await getERC20Balance(userAddress, token.contractAddress);
-                    setBalance(balance);
+                    if (token.type === 'native') {
+                        setBalance(userNativeBalance);
+                    }
+                    else {
+                        const balance = await getERC20Balance(userAddress, token.contractAddress);
+                        setBalance(balance);
+                    }
                     setIsTokenSelectorOpen(false);
                 }}
             />

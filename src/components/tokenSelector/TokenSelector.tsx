@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Itoken } from "../../interfaces/index"
+import React, { useEffect, useState } from "react";
 import useTokens from "../../hooks/useToken";
 import { base64toUrl } from "../../utils";
 
@@ -11,7 +10,11 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
     sortOrder:'asc'
   });
   const { tokens, loading, error, refetch } = useTokens(searchQuery);
-
+  useEffect(()=>{
+    if(isOpen){
+      refetch() 
+    }
+  },[isOpen])
 
   return (
     <>

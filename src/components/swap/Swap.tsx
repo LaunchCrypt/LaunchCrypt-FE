@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react'
-import { formatBalance, get_network, getETHBalance, swapWithNativeToken } from '../../utils'
+import { approveERC20, formatBalance, get_network, getETHBalance, swapWithNativeToken } from '../../utils'
 import { Itoken } from '../../interfaces'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
 import "./styles.css"
 
 import SwapToken from './SwapToken'
 import Modal from '../Modal/Modal'
 import { useLiquidityPair } from '../../hooks/useLiquidityPair'
+import Swal from 'sweetalert2'
+import { updateUserBalance } from '../../redux/slice/userSlice'
+import { ethers } from 'ethers'
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -23,6 +26,7 @@ function Swap() {
   const [searchParams, setSearchParams] = useState({})
 
   const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair(searchParams);
+  const dispatch = useDispatch()
 
   const handleSwap = async () => {
     if (userAddress == '') {
@@ -30,23 +34,55 @@ function Swap() {
       return;
     }
     console.log(firstToken, secondToken)
-    if(firstToken?.type === 'native' && secondToken?.type === 'native') {
+    if (firstToken?.type === 'native' && secondToken?.type === 'native') {
       alert('Native to Native swap not supported')
       return;
     }
-    if(firstToken?.contractAddress == secondToken?.contractAddress) {
+    if (firstToken?.contractAddress == secondToken?.contractAddress) {
       alert('Cannot swap same token')
       return;
     }
     else {
-      console.log(firstValue)
-      if(firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
-        await swapWithNativeToken(firstValue,(liquidityPair as any).poolAddress,'buy')
+      if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
+        const response = await swapWithNativeToken(firstValue, (liquidityPair as any).poolAddress, 'buy')
+        //get user balance again
+        
+        Swal.fire({
+          customClass: {
+            popup: 'rounded-lg shadow-xl',
+            title: 'text-gray-800 font-medium text-xl mb-2',
+            confirmButton: 'bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600',
+            actions: 'space-x-2',  // Add spacing between buttons
+          },
+          text: 'Successfully swapped',
+          icon: 'success',
+          iconColor: '#a855f7', // Purple-500 color
+          background: '#1a1a2e',
+          showConfirmButton: true,
+          confirmButtonText: 'OK',
+          showCloseButton: true,
+          html: `
+              <p class="mb-4 text-purple-200/80">Swap token successfully</p>
+              <a href="https://testnet.snowtrace.io/tx/${response.hash}" 
+                 target="_blank" 
+                 class="inline-flex items-center text-purple-500 hover:text-purple-600">
+                  <span>View on Snowtrace</span>
+                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+              </a>
+          `
+        });
       }
-      else if(firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
-        await swapWithNativeToken(firstValue,(liquidityPair as any).poolAddress,'sell')
+      else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
+        // aprrove contract to transfer token
+        await approveERC20(firstToken.contractAddress as any,(liquidityPair as any).poolAddress, firstValue)
+        const response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue,18).toString(), (liquidityPair as any).poolAddress, 'sell')
       }
-    } 
+      const balance = await getETHBalance(userAddress)
+      dispatch(updateUserBalance(balance))
+    }
   }
 
 
@@ -98,7 +134,7 @@ function Swap() {
           setBalance={(balance) => setFirstTokenValue(balance)} />
         <SwapToken value={secondValue}
           handleChange={handleChangeSecondValue}
-          token={secondToken!} balance={'0'}
+          token={secondToken!} balance={secondTokenValue}
           setToken={(token) => {
             setSecondToken(token)
             if (token.type === 'ERC20' && firstToken?.type === 'ERC20') {
