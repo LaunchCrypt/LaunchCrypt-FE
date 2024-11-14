@@ -24,12 +24,12 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
     const userNativeBalance = useSelector((state: any) => state.user.balance);
 
     useEffect(() => {
-        if (token) {
+        if (token?.type == 'ERC20') {
             getERC20Balance(userAddress, token.contractAddress as any).then((res) => {
                 setBalance(res);
             })
         }
-    }, [token])
+    }, [token,userNativeBalance])
     return (
         <div className='flex flex-col align-middle items-center justify-center'>
             <div className='flex flex-col align-middle justify-center items-center bg-[#31314e] rounded-xl pr-4 

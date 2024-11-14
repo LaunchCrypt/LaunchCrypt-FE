@@ -9,7 +9,7 @@ export const NETWORK_LIST: Inetwork[] = [
 ]
 
 export const ADMIN_ADDRESS = "0xd2826132FBD5962338e2A37DdC5345A6fE3e6640"
-export const FACTORY_CONTRACT_ADDRESS = "0xDC243Dd848e5208586C7803fD89E90C44F4B7C07"
+export const FACTORY_CONTRACT_ADDRESS = "0x303078b83c52Ee1cCa682C54cC6c075267c2256e"
 export const CREATE_TOKEN_FEE = 1.2 // 20% fee
 export const FUJI_CHAIN_ID = '0xA869'
 export const FUJI_RPC_URL = "https://api.avax-test.network/ext/bc/C/rpc"

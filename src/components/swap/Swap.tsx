@@ -1,21 +1,23 @@
-import React, { useEffect, useState } from 'react'
-import { approveERC20, formatBalance, get_network, getETHBalance, swapWithNativeToken } from '../../utils'
+import React, { useEffect, useRef, useState } from 'react'
+import { approveERC20, calculateAmountReceived, formatBigNumberToString, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, swapWithNativeToken } from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useDispatch, useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
-import "./styles.css"
-
 import SwapToken from './SwapToken'
 import Modal from '../Modal/Modal'
 import { useLiquidityPair } from '../../hooks/useLiquidityPair'
 import Swal from 'sweetalert2'
 import { updateUserBalance } from '../../redux/slice/userSlice'
 import { ethers } from 'ethers'
+import { axiosInstance, PATCH_API } from '../../apis/api'
+
+
+import "./styles.css"
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
-  const [firstValue, setFirstValue] = useState('');
-  const [firstTokenValue, setFirstTokenValue] = useState('0');
+  const [firstValue, setFirstValue] = useState(''); // value in the input field
+  const [firstTokenValue, setFirstTokenValue] = useState('0'); // token balance
   const [secondToken, setSecondToken] = useState<Itoken>()
   const [secondValue, setSecondValue] = useState('');
   const [secondTokenValue, setSecondTokenValue] = useState('0');
@@ -25,8 +27,52 @@ function Swap() {
   // state for liquidityPair hook
   const [searchParams, setSearchParams] = useState({})
 
+
   const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair(searchParams);
   const dispatch = useDispatch()
+
+
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+
+  // ... other states and functions ...
+
+  useEffect(() => {
+    // Clear the previous timeout if `firstValue` changes before 2 seconds
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+    }
+
+    // Set a new timeout
+    debounceTimer.current = setTimeout(() => {
+      if (firstValue == "" || secondValue == "") {
+        setFirstValue("0");
+        setSecondValue("0");
+      }
+      if (firstValue && liquidityPair) {
+        let amountOut;
+        if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
+          amountOut = calculateAmountReceived(
+            parseFloat(firstValue),
+            parseFloat((liquidityPair as any).tokenBReserve),
+            parseFloat((liquidityPair as any).tokenAReserve)
+          );
+        }
+        else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
+          amountOut = calculateAmountReceived(
+            parseFloat(firstValue),
+            parseFloat((liquidityPair as any).tokenAReserve),
+            parseFloat((liquidityPair as any).tokenBReserve)
+          );
+        }
+        setSecondValue(amountOut.toString());
+      }
+    }, 2000);
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, [firstValue, liquidityPair, secondValue]); // Dependencies
 
   const handleSwap = async () => {
     if (userAddress == '') {
@@ -43,48 +89,48 @@ function Swap() {
       return;
     }
     else {
+      let response;
       if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
-        const response = await swapWithNativeToken(firstValue, (liquidityPair as any).poolAddress, 'buy')
-        //get user balance again
-        
-        Swal.fire({
-          customClass: {
-            popup: 'rounded-lg shadow-xl',
-            title: 'text-gray-800 font-medium text-xl mb-2',
-            confirmButton: 'bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600',
-            actions: 'space-x-2',  // Add spacing between buttons
-          },
-          text: 'Successfully swapped',
-          icon: 'success',
-          iconColor: '#a855f7', // Purple-500 color
-          background: '#1a1a2e',
-          showConfirmButton: true,
-          confirmButtonText: 'OK',
-          showCloseButton: true,
-          html: `
-              <p class="mb-4 text-purple-200/80">Swap token successfully</p>
-              <a href="https://testnet.snowtrace.io/tx/${response.hash}" 
-                 target="_blank" 
-                 class="inline-flex items-center text-purple-500 hover:text-purple-600">
-                  <span>View on Snowtrace</span>
-                  <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-              </a>
-          `
-        });
+        response = await swapWithNativeToken(firstValue, (liquidityPair as any).poolAddress, 'buy')
+        showAlert(response.hash, "Swap token successfully")
       }
       else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
-        // aprrove contract to transfer token
-        await approveERC20(firstToken.contractAddress as any,(liquidityPair as any).poolAddress, firstValue)
-        const response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue,18).toString(), (liquidityPair as any).poolAddress, 'sell')
+        await approveERC20(firstToken.contractAddress as any, (liquidityPair as any).poolAddress, firstValue)
+        response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), (liquidityPair as any).poolAddress, 'sell')
+        showAlert(response.hash, "Swap token successfully")
       }
       const balance = await getETHBalance(userAddress)
       dispatch(updateUserBalance(balance))
+      await response.wait(1)
+
+      // update liquidity pool in database
+      const { reserve, collateral } = await getLiquidityPoolReserve((liquidityPair as any).poolAddress)
+      console.log(reserve, collateral);
+      await axiosInstance.patch(PATCH_API.UPDATE_LIQUIDITY_PAIR((liquidityPair as any).poolAddress), {
+        tokenAReserve: ethers.utils.formatUnits(reserve, 18),
+        tokenBReserve: ethers.utils.formatUnits(collateral, 18)
+      })
+
     }
   }
 
+  const handleSwitchTokens = () => {
+    setFirstToken(secondToken);
+    setSecondToken(firstToken);
+    setFirstValue(secondValue);
+    setSecondValue(firstValue);
+    setFirstTokenValue(secondTokenValue);
+    setSecondTokenValue(firstTokenValue);
+
+    // Update search params for the switched tokens
+    if (secondToken?.type === 'ERC20' && firstToken?.type === 'ERC20') {
+      setSearchParams({ pairAddress: { token0Address: secondToken.contractAddress, token1Address: firstToken.contractAddress } })
+    } else if (secondToken?.type === 'ERC20' && firstToken?.type === 'native') {
+      setSearchParams({ token0Address: secondToken.contractAddress })
+    } else if (secondToken?.type === 'native' && firstToken?.type === 'ERC20') {
+      setSearchParams({ token0Address: firstToken.contractAddress })
+    }
+  };
 
   useEffect(() => {
     const network = get_network()
@@ -92,9 +138,10 @@ function Swap() {
     setFirstToken({ ...network!, image: `../../../assets/icons/${network?.image}`, contractAddress: '', type: 'native' })
   }, [initBalance])
 
+
+
   const handleChangeFirstValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
-    // Only allow digits and an optional decimal point
     if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 13) {
       setFirstValue(inputValue);
     }
@@ -102,7 +149,6 @@ function Swap() {
 
   const handleChangeSecondValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
-    // Only allow digits and an optional decimal point
     if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 14) {
       setSecondValue(inputValue);
     }
@@ -114,11 +160,14 @@ function Swap() {
         onClose={() => setIsWalletWarningVisible(false)}
         children={<WalletWarning closeModal={() => setIsWalletWarningVisible(false)} />} />
       }
-      <div className='swap-container flex flex-col align-middle items-center justify-center p-2 rounded-3xl bg-[#16162d] mt-5 w-[480px] h-fit gap-2'>
+      <div className='swap-container relative flex flex-col align-middle items-center justify-center p-2 rounded-3xl bg-[#16162d] mt-5 w-[480px] h-fit gap-2'>
         <p className='self-start text-xl font-semibold text-textPrimary ml-3 mb-1 mt-1'>Swap</p>
-        <SwapToken value={firstValue}
+
+        <SwapToken
+          value={firstValue}
           handleChange={handleChangeFirstValue}
-          token={firstToken!} balance={firstTokenValue}
+          token={firstToken!}
+          balance={firstTokenValue}
           setToken={(token) => {
             setFirstToken(token)
             if (token.type === 'ERC20' && secondToken?.type === 'ERC20') {
@@ -131,10 +180,45 @@ function Swap() {
               setSearchParams({ token0Address: secondToken.contractAddress })
             }
           }}
-          setBalance={(balance) => setFirstTokenValue(balance)} />
-        <SwapToken value={secondValue}
+          setBalance={(balance) => setFirstTokenValue(balance)}
+        />
+
+        {/* Swap Direction Button */}
+        <button
+          onClick={handleSwitchTokens}
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-3/4 
+                     bg-[#262643]  
+                     w-10 h-10 rounded-xl
+                     flex items-center justify-center
+                     shadow-lg shadow-black/20
+                     transition-all duration-200
+                     hover:bg-[#20203a]
+                     active:scale-95
+                     border border-[#2a2a45]"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="text-white/90"
+          >
+            <path
+              d="M16 3L16 21M16 21L12 17M16 21L20 17M8 21L8 3M8 3L4 7M8 3L12 7"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+
+        <SwapToken
+          value={secondValue}
           handleChange={handleChangeSecondValue}
-          token={secondToken!} balance={secondTokenValue}
+          token={secondToken!}
+          balance={secondTokenValue}
           setToken={(token) => {
             setSecondToken(token)
             if (token.type === 'ERC20' && firstToken?.type === 'ERC20') {
@@ -147,16 +231,20 @@ function Swap() {
               setSearchParams({ token0Address: firstToken.contractAddress })
             }
           }}
+          setBalance={(balance) => setSecondTokenValue(balance)}
+        />
 
-          setBalance={(balance) => setSecondTokenValue(balance)} />
-        {firstToken == null || secondToken == null ? <button disabled className="btn-bg-image w-full text-white font-medium 
-      py-4 px-6 rounded-2xl transition-colors duration-300 disabled:opacity-50">
-          Select token
-        </button> :
+        {firstToken == null || secondToken == null ? (
+          <button disabled className="btn-bg-image w-full text-white font-medium py-4 px-6 rounded-2xl transition-colors duration-300 disabled:opacity-50">
+            Select token
+          </button>
+        ) : (
           <button
             onClick={handleSwap}
-            className="btn-bg-image w-full text-white font-medium py-4 px-6 rounded-2xl transition-colors duration-300">Swap </button>
-        }
+            className="btn-bg-image w-full text-white font-medium py-4 px-6 rounded-2xl transition-colors duration-300">
+            Swap
+          </button>
+        )}
       </div>
     </>
   )

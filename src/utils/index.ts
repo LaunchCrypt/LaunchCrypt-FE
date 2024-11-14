@@ -1,5 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { FUJI_CHAIN_ID, FUJI_PROVIDER, NETWORK_LIST } from '../constant';
+import { axiosInstance, PATCH_API } from '../apis/api';
+import Swal from 'sweetalert2';
 
 export const formatAddress = (address: string) => {
     if (!address) return '';
@@ -151,12 +153,11 @@ export const swapWithNativeToken = async (
     let tx;
     if (type === 'buy') {
         contract = new ethers.Contract(contractAddress, ['function buy() payable'], signer);
-        tx = await contract.buy({value: ethers.utils.parseEther(amount)});
+        tx = await contract.buy({ value: ethers.utils.parseEther(amount) });
     } else {
         contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
         tx = await contract.sell(amount);
     }
-    console.log(tx)
     return tx;
 }
 
@@ -170,3 +171,53 @@ export const approveERC20 = async (contractAddress: string, spender: string, amo
     const tx = await contract.approve(spender, ethers.utils.parseEther(amount));
     return tx;
 }
+
+export const getLiquidityPoolReserve = async (address: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const contract = new ethers.Contract(address, ['function tokenReserve() view returns (uint)',
+        'function collateral() view returns (uint)'], FUJI_PROVIDER);
+    const reserve = await contract.tokenReserve();
+    const collateral = await contract.collateral();
+    return {
+        reserve, collateral
+    };
+}
+
+export const calculateAmountReceived = (amountIn, reserveIn, reserveOut) => {
+    console.log(amountIn, reserveIn, reserveOut);
+    return (reserveOut * amountIn * 997 / 1000) / (reserveIn + amountIn * 997 / 1000);
+}
+
+
+export function showAlert(transactionHash: string, message: string) {
+    Swal.fire({
+        customClass: {
+            popup: 'rounded-lg shadow-xl',
+            title: 'text-gray-800 font-medium text-xl mb-2',
+            confirmButton: 'bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600',
+            actions: 'space-x-2',
+        },
+        text: 'Successfully swapped',
+        icon: 'success',
+        iconColor: '#a855f7',
+        background: '#1a1a2e',
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+        showCloseButton: true,
+        html: `
+        <p class="mb-4 text-purple-200/80">${message}</p>
+        <a href="https://testnet.snowtrace.io/tx/${transactionHash}" 
+           target="_blank" 
+           class="inline-flex items-center text-purple-500 hover:text-purple-600">
+            <span>View on Snowtrace</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+        </a>
+      `
+    });
+}
+

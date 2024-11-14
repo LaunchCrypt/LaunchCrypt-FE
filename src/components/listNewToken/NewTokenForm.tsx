@@ -115,7 +115,6 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                             setLoading(true)
                             console.log(txHash)
                             const formData = new FormData();
-                            const parsedTotalSupply = ethers.utils.parseUnits(newTokenInfo.totalSupply).toString();
                             const creatorAddress = userAddress;
                             // Create a data object with all fields except image
                             const tokenData = {
@@ -127,7 +126,7 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                                 socialLinks: newTokenInfo.socialLinks,
                                 tokenFee: newTokenInfo.tokenFee,
                                 chainId: newTokenInfo.chainId,
-                                totalSupply: parsedTotalSupply // Include parsed totalSupply here
+                                totalSupply: newTokenInfo.totalSupply.toString()
                             };
 
                             formData.append('data', JSON.stringify(tokenData));
@@ -136,8 +135,7 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                             if (tokenImage) {
                                 formData.append('image', tokenImage);
                             }
-                            formData.append('totalSupply', ethers.utils.parseUnits(newTokenInfo.totalSupply).toString());
-                            
+                            console.log(formData)
                             try {
                                 const response = await axiosInstance.post(POST_API.CREATE_NEW_TOKEN(), formData, {
                                     headers: {
