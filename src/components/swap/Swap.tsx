@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { approveERC20, calculateAmountReceived, formatBigNumberToString, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, swapWithNativeToken } from '../../utils'
+import { approveERC20, calculateAmountNeeded, calculateAmountReceived, formatBigNumberToString, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, swapWithNativeToken } from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useDispatch, useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
@@ -31,48 +31,6 @@ function Swap() {
   const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair(searchParams);
   const dispatch = useDispatch()
 
-
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
-
-  // ... other states and functions ...
-
-  useEffect(() => {
-    // Clear the previous timeout if `firstValue` changes before 2 seconds
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    // Set a new timeout
-    debounceTimer.current = setTimeout(() => {
-      if (firstValue == "" || secondValue == "") {
-        setFirstValue("0");
-        setSecondValue("0");
-      }
-      if (firstValue && liquidityPair) {
-        let amountOut;
-        if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
-          amountOut = calculateAmountReceived(
-            parseFloat(firstValue),
-            parseFloat((liquidityPair as any).tokenBReserve),
-            parseFloat((liquidityPair as any).tokenAReserve)
-          );
-        }
-        else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
-          amountOut = calculateAmountReceived(
-            parseFloat(firstValue),
-            parseFloat((liquidityPair as any).tokenAReserve),
-            parseFloat((liquidityPair as any).tokenBReserve)
-          );
-        }
-        setSecondValue(amountOut.toString());
-      }
-    }, 2000);
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, [firstValue, liquidityPair, secondValue]); // Dependencies
 
   const handleSwap = async () => {
     if (userAddress == '') {
@@ -117,8 +75,8 @@ function Swap() {
   const handleSwitchTokens = () => {
     setFirstToken(secondToken);
     setSecondToken(firstToken);
-    setFirstValue(secondValue);
-    setSecondValue(firstValue);
+    setFirstValue('0');
+    setSecondValue('0');
     setFirstTokenValue(secondTokenValue);
     setSecondTokenValue(firstTokenValue);
 
@@ -142,15 +100,29 @@ function Swap() {
 
   const handleChangeFirstValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
-    if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 13) {
+    if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
       setFirstValue(inputValue);
+      if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
+        setSecondValue(calculateAmountReceived(inputValue, parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString())
+      }
+      else if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
+        setSecondValue(calculateAmountReceived(inputValue, parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString())
+      }
     }
   };
 
   const handleChangeSecondValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
-    if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 14) {
-      setSecondValue(inputValue);
+    if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
+      console.log(inputValue)
+      setSecondValue(inputValue)
+
+      if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
+        setFirstValue(calculateAmountNeeded(inputValue, parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString())
+      }
+      else if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
+        setFirstValue(calculateAmountNeeded(inputValue, parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString())
+      }
     }
   }
 

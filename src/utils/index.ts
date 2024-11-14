@@ -186,8 +186,21 @@ export const getLiquidityPoolReserve = async (address: string) => {
 }
 
 export const calculateAmountReceived = (amountIn, reserveIn, reserveOut) => {
-    console.log(amountIn, reserveIn, reserveOut);
-    return (reserveOut * amountIn * 997 / 1000) / (reserveIn + amountIn * 997 / 1000);
+    let res = (reserveOut * amountIn * 997 / 1000) / (reserveIn + amountIn * 997 / 1000)
+    if (res == 0) {
+        return 0
+    }
+    return res.toFixed(9)
+}
+
+
+
+export const calculateAmountNeeded = (amountOut, reserveIn, reserveOut) => {
+    let res = 1000 / 997 * (amountOut * reserveIn) / (reserveOut - amountOut);
+    if (res == 0) {
+        return 0
+    }
+    return res.toFixed(9)
 }
 
 

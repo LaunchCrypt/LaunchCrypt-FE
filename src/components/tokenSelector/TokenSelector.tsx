@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import useTokens from "../../hooks/useToken";
 import { base64toUrl } from "../../utils";
+import { Loader2 } from "lucide-react";
 
 function TokenSelector({ isOpen, onClose, onSelect }) {
   const [searchQuery, setSearchQuery] = useState({
     page: 1,
-    limit:20,
-    sortField:"createdAt",
-    sortOrder:'asc'
+    limit: 20,
+    sortField: "createdAt",
+    sortOrder: 'asc'
   });
   const { tokens, loading, error, refetch } = useTokens(searchQuery);
-  useEffect(()=>{
-    if(isOpen){
-      refetch() 
+  useEffect(() => {
+    if (isOpen) {
+      refetch()
     }
-  },[isOpen])
+  }, [isOpen])
 
 
   return (
@@ -70,38 +71,46 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
         </div>
 
         <div className="overflow-y-auto h-[calc(100%-180px)] px-2">
+          {/* {loading ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+            </div>
+          ): */}
           {tokens.map((token) => (
-            <button
-              key={token.contractAddress}
-              onClick={() => {
-                onSelect(token);
-                onClose();
-              }}
-              className="w-full p-4 my-2 flex items-center rounded-xl
+              <button
+                key={token.contractAddress}
+                onClick={() => {
+                  onSelect(token);
+                  onClose();
+                }}
+                className="w-full p-4 my-2 flex items-center rounded-xl
                          hover:bg-purple-500/10 active:bg-purple-500/20
                          transition-all duration-200 group"
-            >
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10
                             rounded-full flex items-center justify-center mr-4 overflow-hidden
                             group-hover:from-purple-500/30 group-hover:to-purple-500/20
                             transition-all duration-200">
-                {token.image ? (
-                  <img src={base64toUrl((token.image as any).buffer)} alt={token.symbol} className="w-full h-full" />
-                ) : (
-                  <span className="text-purple-400 font-bold text-xl">{token.symbol[0]}</span>
-                )}
-              </div>
-              <div className="flex-1 text-left">
-                <div className="text-white font-semibold text-lg group-hover:text-purple-300 transition-colors">
-                  {token.symbol}
+                  {token.image ? (
+                    <img src={base64toUrl((token.image as any).buffer)} alt={token.symbol} className="w-full h-full" />
+                  ) : (
+                    <span className="text-purple-400 font-bold text-xl">{token.symbol[0]}</span>
+                  )}
                 </div>
-                <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
-                  {token.name}
+                <div className="flex-1 text-left">
+                  <div className="text-white font-semibold text-lg group-hover:text-purple-300 transition-colors">
+                    {token.symbol}
+                  </div>
+                  <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                    {token.name}
+                  </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))
+          }
+
         </div>
+
       </div>
     </>
   );
