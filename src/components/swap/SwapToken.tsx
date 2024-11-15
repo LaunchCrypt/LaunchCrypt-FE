@@ -29,7 +29,10 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
                 setBalance(res);
             })
         }
-    }, [token,userNativeBalance])
+        if (token?.type == 'native') {
+            setBalance(userNativeBalance);
+        }
+    }, [token, userNativeBalance])
     return (
         <div className='flex flex-col align-middle items-center justify-center'>
             <div className='flex flex-col align-middle justify-center items-center bg-[#31314e] rounded-xl pr-4 

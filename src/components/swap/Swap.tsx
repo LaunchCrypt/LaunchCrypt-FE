@@ -1,18 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { approveERC20, calculateAmountNeeded, calculateAmountReceived, formatBigNumberToString, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, swapWithNativeToken } from '../../utils'
+import React, { useEffect, useState } from 'react'
+import { approveERC20, calculateAmountNeeded, calculateAmountReceived, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, swapWithNativeToken } from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useDispatch, useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
 import SwapToken from './SwapToken'
 import Modal from '../Modal/Modal'
 import { useLiquidityPair } from '../../hooks/useLiquidityPair'
-import Swal from 'sweetalert2'
 import { updateUserBalance } from '../../redux/slice/userSlice'
 import { ethers } from 'ethers'
 import { axiosInstance, PATCH_API } from '../../apis/api'
 
 
 import "./styles.css"
+import Loading from '../common/Loading'
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -26,6 +26,7 @@ function Swap() {
   const userAddress = useSelector((state: any) => state.user.address);
   // state for liquidityPair hook
   const [searchParams, setSearchParams] = useState({})
+  const [waitForApproving, setWaitForApproving] = useState(false);
 
 
   const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair(searchParams);
@@ -53,13 +54,16 @@ function Swap() {
         showAlert(response.hash, "Swap token successfully")
       }
       else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
-        await approveERC20(firstToken.contractAddress as any, (liquidityPair as any).poolAddress, firstValue)
+        const tx = await approveERC20(firstToken.contractAddress as any, (liquidityPair as any).poolAddress, firstValue)
+        setWaitForApproving(true)
+        await tx.wait()
+        setWaitForApproving(false)
         response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), (liquidityPair as any).poolAddress, 'sell')
         showAlert(response.hash, "Swap token successfully")
       }
+      await response.wait(1)
       const balance = await getETHBalance(userAddress)
       dispatch(updateUserBalance(balance))
-      await response.wait(1)
 
       // update liquidity pool in database
       const { reserve, collateral } = await getLiquidityPoolReserve((liquidityPair as any).poolAddress)
@@ -73,6 +77,7 @@ function Swap() {
   }
 
   const handleSwitchTokens = () => {
+    if(firstToken == null || secondToken == null) return
     setFirstToken(secondToken);
     setSecondToken(firstToken);
     setFirstValue('0');
@@ -92,9 +97,9 @@ function Swap() {
 
   useEffect(() => {
     const network = get_network()
-    setFirstTokenValue(initBalance)
     setFirstToken({ ...network!, image: `../../../assets/icons/${network?.image}`, contractAddress: '', type: 'native' })
-  }, [initBalance])
+    setFirstTokenValue(initBalance)
+  }, [userAddress])
 
 
 
@@ -128,6 +133,7 @@ function Swap() {
 
   return (
     <>
+      {waitForApproving && Loading({ title: 'Wait for approve ERC20 process', message: 'Please confirm the swap transaction in your wallet' })}
       {isWalletWarningVisible && <Modal isVisible={isWalletWarningVisible}
         onClose={() => setIsWalletWarningVisible(false)}
         children={<WalletWarning closeModal={() => setIsWalletWarningVisible(false)} />} />

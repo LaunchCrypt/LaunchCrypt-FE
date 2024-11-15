@@ -3,7 +3,7 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { updateUserBalance, updateUserAddress } from "../../redux/slice/userSlice";
 import { checkFujiNetwork, getETHBalance } from "../../utils";
-import { FUJI_CHAIN_ID } from "../../constant";
+
 
 
 function WalletWarning({ closeModal }: { closeModal: () => void }) {

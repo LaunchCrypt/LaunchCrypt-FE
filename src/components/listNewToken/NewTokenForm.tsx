@@ -197,7 +197,7 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
     }
     return (
         <>
-            {loading && <Loading />}
+            {loading && <Loading title="Create Your Token ..." message="Please wait while we process your request"/>}
             <div className='mx-auto shadow-xl rounded-2xl pb-2 w-[50vw] overflow-y-auto overflow-x-hidden'>
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-4 relative">
