@@ -77,7 +77,7 @@ function Swap() {
   }
 
   const handleSwitchTokens = () => {
-    if(firstToken == null || secondToken == null) return
+    if (firstToken == null || secondToken == null) return
     setFirstToken(secondToken);
     setSecondToken(firstToken);
     setFirstValue('0');
@@ -139,7 +139,24 @@ function Swap() {
         children={<WalletWarning closeModal={() => setIsWalletWarningVisible(false)} />} />
       }
       <div className='swap-container relative flex flex-col align-middle items-center justify-center p-2 rounded-3xl bg-[#16162d] mt-5 w-[480px] h-fit gap-2'>
-        <p className='self-start text-xl font-semibold text-textPrimary ml-3 mb-1 mt-1'>Swap</p>
+        <div className='w-full h-full flex flex-row items-center align-middle'>
+          <p className='self-start text-xl font-semibold text-textPrimary ml-3 mb-1 mt-1 mr-2'>Swap</p>
+          <div className="relative group">
+            <span className="text-purple-400 cursor-help">ⓘ</span>
+
+            {/* Tooltip */}
+            <div className="absolute left-0 top-6 w-64 opacity-0 invisible group-hover:opacity-100 
+            group-hover:visible transition-all duration-200 z-50">
+              <div className="bg-[#2D2D3D] text-gray-300 text-sm p-2 rounded-lg shadow-lg 
+              border border-purple-500/20">
+                This is only for Native - ERC20 token trading pairs.
+              </div>
+              {/* Triangle Pointer */}
+              <div className="absolute -top-1 left-2 w-2 h-2 bg-[#2D2D3D] 
+              transform rotate-45 border-l border-t border-purple-500/20" />
+            </div>
+          </div>
+        </div>
 
         <SwapToken
           value={firstValue}
