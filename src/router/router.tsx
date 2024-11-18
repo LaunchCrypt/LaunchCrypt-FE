@@ -8,6 +8,7 @@ import Navbar from '../components/navbar/Navbar';
 import IntellectualProperty from '../components/common/IntellectualProperty';
 import ListNewToken from '../components/listNewToken/ListNewToken'; // Adjust the path as necessary
 import PoolsPage from '../pages/PoolsPage';
+import SwapPage from '../pages/SwapPage';
 
 const Layout = () => {
     return (
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
             {
                 path: "/pools",
                 element: <PoolsPage/>
+            },
+            {
+                path: "/swap",
+                element: <SwapPage/>
             }
         ]
     },
