@@ -7,6 +7,9 @@ export const GET_API = {
     GET_ALL_TOKENS: (queryAll?: IqueryAll) => {
         return `token?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}`;
     },
+    GET_ALL_LIQUIDITY_PAIRS: (queryAll?: IqueryAll) => {
+        return `liquidity-pairs?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}`;
+    },
     GET_LIQUIDITY_PAIR_BY_TOKEN: (tokenAddress: string) => {
         return `liquidity-pairs/token?address=${tokenAddress}`;
     },

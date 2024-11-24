@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import SwapHeader from "../components/SwapPage/SwapHeader";
+import SwapDetails from "../components/SwapPage/SwapDetails";
 
 export const POOL_TABS = ["Pools", "My Pools"]
 export const POOL_TYPES = ["ERC20 to ERC20", "Native to ERC20"]
@@ -18,6 +19,9 @@ function SwapPage() {
                 setPoolTabs={(value)=>setCurrentPoolTab(value)}
                 setPoolTypes={(value)=>setCurrentPoolType(value)} />
             </div>
+            <SwapDetails/>
+
+
             
         </div>
     )

@@ -16,7 +16,7 @@ const images = [
 
 function PairBanner() {
   return (
-    <div className='h-[84px] w-[406px] mt-6'>
+    <div className='h-[84px] w-[406px]'>
       <Fade duration={3000}>
         <div className="each-slide">
           <div className='flex flex-row align-middle items-center justify-center'>
@@ -32,8 +32,8 @@ function PairBanner() {
           <div className='flex flex-row justify-center items-center align-middle'>
             <p className='text-md leading-[17.63px] mr-2'>TVL</p>
             <div>
-              <p className='text-gradient text-md font-black tracking-[-.0043em] text-[#e5e4fa]'>200 SOL</p>
-              <p className='text-gradient text-md font-black tracking-[-.0043em] text-[#e5e4fa]'>100 APT</p>
+              <p className='text-gradient text-md font-black tracking-[-.0043em] text-textPrimary'>200 SOL</p>
+              <p className='text-gradient text-md font-black tracking-[-.0043em] text-textPrimary'>100 APT</p>
             </div>
           </div>
         </div>

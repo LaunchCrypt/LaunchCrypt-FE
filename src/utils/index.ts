@@ -8,14 +8,14 @@ export const formatAddress = (address: string) => {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
 };
 
-export const formatAddressLong = (address: string) => {
+export const formatAddressLong = (address: string, slice:number) => {
     if (!address) return '';
-    return `${address.slice(0, 8)}...${address.slice(-8)}`;
+    return `${address.slice(0, slice)}...${address.slice(-slice)}`;
 }
 
-export const formatBalance = (balance: string) => {
+export const formatBalance = (balance: string, slice: number) => {
     if (!balance) return '';
-    return `${balance.slice(0, 6)}`;
+    return `${balance.slice(0, slice)}`;
 }
 
 export const getETHBalance = async (account: string): Promise<string> => {

@@ -21,7 +21,7 @@ function SwapHeader({
       <div className="flex justify-between items-center mb-6 p-[22px_32px] bg-[#16162d] rounded-[20px] overflow-hidden">
         <div className='flex flex-col'>
           <div className="flex items-center gap-2">
-            <h1 className="text-[28px] font-semibold leading-8 text-[#e5e4fa] gap-2">Liquidity Pools</h1>
+            <h1 className="text-[28px] font-semibold leading-8 text-textPrimary gap-2">Liquidity Pools</h1>
           </div>
           <p className="text-[#807E98] text-[14px] leading-6 self-start">Swap any token at ease</p>
         </div>

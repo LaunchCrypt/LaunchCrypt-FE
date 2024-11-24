@@ -82,7 +82,7 @@ function ConnectWallet() {
         <div className="flex items-center justify-center bg-[#16162d] px-1 rounded-full relative h-12">
             {userAddress != '' && (
                 <div className="text-textPrimary text-sm font-semibold ml-2 mr-4">
-                    <div>{`${formatBalance(userBalance)} ETH`}</div>
+                    <div>{`${formatBalance(userBalance,6)} ETH`}</div>
                 </div>
             )}
             <button
@@ -106,7 +106,7 @@ function ConnectWallet() {
                             <div className="flex flex-col items-start justify-center px-1 py-1">
                                 <p className="text-[#737289] font-bold text-sm mb-3">Account address</p>
                                 <div className="flex flex-row items-center justify-center">
-                                    <p className="text-textPrimary font-normal text-base">{formatAddressLong(account!)}</p>
+                                    <p className="text-textPrimary font-normal text-base">{formatAddressLong(account!,8)}</p>
                                     <img src={copyIcon} onClick={() => copyToClipboardDuccessfully(account!)}
                                         className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
                                 </div>

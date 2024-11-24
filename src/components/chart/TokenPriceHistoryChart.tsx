@@ -82,7 +82,7 @@ function TokenPriceHistoryChart() {
                 </div>
                 <ChartNavigator activeIndex={activeIndex} setActiveIndex={setActiveIndex} />
             </div>
-            <div className='text-[30px] leading-[35px] text-[#e5e4fa] font-semibold mb-2 mt-4 self-start'>
+            <div className='text-[30px] leading-[35px] text-textPrimary font-semibold mb-2 mt-4 self-start'>
                 {`$${currentPrice.toFixed(2)}`}
             </div>
             <div className={`${priceDiff >= 1 ? 'text-[green]' : 'text-[red]'} text-[13px] leading-[18px] self-start mb-5`}>
