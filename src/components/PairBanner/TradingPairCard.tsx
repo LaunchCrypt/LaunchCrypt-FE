@@ -118,10 +118,10 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">
-        <button className="px-4 py-2 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[13px] font-medium transition-colors duration-200">
+        <button className="px-4 py-3 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[15px] font-medium transition-colors duration-200">
           Trade
         </button>
-        <button className="px-4 py-2 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[13px] font-medium transition-colors duration-200">
+        <button className="px-4 py-3 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[15px] font-medium transition-colors duration-200">
           Add Liquidity
         </button>
       </div>

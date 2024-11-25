@@ -9,6 +9,7 @@ import IntellectualProperty from '../components/common/IntellectualProperty';
 import ListNewToken from '../components/listNewToken/ListNewToken'; // Adjust the path as necessary
 import PoolsPage from '../pages/PoolsPage';
 import SwapPage from '../pages/SwapPage';
+import TradingPage from '../pages/TradingPage';
 
 const Layout = () => {
     return (
@@ -39,6 +40,10 @@ export const router = createBrowserRouter([
             {
                 path: "/swap",
                 element: <SwapPage/>
+            },
+            {
+                path: "/trade",
+                element: <TradingPage/>
             }
         ]
     },
