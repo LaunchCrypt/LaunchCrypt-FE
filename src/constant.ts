@@ -1,5 +1,5 @@
 import { ethers } from "ethers"
-import { Inetwork } from "./interfaces"
+import { Inetwork, IqueryAll } from "./interfaces"
 
 export const INFURA_API_KEY = "82ab51a996044e25b56164f8bf068bfe"
 export const NETWORK_LIST: Inetwork[] = [
@@ -15,3 +15,10 @@ export const FUJI_CHAIN_ID = '0xA869'
 export const FUJI_RPC_URL = "https://api.avax-test.network/ext/bc/C/rpc"
 export const FUJI_PROVIDER = new ethers.providers.JsonRpcProvider(FUJI_RPC_URL)
 export const BACKEND_URL = "http://localhost:3000"
+
+export const DEFAULT_QUERY_ALL: IqueryAll = {
+    page: 1,
+    limit: 20,
+    sortField: "createdAt",
+    sortOrder: 'asc'
+}

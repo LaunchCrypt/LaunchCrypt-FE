@@ -13,6 +13,7 @@ import { axiosInstance, PATCH_API } from '../../apis/api'
 
 import "./styles.css"
 import Loading from '../common/Loading'
+import { DEFAULT_QUERY_ALL } from '../../constant'
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -29,7 +30,7 @@ function Swap() {
   const [waitForApproving, setWaitForApproving] = useState(false);
 
 
-  const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair(searchParams);
+  const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair({ ...searchParams, searchQuery: DEFAULT_QUERY_ALL });
   const dispatch = useDispatch()
 
 
@@ -38,7 +39,6 @@ function Swap() {
       setIsWalletWarningVisible(true)
       return;
     }
-    console.log(firstToken, secondToken)
     if (firstToken?.type === 'native' && secondToken?.type === 'native') {
       alert('Native to Native swap not supported')
       return;
@@ -67,7 +67,6 @@ function Swap() {
 
       // update liquidity pool in database
       const { reserve, collateral } = await getLiquidityPoolReserve((liquidityPair as any).poolAddress)
-      console.log(reserve, collateral);
       await axiosInstance.patch(PATCH_API.UPDATE_LIQUIDITY_PAIR((liquidityPair as any).poolAddress), {
         tokenAReserve: ethers.utils.formatUnits(reserve, 18),
         tokenBReserve: ethers.utils.formatUnits(collateral, 18)
@@ -119,7 +118,6 @@ function Swap() {
   const handleChangeSecondValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
     if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
-      console.log(inputValue)
       setSecondValue(inputValue)
 
       if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {

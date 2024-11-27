@@ -20,7 +20,6 @@ function Final() {
     return (
       <a 
         href={url} 
-        onClick={()=> console.log(url)}
         target="_blank" 
         rel="noopener noreferrer" 
         className="text-purple-400 hover:text-purple-300 flex items-center group">

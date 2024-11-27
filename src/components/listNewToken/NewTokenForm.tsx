@@ -100,6 +100,7 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
 
                     const fee = await estimateFee(FUJI_PROVIDER, FACTORY_CONTRACT_ADDRESS, encodedData)
                     const finalFee = CREATE_TOKEN_FEE * parseFloat(fee)
+                    const roundedFee = Number(finalFee.toFixed(8));
 
                     await provider?.request({
                         method: 'eth_sendTransaction',
@@ -107,13 +108,12 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                             {
                                 from: userAddress,
                                 to: ADMIN_ADDRESS,
-                                value: ethers.utils.parseEther(finalFee.toString()).toHexString()
+                                value: ethers.utils.parseEther(roundedFee.toString()).toHexString()
                             },
                         ],
                     })
                         .then(async (txHash) => {
                             setLoading(true)
-                            console.log(txHash)
                             const formData = new FormData();
                             const creatorAddress = userAddress;
                             // Create a data object with all fields except image
@@ -135,7 +135,7 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                             if (tokenImage) {
                                 formData.append('image', tokenImage);
                             }
-                            console.log(formData)
+                            console.log("formData", formData)
                             try {
                                 const response = await axiosInstance.post(POST_API.CREATE_NEW_TOKEN(), formData, {
                                     headers: {

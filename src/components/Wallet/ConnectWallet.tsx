@@ -29,7 +29,6 @@ function ConnectWallet() {
                 method: "personal_sign",
                 params: [msg, accounts?.[0]],
             });
-            console.log("connected..", accounts?.[0]);
             setAccount(accounts?.[0]);
             getETHBalance(accounts?.[0]).then((userBalance) => {
                 dispatch(updateUserBalance(userBalance));
