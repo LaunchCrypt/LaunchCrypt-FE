@@ -155,10 +155,10 @@ const CandleStickChart = () => {
   ];
 
   return (
-    <div className="bg-[#0F172A] flex flex-col flex-1 h-fit px-2 py-4">
+    <div className="bg-[#0F172A] flex flex-col flex-1 h-fit px-2 py-4 rounded-xl">
       <div className="w-full flex flex-row gap-4 mb-4 justify-between">
         {/* Token Info Panel */}
-        <div className="flex flex-row text-sm">
+        <div className="flex flex-row text-sm ml-2">
           <div className="flex items-center gap-2">
             <span className="text-white text-base font-medium mr-3">{"WETH"}</span>
           </div>
