@@ -4,6 +4,7 @@ import { Itoken } from '../../interfaces';
 import TokenSelector from '../tokenSelector/TokenSelector';
 import './styles.css'
 import { base64toUrl, getERC20Balance } from '../../utils';
+import avaxIcon from "../../../assets/icons/Avalanche-logo.svg"
 import { useSelector } from 'react-redux';
 
 
@@ -51,7 +52,7 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
                             className='swap-slot flex flex-row justify-center items-center align-middle 
                         text-white bg-[#1c1c33] min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
                             {(token.image as any).buffer ? <img src={base64toUrl((token.image as any).buffer)} className='w-6 h-6 mr-2' /> :
-                                <img src={token.image} className='w-6 h-6 mr-2' />}
+                                <img src={avaxIcon} className='w-6 h-6 mr-2' />}
                             <div className='mr-auto font-medium'>
                                 {token?.symbol}
                             </div>
