@@ -3,8 +3,7 @@ import { Fade, Slide } from 'react-slideshow-image'
 import 'react-slideshow-image/dist/styles.css'
 import aptosIcon from "../../../assets/icons/Aptos-logo.svg"
 import solanaIcon from "../../../assets/icons/Solana-logo.svg"
-import leftArrow from "../../../assets/icons/left-arrow.svg"
-import rightArrow from "../../../assets/icons/right-arrow.svg"
+
 
 import "./styles.css"
 

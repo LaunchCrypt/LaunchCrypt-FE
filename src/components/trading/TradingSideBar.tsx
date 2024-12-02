@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { get_network } from '../../utils';
 
 const holders = [
   { address: 'B2cqwF', label: '(bonding curve)', value: 23.74, icon: '🏠' },
@@ -20,6 +21,8 @@ const holders = [
   { address: '9DhZYn', label: '', value: 0.65 },
   { address: 'APos4B', label: '', value: 0.65 }
 ];
+
+const currentNetwork = get_network();
 
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => {
@@ -69,15 +72,15 @@ const TradingSidebar = () => {
               className="flex-1 bg-slate-800/50 border border-fuchsia-500/20 rounded-lg px-3 py-2 w-32 text-white outline-none focus:border-fuchsia-500/50"
             />
             <select className="bg-slate-800/50 border border-fuchsia-500/20 rounded-lg px-3 py-2 text-white outline-none focus:border-fuchsia-500/50 appearance-none cursor-pointer">
-              <option>SOL</option>
+              <option>{currentNetwork?.symbol}</option>
             </select>
           </div>
 
           {/* Quick Amount Buttons */}
           <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" className="w-full">0.1 SOL</Button>
-            <Button variant="outline" className="w-full">0.5 SOL</Button>
-            <Button variant="outline" className="w-full">1 SOL</Button>
+            <Button variant="outline" className="w-full">0.1 {currentNetwork?.symbol}</Button>
+            <Button variant="outline" className="w-full">0.5 {currentNetwork?.symbol}</Button>
+            <Button variant="outline" className="w-full">1 {currentNetwork?.symbol}</Button>
           </div>
         </div>
 
