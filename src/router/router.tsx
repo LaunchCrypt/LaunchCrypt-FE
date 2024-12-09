@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
                 element: <SwapPage/>
             },
             {
-                path: "/trade",
+                path: "/trade/:liquidityPairId",
                 element: <TradingPage/>
             }
         ]

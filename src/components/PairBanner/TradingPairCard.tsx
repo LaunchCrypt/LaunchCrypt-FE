@@ -3,6 +3,9 @@ import { base64toUrl, copyToClipboard, formatAddressLong, formatBalance, truncat
 import avaxLogo from "../../../assets/icons/Avalanche-logo.svg"
 import copyIcon from "../../../assets/icons/copy.svg";
 import { useNavigate } from 'react-router-dom';
+import { DEFAULT_QUERY_ALL } from '../../constant';
+import { useLiquidityPair } from '../../hooks/useLiquidityPair';
+import { axiosInstance, GET_API } from '../../apis/api';
 
 
 const TradingPairCardSkeleton = () => {
@@ -66,6 +69,11 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
   isLoading?: boolean
 }) {
   const navigate = useNavigate()
+  const onClick = async() => {
+    const liquidityPair = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contract))
+    console.log("liquidityPair", liquidityPair)
+    navigate(`/trade/${contract}`, { state: { liquidityPairId: (liquidityPair as any).data.id }})
+  }
   if (isLoading) {
     return <TradingPairCardSkeleton />
   }
@@ -120,7 +128,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">
-        <button onClick={() => navigate('/trade')}
+        <button onClick={onClick}
           className="px-4 py-3 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[15px] font-medium transition-colors duration-200">
           Trade
         </button>

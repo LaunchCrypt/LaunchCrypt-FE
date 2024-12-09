@@ -14,6 +14,6 @@ export const GET_API = {
         return `liquidity-pairs/token?address=${tokenAddress}`;
     },
     GET_LIQUIDITY_PAIR_BY_ADDRESS: (contractAddress: string) => {
-        return `liquidity-pairs/contract?address=${contractAddress}`;
+        return `liquidity-pairs/contract?contractAddress=${contractAddress}`;
     }
 };
