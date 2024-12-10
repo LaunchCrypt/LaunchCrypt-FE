@@ -1,5 +1,5 @@
 import React from 'react'
-import UserProfile from './UserProfile'
+import UserProfileBtn from './UserProfileBtn'
 import StatsButton from './StatsButton'
 import SwapButton from './SwapButton'
 import Addliquidity from './Addliquidity'
@@ -11,7 +11,7 @@ function NavbarLeft() {
   return (
     <div className='flex flex-row justify-center align-center items-center space-x-6'>
       <img src={rocketIcon} alt="" className='h-9 w-9 cursor-pointer' onClick={()=> navigate('/')}/>
-      <UserProfile />
+      <UserProfileBtn />
       <SwapButton />
       <EarnButton />
       <StatsButton />

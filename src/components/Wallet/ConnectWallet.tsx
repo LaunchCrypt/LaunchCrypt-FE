@@ -60,7 +60,7 @@ function ConnectWallet() {
         setIsModalVisible(false);
     };
 
-    const copyToClipboardDuccessfully = (text: string) => {
+    const copyToClipboardSuccessfully = (text: string) => {
         copyToClipboard(text);
         Swal.fire({
             icon: 'success',
@@ -105,8 +105,8 @@ function ConnectWallet() {
                             <div className="flex flex-col items-start justify-center px-1 py-1">
                                 <p className="text-[#737289] font-bold text-sm mb-3">Account address</p>
                                 <div className="flex flex-row items-center justify-center">
-                                    <p className="text-textPrimary font-normal text-base">{formatAddressLong(account!,8)}</p>
-                                    <img src={copyIcon} onClick={() => copyToClipboardDuccessfully(account!)}
+                                    <p className="text-textPrimary font-normal text-base">{formatAddressLong(account?account:userAddress,8)}</p>
+                                    <img src={copyIcon} onClick={() => copyToClipboardSuccessfully(account?account:userAddress)}
                                         className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
                                 </div>
                             </div>

@@ -10,6 +10,8 @@ import ListNewToken from '../components/listNewToken/ListNewToken'; // Adjust th
 import PoolsPage from '../pages/PoolsPage';
 import SwapPage from '../pages/SwapPage';
 import TradingPage from '../pages/TradingPage';
+import StatsPage from '../pages/StatsPage';
+import UserProfile from '../pages/UserProfile';
 
 const Layout = () => {
     return (
@@ -44,6 +46,14 @@ export const router = createBrowserRouter([
             {
                 path: "/trade/:liquidityPairId",
                 element: <TradingPage/>
+            },
+            {
+                path: "/stats",
+                element: <StatsPage/>
+            },
+            {
+                path: "/profile",
+                element: <UserProfile/>
             }
         ]
     },

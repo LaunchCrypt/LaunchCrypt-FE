@@ -58,7 +58,7 @@ const TradingSidebar = () => {
 
         {/* Token Switch */}
         <div className="flex justify-between items-center">
-          <Button variant="ghost">switch to greg</Button>
+          <Button variant="ghost">switch to WETH</Button>
           <Button variant="ghost">set max slippage</Button>
         </div>
 
@@ -85,7 +85,7 @@ const TradingSidebar = () => {
         </div>
 
         <div className='text-left text-sm text-gray-400 '>
-          123 GREG
+          123 WETH
         </div>
 
         {/* Place Trade Button */}

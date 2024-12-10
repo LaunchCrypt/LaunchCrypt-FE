@@ -15,5 +15,8 @@ export const GET_API = {
     },
     GET_LIQUIDITY_PAIR_BY_ADDRESS: (contractAddress: string) => {
         return `liquidity-pairs/contract?contractAddress=${contractAddress}`;
+    },
+    GET_USER_BY_PUBLIC_KEY: (publicKey: string) => {
+        return `user/${publicKey}`;
     }
 };

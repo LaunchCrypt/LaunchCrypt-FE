@@ -3,6 +3,8 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { updateUserBalance, updateUserAddress } from "../../redux/slice/userSlice";
 import { checkFujiNetwork, getETHBalance } from "../../utils";
+import { GET_API, POST_API, axiosInstance } from "../../apis/api";
+import axios from "axios";
 
 
 
@@ -24,6 +26,16 @@ function WalletWarning({ closeModal }: { closeModal: () => void }) {
                 dispatch(updateUserBalance(userBalance));
                 dispatch(updateUserAddress(accounts?.[0]));
             });
+            try {
+                await axiosInstance.get(GET_API.GET_USER_BY_PUBLIC_KEY(accounts?.[0]))
+            } catch (err) {
+                if (axios.isAxiosError(err)) {  
+                    await axiosInstance.post(POST_API.CREATE_NEW_USER(),{
+                        publicKey: accounts?.[0],
+                    })
+                }
+            }
+
             closeModal()
         } catch (err) {
             console.warn("failed to connect..", err);
