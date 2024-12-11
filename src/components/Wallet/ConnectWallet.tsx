@@ -81,7 +81,7 @@ function ConnectWallet() {
         <div className="flex items-center justify-center bg-[#16162d] px-1 rounded-full relative h-12">
             {userAddress != '' && (
                 <div className="text-textPrimary text-sm font-semibold ml-2 mr-4">
-                    <div>{`${formatBalance(userBalance,6)} ETH`}</div>
+                    <div>{`${formatBalance(userBalance,6)} AVAX`}</div>
                 </div>
             )}
             <button
