@@ -19,7 +19,7 @@ const TradingPage = () => {
         </div>
 
         {/* Right Trading Panel */}
-        <TradingSidebar />
+        <TradingSidebar tokenSymbol='WETH'/>
       </div>
     </div>
   );

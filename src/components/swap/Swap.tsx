@@ -8,9 +8,7 @@ import Modal from '../Modal/Modal'
 import { useLiquidityPair } from '../../hooks/useLiquidityPair'
 import { updateUserBalance } from '../../redux/slice/userSlice'
 import { ethers } from 'ethers'
-import { axiosInstance, PATCH_API } from '../../apis/api'
-
-
+import { axiosInstance, PATCH_API, POST_API } from '../../apis/api'
 import "./styles.css"
 import Loading from '../common/Loading'
 import { DEFAULT_QUERY_ALL } from '../../constant'
@@ -62,6 +60,17 @@ function Swap() {
         showAlert(response.hash, "Swap token successfully")
       }
       await response.wait(1)
+
+      await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
+        liquidityPairAddress: (liquidityPair as any).poolAddress,
+        token: firstToken?.type === 'native' ? secondToken : firstToken,
+        amount: firstToken?.type === 'native' ? secondValue : firstValue,
+        timeStamps: new Date(),
+        side: firstToken?.type === 'native' ? 'buy' : 'sell',
+        creator: userAddress,
+        transactionHash: response.hash
+      })
+
       const balance = await getETHBalance(userAddress)
       dispatch(updateUserBalance(balance))
 

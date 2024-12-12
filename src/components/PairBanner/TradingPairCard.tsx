@@ -69,10 +69,15 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
   isLoading?: boolean
 }) {
   const navigate = useNavigate()
-  const onClick = async() => {
+  const onClick = async () => {
     const liquidityPair = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contract))
     console.log("liquidityPair", liquidityPair)
-    navigate(`/trade/${contract}`, { state: { liquidityPairId: (liquidityPair as any).data.id }})
+    navigate(`/trade/${contract}`, {
+      state: {
+        liquidityPairId: (liquidityPair as any).data.id,
+        liquidityPairAddress: contract,
+      }
+    })
   }
   if (isLoading) {
     return <TradingPairCardSkeleton />

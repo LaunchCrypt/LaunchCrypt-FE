@@ -43,6 +43,7 @@ export const useLiquidityPair = ({
 
             if (contractAddress) {
                 const response = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contractAddress));
+                console.log("response", response)   
                 setLiquidityPair(response.data);
             }
         } catch (err) {

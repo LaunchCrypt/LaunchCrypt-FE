@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { get_network } from '../../utils';
+import { calculateAmountReceived, get_network } from '../../utils';
+import { useLocation } from 'react-router-dom';
+import { useLiquidityPair } from '../../hooks/useLiquidityPair';
+import { DEFAULT_QUERY_ALL } from '../../constant';
 
 const holders = [
   { address: 'B2cqwF', label: '(bonding curve)', value: 23.74, icon: '🏠' },
@@ -44,21 +47,38 @@ const Button = ({ children, variant = 'primary', className = '', ...props }) => 
   );
 };
 
-const TradingSidebar = () => {
-  const [amount, setAmount] = useState('123');
+const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
+  const location = useLocation();
+  const { liquidityPairAddress } = location.state || {}
+  const [side, setSide] = useState('buy');
+  const [currentSelectedToken, setCurrentSelectedToken] = useState(currentNetwork?.symbol)
+  const [amount, setAmount] = useState('0');
+  const { liquidityPair } = useLiquidityPair({
+    contractAddress: liquidityPairAddress,
+    searchQuery: DEFAULT_QUERY_ALL
+  })
+
+  console.log("liquidityPairAddress",liquidityPairAddress)
+  const [amountOut, setAmountOut] = useState('0');
 
   return (
     <div className="w-[380px] h-fit pb-4">
       <div className="w-[380px] space-y-6 bg-slate-900 p-4 border-l border-slate-800 rounded-xl">
         {/* Trading Actions */}
         <div className="grid grid-cols-2 gap-2">
-          <Button className="w-full">buy</Button>
-          <Button variant="secondary" className="w-full">sell</Button>
+          <Button variant={`${side === 'buy' ? "primary" : "secondary"}`} className="w-full" onClick={() => setSide('buy')}>buy</Button>
+          <Button variant={`${side === 'sell' ? "primary" : "secondary"}`} className="w-full" onClick={() => setSide('sell')}>sell</Button>
         </div>
 
         {/* Token Switch */}
         <div className="flex justify-between items-center">
-          <Button variant="ghost">switch to WETH</Button>
+          <Button variant="ghost" onClick={() => {
+            if (currentSelectedToken == currentNetwork?.symbol)
+              setCurrentSelectedToken(tokenSymbol)
+            else setCurrentSelectedToken(currentNetwork?.symbol)
+          }}>switch to {
+              currentSelectedToken == currentNetwork?.symbol ? tokenSymbol : currentNetwork?.symbol
+            }</Button>
           <Button variant="ghost">set max slippage</Button>
         </div>
 
@@ -68,24 +88,40 @@ const TradingSidebar = () => {
             <input
               type="text"
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const inputValue = e.target.value.replace(/,/g, '')
+                if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
+                  setAmount(inputValue);
+                  const tokenIn = currentSelectedToken == currentNetwork?.symbol
+                    ? (liquidityPair as any).tokenBReserve
+                    : (liquidityPair as any).tokenAReserve
+
+                  const tokenOut = currentSelectedToken == currentNetwork?.symbol
+                    ? (liquidityPair as any).tokenAReserve
+                    : (liquidityPair as any).tokenBReserve
+                  console.log("liquidityPair", liquidityPair)
+                  console.log(tokenIn, tokenOut)
+
+                  setAmountOut(calculateAmountReceived(inputValue, tokenIn, tokenOut).toString())
+                }
+              }}
               className="flex-1 bg-slate-800/50 border border-fuchsia-500/20 rounded-lg px-3 py-2 w-32 text-white outline-none focus:border-fuchsia-500/50"
             />
-            <select className="bg-slate-800/50 border border-fuchsia-500/20 rounded-lg px-3 py-2 text-white outline-none focus:border-fuchsia-500/50 appearance-none cursor-pointer">
-              <option>{currentNetwork?.symbol}</option>
-            </select>
+            <div className="bg-slate-800/50 border border-fuchsia-500/20 rounded-lg px-3 py-2 text-white outline-none focus:border-fuchsia-500/50 appearance-none cursor-pointer">
+              <p>{currentSelectedToken}</p>
+            </div>
           </div>
 
           {/* Quick Amount Buttons */}
           <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" className="w-full">0.1 {currentNetwork?.symbol}</Button>
-            <Button variant="outline" className="w-full">0.5 {currentNetwork?.symbol}</Button>
-            <Button variant="outline" className="w-full">1 {currentNetwork?.symbol}</Button>
+            <Button variant="outline" className="w-full">0.1 {currentSelectedToken}</Button>
+            <Button variant="outline" className="w-full">0.5 {currentSelectedToken}</Button>
+            <Button variant="outline" className="w-full">1 {currentSelectedToken}</Button>
           </div>
         </div>
 
         <div className='text-left text-sm text-gray-400 '>
-          123 WETH
+          {amountOut} {currentSelectedToken == currentNetwork?.symbol ? tokenSymbol : currentNetwork?.symbol}
         </div>
 
         {/* Place Trade Button */}
