@@ -5,18 +5,28 @@ import WalletWarning from '../components/common/WalletWarning';
 import Modal from '../components/Modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import EditProfile from '../components/userProfile/EditProfile';
+import CoinsHeldTab from '../components/userProfile/CoinHeldTab';
 
 const NavLink = ({ active, children, onClick }) => (
   <button
     onClick={onClick}
     className={`px-8 py-4 text-base transition-colors relative
     ${active
-      ? 'text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#8A2BE2]'
-      : 'text-gray-500 hover:text-gray-300'}`}
+        ? 'text-white after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#8A2BE2]'
+        : 'text-gray-500 hover:text-gray-300'}`}
   >
     {children}
   </button>
 );
+
+const tabContent = {
+  coins: <CoinsHeldTab />,
+  // replies: <RepliesTab />,
+  // notifications: <NotificationsTab />,
+  // created: <CoinsCreatedTab />,
+  // followers: <FollowersTab />,
+  // following: <FollowingTab />
+};
 
 const UserProfile = () => {
   const navigate = useNavigate();
@@ -34,7 +44,7 @@ const UserProfile = () => {
         <Modal isVisible={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           children={<EditProfile currentProfile={{ username: 'hello ^^' }} onClose={() => setIsModalOpen(false)} />} />
-      
+
 
         <div className="rounded-3xl bg-[#13141F] border border-[#1F2037]">
           {/* Profile Header */}
@@ -121,27 +131,7 @@ const UserProfile = () => {
 
           {/* Content Area */}
           <div className="p-8">
-            <div className="flex gap-6 justify-center">
-              <button className="flex items-center gap-2 px-8 py-4 rounded-xl 
-                bg-[#1A1B2A] hover:bg-[#22233A] transition-colors
-                text-gray-300 text-base border border-[#1F2037]">
-                <PlusCircle className="w-5 h-5" />
-                add coin
-              </button>
-              <button className="flex items-center gap-2 px-8 py-4 rounded-xl 
-                bg-[#1A1B2A] hover:bg-[#22233A] transition-colors
-                text-gray-300 text-base border border-[#1F2037]">
-                <Eye className="w-5 h-5" />
-                show dust coins
-              </button>
-            </div>
-
-            {/* Pagination */}
-            <div className="flex justify-center gap-3 mt-8 text-lg">
-              <button className="text-gray-500 hover:text-gray-300">[&lt;&lt;]</button>
-              <span className="text-white">1</span>
-              <button className="text-gray-500 hover:text-gray-300">[&gt;&gt;]</button>
-            </div>
+            {tabContent[activeTab]}
           </div>
         </div>
       </div>

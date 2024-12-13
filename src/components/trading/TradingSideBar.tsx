@@ -1,8 +1,14 @@
-import React, { useState } from 'react';
-import { calculateAmountReceived, get_network } from '../../utils';
+import React, { useEffect, useState } from 'react';
+import { approveERC20, calculateAmountNeeded, calculateAmountReceived, get_network, getLiquidityPoolReserve, showAlert, showFailedAlert, swapWithNativeToken } from '../../utils';
 import { useLocation } from 'react-router-dom';
 import { useLiquidityPair } from '../../hooks/useLiquidityPair';
-import { DEFAULT_QUERY_ALL } from '../../constant';
+import { DEFAULT_QUERY_ALL, VIRTUAL_LIQUIDITY } from '../../constant';
+import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { ethers } from 'ethers';
+import { axiosInstance, PATCH_API, POST_API } from '../../apis/api';
+import { useSelector } from 'react-redux';
+import Loading from '../common/Loading';
+
 
 const holders = [
   { address: 'B2cqwF', label: '(bonding curve)', value: 23.74, icon: '🏠' },
@@ -53,15 +59,135 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
   const [side, setSide] = useState('buy');
   const [currentSelectedToken, setCurrentSelectedToken] = useState(currentNetwork?.symbol)
   const [amount, setAmount] = useState('0');
+  const [waitForApproving, setWaitForApproving] = useState(false)
   const { liquidityPair } = useLiquidityPair({
     contractAddress: liquidityPairAddress,
     searchQuery: DEFAULT_QUERY_ALL
   })
-
-  console.log("liquidityPairAddress",liquidityPairAddress)
+  const userAddress = useSelector((state: any) => state.user.address)
   const [amountOut, setAmountOut] = useState('0');
+  const [isError, setError] = useState(false)
 
-  return (
+  // if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
+  //   response = await swapWithNativeToken(firstValue, (liquidityPair as any).poolAddress, 'buy')
+  //   showAlert(response.hash, "Swap token successfully")
+  // }
+  // else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
+  //   const tx = await approveERC20(firstToken.contractAddress as any, (liquidityPair as any).poolAddress, firstValue)
+  //   setWaitForApproving(true)
+  //   await tx.wait()
+  //   setWaitForApproving(false)
+  //   try {
+  //     response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), (liquidityPair as any).poolAddress, 'sell')
+  //     await response.wait();
+  //     showAlert(response.hash, "Swap token successfully")
+  //   } catch (error) {
+  //     showFailedAlert('Not enough token to swap')
+  //     return;
+  //   }
+  // }
+  const handleSwap = async (side) => {
+    let response
+    let amountERC20
+    let ERC20Side
+    // amount out, reserveIn, reserveOut
+    if (side == 'buy') {
+      if (currentSelectedToken == currentNetwork?.symbol) {
+        // sell ERC20 to get AVAX (input = AVAX)
+        const amountNeeded = calculateAmountNeeded(parseFloat(amount), parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString()
+        const tx = await approveERC20(
+          (liquidityPair as any).tokenA.contractAddress,
+          (liquidityPair as any).poolAddress,
+          amountNeeded
+        )
+        setWaitForApproving(true)
+        await tx.wait()
+        setWaitForApproving(false)
+        try {
+          const response = await swapWithNativeToken(
+            ethers.utils.parseUnits(amountNeeded, 18).toString(),
+            (liquidityPair as any).poolAddress,
+            'sell'
+          )
+          amountERC20 = amountNeeded
+          ERC20Side = 'sell'
+          await response.wait();
+          showAlert(response.hash, "Swap token successfully")
+        } catch (error) {
+          showFailedAlert('Not enough token to swap')
+          return;
+        }
+
+      }
+      if (currentSelectedToken == tokenSymbol) {
+        // buy ERC20 with AVAX (input = ERC20)
+        const amountNeeded = calculateAmountNeeded(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
+        amountERC20 = amount
+        ERC20Side = 'buy'
+        response = await swapWithNativeToken(amountNeeded, (liquidityPair as any).poolAddress, 'buy')
+        showAlert(response.hash, "Swap token successfully")
+      }
+    }
+    else if (side == 'sell') {
+      if (currentSelectedToken == currentNetwork?.symbol) {
+        // buy ERC20 with AVAX (input = AVAX)
+        amountERC20 = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
+        ERC20Side = 'buy'
+        response = await swapWithNativeToken(amount, (liquidityPair as any).poolAddress, 'buy')
+        showAlert(response.hash, "Swap token successfully")
+      }
+      if (currentSelectedToken == tokenSymbol) {
+        // sell ERC20 to get AVAX (input = ERC20)
+        const tx = await approveERC20(
+          (liquidityPair as any).tokenA.contractAddress,
+          (liquidityPair as any).poolAddress,
+          amount)
+        setWaitForApproving(true)
+        await tx.wait()
+        setWaitForApproving(false)
+        try {
+          response = await swapWithNativeToken(
+            ethers.utils.parseUnits(amount, 18).toString(),
+            (liquidityPair as any).poolAddress,
+            'sell'
+          )
+          amountERC20 = amount
+          ERC20Side = "sell"
+          await response.wait();
+          showAlert(response.hash, "Swap token successfully")
+        } catch (error) {
+          console.log("error", error)
+          showFailedAlert('Not enough token to swap')
+          return;
+        }
+      }
+    }
+
+    await response.wait(1)
+    await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
+      liquidityPairAddress: (liquidityPair as any).poolAddress,
+      tokenId: (liquidityPair as any).tokenA._id,
+      amount: amountERC20,
+      timeStamps: new Date(),
+      side: ERC20Side,
+      creator: userAddress,
+      transactionHash: response.hash
+    })
+
+    const { reserve, collateral } = await getLiquidityPoolReserve((liquidityPair as any).poolAddress)
+    await axiosInstance.patch(PATCH_API.UPDATE_LIQUIDITY_PAIR((liquidityPair as any).poolAddress), {
+      tokenAReserve: ethers.utils.formatUnits(reserve, 18),
+      tokenBReserve: ethers.utils.formatUnits(collateral, 18)
+    })
+  }
+
+  useEffect(() => {
+    setAmountOut('0')
+    setAmount('0')
+  }, [side, currentSelectedToken])
+
+  return (<>
+    {waitForApproving && Loading({ title: 'Wait for approve ERC20 process', message: 'Please confirm the swap transaction in your wallet' })}
     <div className="w-[380px] h-fit pb-4">
       <div className="w-[380px] space-y-6 bg-slate-900 p-4 border-l border-slate-800 rounded-xl">
         {/* Trading Actions */}
@@ -91,18 +217,39 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
               onChange={(e) => {
                 const inputValue = e.target.value.replace(/,/g, '')
                 if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
-                  setAmount(inputValue);
-                  const tokenIn = currentSelectedToken == currentNetwork?.symbol
-                    ? (liquidityPair as any).tokenBReserve
-                    : (liquidityPair as any).tokenAReserve
+                  if (inputValue == '') {
+                    setAmount("")
+                    setAmountOut("0");
+                  }
+                  else {
+                    setAmount(inputValue)
+                    if (side === 'sell') {
+                      const reserveIn = currentSelectedToken == currentNetwork?.symbol
+                        ? (liquidityPair as any).tokenBReserve
+                        : (liquidityPair as any).tokenAReserve
 
-                  const tokenOut = currentSelectedToken == currentNetwork?.symbol
-                    ? (liquidityPair as any).tokenAReserve
-                    : (liquidityPair as any).tokenBReserve
-                  console.log("liquidityPair", liquidityPair)
-                  console.log(tokenIn, tokenOut)
+                      const reserveOut = currentSelectedToken == currentNetwork?.symbol
+                        ? (liquidityPair as any).tokenAReserve
+                        : (liquidityPair as any).tokenBReserve
 
-                  setAmountOut(calculateAmountReceived(inputValue, tokenIn, tokenOut).toString())
+                      setAmountOut(calculateAmountReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut)).toString())
+                    }
+                    else if (side === 'buy') {
+                      const reserveIn = currentSelectedToken == currentNetwork?.symbol ?
+                        (liquidityPair as any).tokenAReserve : (liquidityPair as any).tokenBReserve
+                      const reserveOut = currentSelectedToken == currentNetwork?.symbol ?
+                        (liquidityPair as any).tokenBReserve : (liquidityPair as any).tokenAReserve
+                      if (parseFloat(inputValue) > reserveOut
+                        || (currentSelectedToken == currentNetwork?.symbol && parseFloat(reserveOut) - parseFloat(inputValue) < VIRTUAL_LIQUIDITY)
+                      ) {
+                        setError(true)
+                      }
+                      else {
+                        setError(false)
+                        setAmountOut(calculateAmountNeeded(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut)).toString())
+                      }
+                    }
+                  }
                 }
               }}
               className="flex-1 bg-slate-800/50 border border-fuchsia-500/20 rounded-lg px-3 py-2 w-32 text-white outline-none focus:border-fuchsia-500/50"
@@ -120,12 +267,40 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           </div>
         </div>
 
-        <div className='text-left text-sm text-gray-400 '>
-          {amountOut} {currentSelectedToken == currentNetwork?.symbol ? tokenSymbol : currentNetwork?.symbol}
-        </div>
+        {isError ? <div className='flex items-center gap-2 rounded-lg animate-fade-in ml-3'>
+          <span className='text-sm font-medium text-red-500 italic'>
+            Not enough reserve in pool
+          </span>
+        </div> :
+          <div className='flex items-center gap-2 p-3 bg-slate-800 rounded-lg border border-gray-800/50 shadow-sm'>
+            <div className='flex items-center gap-2'>
+              {side === 'buy' ? (
+                <ArrowDownRight className="w-4 h-4 text-red-400" />
+              ) : (
+                <ArrowUpRight className="w-4 h-4 text-green-400" />
+              )}
+
+              <span className='text-sm text-gray-400'>
+                {side === 'buy' ? 'You will pay:' : 'You will receive:'}
+              </span>
+
+            </div>
+
+            <div className='flex items-center gap-1'>
+              <span className='text-sm font-medium text-white'>
+                {amountOut}
+              </span>
+              <span className='text-sm text-gray-400'>
+                {currentSelectedToken == currentNetwork?.symbol ? tokenSymbol : currentNetwork?.symbol}
+              </span>
+            </div>
+          </div>
+        }
 
         {/* Place Trade Button */}
-        <Button className="w-full h-12 text-lg font-semibold">
+        <Button
+          onClick={() => handleSwap(side)}
+          className="w-full h-12 text-lg font-semibold">
           place trade
         </Button>
 
@@ -182,6 +357,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         </div>
       </div>
     </div>
+  </>
   );
 };
 

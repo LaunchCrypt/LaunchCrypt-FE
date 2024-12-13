@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { approveERC20, calculateAmountNeeded, calculateAmountReceived, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, swapWithNativeToken } from '../../utils'
+import { approveERC20, calculateAmountNeeded, calculateAmountReceived, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, showFailedAlert, swapWithNativeToken } from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useDispatch, useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
@@ -11,7 +11,8 @@ import { ethers } from 'ethers'
 import { axiosInstance, PATCH_API, POST_API } from '../../apis/api'
 import "./styles.css"
 import Loading from '../common/Loading'
-import { DEFAULT_QUERY_ALL } from '../../constant'
+import { DEFAULT_QUERY_ALL, VIRTUAL_LIQUIDITY } from '../../constant'
+import { AlertTriangle } from 'lucide-react'
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -26,11 +27,11 @@ function Swap() {
   // state for liquidityPair hook
   const [searchParams, setSearchParams] = useState({})
   const [waitForApproving, setWaitForApproving] = useState(false);
+  const [isError, setError] = useState(false)
 
 
   const { liquidityPair, isLoading, error, getLiquidityPair } = useLiquidityPair({ ...searchParams, searchQuery: DEFAULT_QUERY_ALL });
   const dispatch = useDispatch()
-
 
   const handleSwap = async () => {
     if (userAddress == '') {
@@ -56,14 +57,20 @@ function Swap() {
         setWaitForApproving(true)
         await tx.wait()
         setWaitForApproving(false)
-        response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), (liquidityPair as any).poolAddress, 'sell')
-        showAlert(response.hash, "Swap token successfully")
+        try {
+          response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), (liquidityPair as any).poolAddress, 'sell')
+          await response.wait();
+          showAlert(response.hash, "Swap token successfully")
+        } catch (error) {
+          showFailedAlert('Not enough token to swap')
+          return;
+        }
       }
       await response.wait(1)
 
       await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
         liquidityPairAddress: (liquidityPair as any).poolAddress,
-        token: firstToken?.type === 'native' ? secondToken : firstToken,
+        tokenId: firstToken?.type === 'native' ? (secondToken as any)._id : (firstToken as any)._id,
         amount: firstToken?.type === 'native' ? secondValue : firstValue,
         timeStamps: new Date(),
         side: firstToken?.type === 'native' ? 'buy' : 'sell',
@@ -113,27 +120,39 @@ function Swap() {
 
   const handleChangeFirstValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
+    const amountIn = parseFloat(inputValue);
+    const reserveIn = firstToken?.type === 'native' ? parseFloat((liquidityPair as any).tokenBReserve) : parseFloat((liquidityPair as any).tokenAReserve)
+    const reserveOut = firstToken?.type === 'native' ? parseFloat((liquidityPair as any).tokenAReserve) : parseFloat((liquidityPair as any).tokenBReserve)
+    setFirstValue(inputValue);
     if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
       setFirstValue(inputValue);
-      if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
-        setSecondValue(calculateAmountReceived(inputValue, parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString())
+      if (inputValue == "") {
+        setSecondValue("")
       }
-      else if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
-        setSecondValue(calculateAmountReceived(inputValue, parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString())
+      else {
+        setSecondValue(calculateAmountReceived(amountIn, reserveIn, reserveOut).toString())
       }
     }
-  };
+  }
 
   const handleChangeSecondValue = (e) => {
     const inputValue = e.target.value.replace(/,/g, '');
     if (/^\d*\.?\d*$/.test(inputValue) && inputValue.length <= 9) {
       setSecondValue(inputValue)
+      const amountOut = parseFloat(inputValue);
+      const reserveOut = secondToken?.type === 'native' ? parseFloat((liquidityPair as any).tokenBReserve) : parseFloat((liquidityPair as any).tokenAReserve)
+      const reserveIn = secondToken?.type === 'native' ? parseFloat((liquidityPair as any).tokenAReserve) : parseFloat((liquidityPair as any).tokenBReserve)
 
-      if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
-        setFirstValue(calculateAmountNeeded(inputValue, parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString())
+      if (amountOut > reserveOut || (secondToken?.type === 'native' && reserveOut - amountOut < VIRTUAL_LIQUIDITY)) {
+        setFirstValue('0')
+        setError(true)
       }
-      else if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
-        setFirstValue(calculateAmountNeeded(inputValue, parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString())
+      else if (inputValue == "") {
+        setFirstValue("")
+      }
+      else {
+        setError(false)
+        setFirstValue(calculateAmountNeeded(amountOut, reserveIn, reserveOut).toString())
       }
     }
   }
@@ -163,6 +182,11 @@ function Swap() {
               transform rotate-45 border-l border-t border-purple-500/20" />
             </div>
           </div>
+          {isError && <div className='flex items-center gap-2 rounded-lg animate-fade-in ml-3'>
+            <span className='text-sm font-medium text-red-500 italic'>
+              Not enough reserve in pool
+            </span>
+          </div>}
         </div>
 
         <SwapToken

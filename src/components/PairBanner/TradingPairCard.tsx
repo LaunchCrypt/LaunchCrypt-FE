@@ -76,6 +76,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
       state: {
         liquidityPairId: (liquidityPair as any).data.id,
         liquidityPairAddress: contract,
+        tokenSymbol: token2Name
       }
     })
   }
@@ -125,7 +126,9 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
 
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src={base64toUrl((token2Icon as any).buffer)} alt={token2Name} className="w-8 h-8" />
+            <div className="flex items-center gap-2">
+              <img src={base64toUrl((token2Icon as any).buffer)} alt={token2Name} className="w-8 h-8" />
+            </div>
           </div>
           <span className="font-normal text-[15px] leading-[25px]">{formatBalance(token2Reservers, 12)} {token2Name}</span>
         </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart, CrosshairMode, LineStyle } from 'lightweight-charts';
 
-const CandleStickChart = () => {
+const CandleStickChart = ({ tokenSymbol }: { tokenSymbol: string }) => {
   const chartContainerRef = useRef(null);
   const chartRef = useRef(null);
   const [timeframe, setTimeframe] = useState('15m');
@@ -123,9 +123,9 @@ const CandleStickChart = () => {
     chart.timeScale().fitContent();
 
     const handleResize = () => {
-        const maxWidth = 1600;
+      const maxWidth = 1600;
       const maxHeight = 400;
-      const containerWidth = Math.min(chartContainerRef.current.clientWidth,maxWidth);
+      const containerWidth = Math.min(chartContainerRef.current.clientWidth, maxWidth);
       const containerHeight = Math.min(chartContainerRef.current.clientHeight, maxHeight);
 
       chart.applyOptions({
@@ -160,7 +160,7 @@ const CandleStickChart = () => {
         {/* Token Info Panel */}
         <div className="flex flex-row text-sm ml-2">
           <div className="flex items-center gap-2">
-            <span className="text-white text-base font-medium mr-3">{"WETH"}</span>
+            <span className="text-white text-base font-medium mr-3">{tokenSymbol}</span>
           </div>
           <div className="flex flex-row gap-1 text-[#848e9c]">
             <div className="flex items-center gap-1 mr-3">
@@ -188,8 +188,8 @@ const CandleStickChart = () => {
               key={tf.value}
               onClick={() => setTimeframe(tf.value)}
               className={`px-3 py-1 rounded ${timeframe === tf.value
-                  ? 'bg-[#c97dff] text-white'
-                  : 'bg-[#363a45] text-[#848e9c] hover:bg-[#9c5af3] hover:text-white'
+                ? 'bg-[#c97dff] text-white'
+                : 'bg-[#363a45] text-[#848e9c] hover:bg-[#9c5af3] hover:text-white'
                 } transition-colors duration-200`}
             >
               {tf.label}

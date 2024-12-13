@@ -8,7 +8,7 @@ export const formatAddress = (address: string) => {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
 };
 
-export const formatAddressLong = (address: string, slice:number) => {
+export const formatAddressLong = (address: string, slice: number) => {
     if (!address) return '';
     return `${address.slice(0, slice)}...${address.slice(-slice)}`;
 }
@@ -151,14 +151,20 @@ export const swapWithNativeToken = async (
     const signer = provider.getSigner();
     let contract;
     let tx;
-    if (type === 'buy') {
-        contract = new ethers.Contract(contractAddress, ['function buy() payable'], signer);
-        tx = await contract.buy({ value: ethers.utils.parseEther(amount) });
-    } else {
-        contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
-        tx = await contract.sell(amount);
+    try {
+        if (type === 'buy') {
+            contract = new ethers.Contract(contractAddress, ['function buy() payable'], signer);
+            tx = await contract.buy({ value: ethers.utils.parseEther(amount) });
+        } else {
+            contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
+            tx = await contract.sell(amount);
+        }
+        console.log('tx', tx);
+        return tx;
+    } catch (error) {
+        console.log('error', error);
+        return error;
     }
-    return tx;
 }
 
 export const approveERC20 = async (contractAddress: string, spender: string, amount: string) => {
@@ -234,3 +240,21 @@ export function showAlert(transactionHash: string, message: string) {
     });
 }
 
+export function showFailedAlert(message: string) {
+    Swal.fire({
+        customClass: {
+            popup: 'rounded-lg shadow-xl',
+            title: 'text-gray-200 font-medium text-xl mb-2',
+            confirmButton: 'bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600',
+            actions: 'space-x-2',
+        },
+        title: 'Transaction Failed',
+        icon: 'error',
+        iconColor: '#f43f5e',
+        background: '#1a1a2e',
+        showConfirmButton: true,
+        confirmButtonText: 'OK',
+        showCloseButton: true,
+        html: `<p class="mb-2 text-red-500">${message}</p>`
+    });
+}
