@@ -20,7 +20,7 @@ export const useChat = (liquidityPairId: string) => {
 
     useEffect(() => {
         // Initialize socket connection
-        const socketInstance = io('http://localhost:3000', {
+        const socketInstance = io('http://localhost:3000/chat', {
             transports: ['websocket', 'polling']
         });
 
@@ -29,7 +29,7 @@ export const useChat = (liquidityPairId: string) => {
             console.log('Socket connected');
             setIsConnected(true);
             // Join room after connection
-            socketInstance.emit('joinRoom', liquidityPairId);
+            socketInstance.emit('chat:joinRoom', liquidityPairId);
         });
 
         socketInstance.on('disconnect', () => {
@@ -59,7 +59,7 @@ export const useChat = (liquidityPairId: string) => {
         // Cleanup on unmount
         return () => {
             if (socketInstance) {
-                socketInstance.emit('leaveRoom', liquidityPairId);
+                socketInstance.emit('chat:leaveRoom', liquidityPairId);
                 socketInstance.disconnect();
             }
         };

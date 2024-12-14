@@ -112,7 +112,9 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           amountERC20 = amountNeeded
           ERC20Side = 'sell'
           await response.wait();
-          showAlert(response.hash, "Swap token successfully")
+          if (response.hash != undefined && response.hash != null) {
+            showAlert(response.hash, "Swap token successfully")
+          }
         } catch (error) {
           showFailedAlert('Not enough token to swap')
           return;
@@ -125,7 +127,9 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         amountERC20 = amount
         ERC20Side = 'buy'
         response = await swapWithNativeToken(amountNeeded, (liquidityPair as any).poolAddress, 'buy')
-        showAlert(response.hash, "Swap token successfully")
+        if (response.hash != undefined && response.hash != null) {
+          showAlert(response.hash, "Swap token successfully")
+        }
       }
     }
     else if (side == 'sell') {
@@ -134,7 +138,9 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         amountERC20 = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
         ERC20Side = 'buy'
         response = await swapWithNativeToken(amount, (liquidityPair as any).poolAddress, 'buy')
-        showAlert(response.hash, "Swap token successfully")
+        if (response.hash != undefined && response.hash != null) {
+          showAlert(response.hash, "Swap token successfully")
+        }
       }
       if (currentSelectedToken == tokenSymbol) {
         // sell ERC20 to get AVAX (input = ERC20)
@@ -154,7 +160,9 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           amountERC20 = amount
           ERC20Side = "sell"
           await response.wait();
-          showAlert(response.hash, "Swap token successfully")
+          if (response.hash != undefined && response.hash != null) {
+            showAlert(response.hash, "Swap token successfully")
+          }
         } catch (error) {
           console.log("error", error)
           showFailedAlert('Not enough token to swap')
@@ -165,7 +173,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
 
     await response.wait(1)
     await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
-      liquidityPairAddress: (liquidityPair as any).poolAddress,
+      liquidityPairId: (liquidityPair as any)._id,
       tokenId: (liquidityPair as any).tokenA._id,
       amount: amountERC20,
       timeStamps: new Date(),
@@ -359,6 +367,5 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
     </div>
   </>
   );
-};
-
+}
 export default TradingSidebar;

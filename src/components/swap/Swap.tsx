@@ -69,7 +69,7 @@ function Swap() {
       await response.wait(1)
 
       await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
-        liquidityPairAddress: (liquidityPair as any).poolAddress,
+        liquidityPairId: (liquidityPair as any)._id,
         tokenId: firstToken?.type === 'native' ? (secondToken as any)._id : (firstToken as any)._id,
         amount: firstToken?.type === 'native' ? secondValue : firstValue,
         timeStamps: new Date(),
