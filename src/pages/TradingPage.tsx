@@ -18,7 +18,7 @@ const TradingPage = () => {
       <div className="flex w-full justify-around gap-8 px-8">
         <div className='flex flex-col w-full h-fit'>
         <CandleStickChart tokenSymbol={tokenSymbol}/>
-          <CommentTrade userAddress={userAddress}/>
+        <CommentTrade userAddress={userAddress} tokenSymbol={tokenSymbol}/>
         </div>
 
         {/* Right Trading Panel */}

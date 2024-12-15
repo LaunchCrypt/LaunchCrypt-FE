@@ -23,9 +23,8 @@ function EarnButton() {
 
     const menuItems = [
         {
-            id: 'pools',
-            label: 'Pools',
-            path: '/pools',
+            label: 'Stake',
+            path: '/stake',
             icon: poolIcon
         }
     ];

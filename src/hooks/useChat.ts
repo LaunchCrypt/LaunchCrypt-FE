@@ -1,20 +1,11 @@
 import { useEffect, useCallback, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { io, Socket } from 'socket.io-client';
-
-interface Message {
-    id: string;
-    creator: string;
-    message: string;
-    timestamp: number;
-    loveCount: number;
-    children?: Message[];
-    parent?: string;
-}
+import { IMessage } from '../interfaces';
 
 export const useChat = (liquidityPairId: string) => {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<IMessage[]>([]);
     const [isConnected, setIsConnected] = useState(false);
     const userAddress = useSelector((state: any) => state.user.address);
 
@@ -38,12 +29,12 @@ export const useChat = (liquidityPairId: string) => {
         });
 
         // Message event handlers
-        socketInstance.on('previousMessages', (previousMessages: Message[]) => {
+        socketInstance.on('previousMessages', (previousMessages: IMessage[]) => {
             console.log('Received previous messages:', previousMessages);
             setMessages(previousMessages);
         });
 
-        socketInstance.on('newMessage', (message: Message) => {
+        socketInstance.on('newMessage', (message: IMessage) => {
             console.log('Received new message:', message);
             setMessages(prev => [message, ...prev]);
         });

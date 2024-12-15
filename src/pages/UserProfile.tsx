@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User, Heart, MessageSquare, ExternalLink, Edit2, PlusCircle, Eye } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import WalletWarning from '../components/common/WalletWarning';
@@ -6,6 +6,9 @@ import Modal from '../components/Modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import EditProfile from '../components/userProfile/EditProfile';
 import CoinsHeldTab from '../components/userProfile/CoinHeldTab';
+import { axiosInstance, GET_API } from '../apis/api';
+import { IUserProfile } from '../interfaces';
+import { base64toUrl } from '../utils';
 
 const NavLink = ({ active, children, onClick }) => (
   <button
@@ -30,9 +33,25 @@ const tabContent = {
 
 const UserProfile = () => {
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState<IUserProfile>({});
   const userAddress = useSelector((state: any) => state.user.address);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('coins');
+
+  useEffect(() => {
+    const getUserProfile = async () => {
+      try {
+        const res = await axiosInstance.get(GET_API.GET_USER_BY_PUBLIC_KEY(userAddress));
+        setUserInfo(res.data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    if (userAddress) {
+      getUserProfile();
+    }
+  }, [userAddress]);
 
   return (
     userAddress == "" ?
@@ -43,7 +62,12 @@ const UserProfile = () => {
       <div className="w-full max-w-[1200px] mx-auto px-6">
         <Modal isVisible={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          children={<EditProfile currentProfile={{ username: 'hello ^^' }} onClose={() => setIsModalOpen(false)} />} />
+          children={<EditProfile 
+            currentProfile={userInfo} 
+            onClose={() => setIsModalOpen(false)} 
+            setUserInfo={setUserInfo}
+            />} 
+          />
 
 
         <div className="rounded-3xl bg-[#13141F] border border-[#1F2037]">
@@ -52,17 +76,34 @@ const UserProfile = () => {
             <div className="flex items-start justify-between">
               <div className="flex gap-6">
                 {/* Avatar */}
-                <div className="w-20 h-20 rounded-full bg-[#1A1B2A] flex items-center justify-center">
-                  <User className="w-10 h-10 text-gray-500" />
+                <div className="w-20 h-20 rounded-full bg-[#1A1B2A] flex items-center justify-center overflow-hidden">
+                  {userInfo.image ? <img src={base64toUrl((userInfo?.image as any).buffer)} className="w-full h-full" />
+                    : <User className="w-10 h-10 text-gray-500" />}
                 </div>
 
                 {/* User Info */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl text-white">@</span>
-                    <span className="text-gray-500 text-lg">0 followers</span>
+                <div className="flex flex-col space-y-3 justify-around">
+                  {/* Name and followers */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <h2 className="text-xl font-medium text-white">
+                      {userInfo?.name || "User"}
+                    </h2>
+                    <div className="flex items-center text-gray-500">
+                      <span className="text-base">
+                        {userInfo?.followers?.length || 0}
+                      </span>
+                      <span className="ml-1.5 text-sm">
+                        followers
+                      </span>
+                    </div>
                   </div>
-                  <p className="text-white text-lg">hello ^^</p>
+
+                  {/* User bio/status */}
+                  <div className="flex items-center">
+                    <p className="text-gray-400 text-base italic">
+                      {userInfo?.bio}
+                    </p>
+                  </div>
                 </div>
               </div>
 

@@ -5,6 +5,9 @@ import { useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import WalletWarning from '../common/WalletWarning'
 import Modal from '../Modal/Modal';
+import { userTrade } from '../../hooks/useTrade';
+import CommentItem from './CommentItem';
+import { TradeList } from './TradeItem';
 
 const TabButton = ({ children, isActive, onClick }) => (
     <button
@@ -37,20 +40,23 @@ const ActionButton = ({ children, onClick }) => (
 
 
 
-const CommentTrade = ({ userAddress }) => {
+const CommentTrade = ({ userAddress, tokenSymbol }) => {
     const location = useLocation();
     const [isWalletWarning, setWalletWarning] = useState(false)
     const [activeTab, setActiveTab] = useState('thread');
     const [newMessage, setNewMessage] = useState('');
     const [replyTo, setReplyTo] = useState<string>('');
-    const { liquidityPairId } = location.state || {};
+    const { liquidityPairId, tokenId } = location.state || {};
     const creator = useSelector((state: any) => state.user.address);
     const { messages, sendMessage, loveMessage, isConnected } = useChat(
         liquidityPairId,
     );
+
+    const { trades } = userTrade(liquidityPairId, tokenId);
     const postMessageRef = useRef(null);
-    const handleSendMessage = async(e) => {
-        if(userAddress == ""){
+    console.log('message', messages)
+    const handleSendMessage = async (e) => {
+        if (userAddress == "") {
             setWalletWarning(true)
         }
         e.preventDefault();
@@ -67,10 +73,9 @@ const CommentTrade = ({ userAddress }) => {
 
     return (
         <div className="bg-slate-900 text-slate-300 mt-5 rounded-xl pb-4 mb-4">
-            {/* Tabs */}
-            {isWalletWarning && <Modal isVisible={isWalletWarning} 
-                onClose={() => setWalletWarning(false)} 
-                children={<WalletWarning closeModal={()=>setWalletWarning(false)}/>} />
+            {isWalletWarning && <Modal isVisible={isWalletWarning}
+                onClose={() => setWalletWarning(false)}
+                children={<WalletWarning closeModal={() => setWalletWarning(false)} />} />
             }
             <div className="flex items-center justify-between h-14 bg-slate-900/95 rounded-xl px-3">
                 {/* Left side - Tabs */}
@@ -93,21 +98,22 @@ const CommentTrade = ({ userAddress }) => {
                 </div>
 
                 {/* Right side - Actions */}
-                <div className="flex items-center gap-1 pr-2">
+                {activeTab == 'thread' && <div className="flex items-center gap-1 pr-2">
                     <ActionButton onClick={scrollToBottom}>
                         <PenSquare className="w-3.5 h-3.5" />
                         <span>post a reply</span>
                     </ActionButton>
-                </div>
+                </div>}
             </div>
 
             {/* Comments Section */}
-            
-            <div className="space-y-3 p-6">
+
+            {activeTab == "thread" ? <div className="space-y-3 p-6">
                 {messages.map((message) => (
                     <CommentItem
                         key={message.id}
-                        username={message.creator}
+                        creatorInfo = {message.creatorInfo}
+                        creator={message.creator}
                         time={new Date(message.timestamp).toLocaleString()}
                         content={message.message}
                         likes={message.loveCount}
@@ -115,10 +121,14 @@ const CommentTrade = ({ userAddress }) => {
                         onReply={() => setReplyTo(message.id)}
                     />
                 ))}
-            </div>
+            </div> :
+                <div className="space-y-3 p-6">
+                    <TradeList trades={trades} tokenSymbol={tokenSymbol}/>
+                </div>
+            }
 
             {/* Input Section */}
-            {isConnected && (
+            {isConnected && activeTab == 'thread' && (
                 <form onSubmit={handleSendMessage} className="px-6 ">
                     <div className="flex items-center gap-2" ref={postMessageRef}>
                         <input
@@ -142,34 +152,5 @@ const CommentTrade = ({ userAddress }) => {
     );
 };
 
-const CommentItem = ({ username, userImage, time, content, likes, onLove, onReply }) => (
-    <div className="group p-4 rounded-lg transition-colors bg-slate-800">
-        <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-700/30">
-                <img src="/api/placeholder/40/40" alt="commenter" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex-1 items-start">
-                <div className="flex items-center gap-3">
-                    <span className="font-medium text-slate-300">{username}</span>
-                    <span className="text-slate-500 text-sm">{time}</span>
-                    <div
-                        onClick={onLove}
-                        className="flex items-center gap-1 text-slate-500 hover:text-fuchsia-400 transition-colors cursor-pointer"
-                    >
-                        <Heart className="w-4 h-4" />
-                        <span className="text-sm">{likes}</span>
-                    </div>
-                    <button
-                        onClick={onReply}
-                        className="text-textPrimary hover:text-purple-500 text-sm transition-colors"
-                    >
-                        [reply]
-                    </button>
-                </div>
-                <p className="text-slate-300 mt-2 text-left">{content}</p>
-            </div>
-        </div>
-    </div>
-);
 
 export default CommentTrade;

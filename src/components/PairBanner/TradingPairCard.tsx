@@ -76,7 +76,8 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
       state: {
         liquidityPairId: (liquidityPair as any).data.id,
         liquidityPairAddress: contract,
-        tokenSymbol: token2Name
+        tokenSymbol: token2Name,
+        tokenId: (liquidityPair as any).data.tokenA._id
       }
     })
   }

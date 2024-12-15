@@ -89,6 +89,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
   const handleSwap = async (side) => {
     let response
     let amountERC20
+    let amountNative
     let ERC20Side
     // amount out, reserveIn, reserveOut
     if (side == 'buy') {
@@ -110,6 +111,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
             'sell'
           )
           amountERC20 = amountNeeded
+          amountNative = amount
           ERC20Side = 'sell'
           await response.wait();
           if (response.hash != undefined && response.hash != null) {
@@ -125,6 +127,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         // buy ERC20 with AVAX (input = ERC20)
         const amountNeeded = calculateAmountNeeded(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
         amountERC20 = amount
+        amountNative = amountNeeded
         ERC20Side = 'buy'
         response = await swapWithNativeToken(amountNeeded, (liquidityPair as any).poolAddress, 'buy')
         if (response.hash != undefined && response.hash != null) {
@@ -136,6 +139,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
       if (currentSelectedToken == currentNetwork?.symbol) {
         // buy ERC20 with AVAX (input = AVAX)
         amountERC20 = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
+        amountNative = amount
         ERC20Side = 'buy'
         response = await swapWithNativeToken(amount, (liquidityPair as any).poolAddress, 'buy')
         if (response.hash != undefined && response.hash != null) {
@@ -158,6 +162,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
             'sell'
           )
           amountERC20 = amount
+          amountNative = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString()
           ERC20Side = "sell"
           await response.wait();
           if (response.hash != undefined && response.hash != null) {
@@ -174,6 +179,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
     await response.wait(1)
     await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
       liquidityPairId: (liquidityPair as any)._id,
+      price: amountNative,
       tokenId: (liquidityPair as any).tokenA._id,
       amount: amountERC20,
       timeStamps: new Date(),

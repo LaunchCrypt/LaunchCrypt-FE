@@ -1,16 +1,71 @@
 import { Loader2, Upload, User, X } from 'lucide-react'
 import React, { useState } from 'react'
+import { axiosInstance, PATCH_API, POST_API } from '../../apis/api';
+import Swal from 'sweetalert2';
 
-function EditProfile(currentProfile, onClose) {
-    const [form, setForm] = useState(currentProfile);
+interface EditProfileProps {
+    username: string,
+    bio: string,
+    image: File
+}
+function EditProfile({ currentProfile, onClose, setUserInfo }) {
+    const [form, setForm] = useState<EditProfileProps>({
+        username: currentProfile.name,
+        bio: currentProfile.bio,
+        image: null as unknown as File
+    });
+    const [newImage, setNewImage] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [imagePreview, setImagePreview] = useState(null);
-    const handleSubmit = async (e) => {
+    const [imagePreview, setImagePreview] = useState("");
+    const handleSubmit = async () => {
+        const formData = new FormData();
+        const userData = {
+            name: form.username,
+            bio: form.bio
+        }
+        formData.append('data', JSON.stringify(userData));
+        if (newImage) {
+            formData.append('image', newImage);
+        }
+        console.log("formData", formData)
 
+        try {
+            const newUser = await axiosInstance.patch(
+                PATCH_API.UPDATE_USER(currentProfile.publicKey), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            Swal.fire({
+                customClass: {
+                    popup: 'rounded-lg shadow-xl',
+                    title: 'font-medium text-xl mb-2',
+                    confirmButton: 'bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600',
+                    actions: 'space-x-2',  // Add spacing between buttons
+                },
+                title: 'Update user profile successfully',
+                icon: 'success',
+                iconColor: '#a855f7', // Purple-500 color
+                background: '#1a1a2e',
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                showCloseButton: true,
+            });
+            setUserInfo(newUser.data);
+
+
+            onClose();
+        } catch (error) {
+            console.log(error)
+        }
     }
 
-    const handleImageChange = () => {
-
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setNewImage(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
     }
     return (
         <div className="w-[800px] rounded-2xl">
@@ -18,7 +73,7 @@ function EditProfile(currentProfile, onClose) {
                 <h2 className="text-xl font-medium text-white">Edit Profile</h2>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            <div className="p-6 space-y-6">
                 {/* Image Upload */}
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
@@ -35,7 +90,7 @@ function EditProfile(currentProfile, onClose) {
                                 type="file"
                                 className="hidden"
                                 accept="image/*"
-                                onChange={handleImageChange}
+                                onChange={e => handleImageChange(e)}
                             />
                         </label>
                     </div>
@@ -75,7 +130,7 @@ function EditProfile(currentProfile, onClose) {
                 {/* Submit Button */}
                 <div className="flex justify-end pt-4">
                     <button
-                        type="submit"
+                        onClick={handleSubmit}
                         disabled={isLoading}
                         className="flex items-center justify-center gap-2 px-6 py-3 rounded-lg
                 bg-purple-500 hover:bg-purple-600 transition-colors
@@ -88,7 +143,7 @@ function EditProfile(currentProfile, onClose) {
                         )}
                     </button>
                 </div>
-            </form>
+            </div>
         </div>
     )
 }

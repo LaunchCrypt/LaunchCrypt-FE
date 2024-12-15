@@ -7,11 +7,11 @@ import MainPage from "../pages/MainPage"
 import Navbar from '../components/navbar/Navbar';
 import IntellectualProperty from '../components/common/IntellectualProperty';
 import ListNewToken from '../components/listNewToken/ListNewToken'; // Adjust the path as necessary
-import PoolsPage from '../pages/PoolsPage';
 import SwapPage from '../pages/SwapPage';
 import TradingPage from '../pages/TradingPage';
 import StatsPage from '../pages/StatsPage';
 import UserProfile from '../pages/UserProfile';
+import StakingPage from '../pages/StakingPage';
 
 const Layout = () => {
     return (
@@ -36,8 +36,8 @@ export const router = createBrowserRouter([
                 element: <MainPage />
             },
             {
-                path: "/pools",
-                element: <PoolsPage/>
+                path: "/stake",
+                element: <StakingPage/>
             },
             {
                 path: "/swap",

@@ -33,3 +33,25 @@ export interface IqueryAll {
     sortField?: string;
     sortOrder?: 'asc' | 'desc';
 }
+
+export interface IUserProfile {
+    name?:string;
+    image?:string;
+    bio?:string;
+    publickey?: string;
+    followers?: string[];
+    following?: string[];
+    mentionReceived?:number;
+    likeReceived?:number;
+}
+
+export interface IMessage {
+    id: string;
+    creator: string;
+    message: string;
+    timestamp: number;
+    loveCount: number;
+    children?: IMessage[];
+    parent?: string;
+    creatorInfo?: any;
+}
