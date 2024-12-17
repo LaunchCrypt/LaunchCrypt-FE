@@ -113,7 +113,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         await tx.wait()
         setWaitForApproving(false)
         try {
-          const response = await swapWithNativeToken(
+          response = await swapWithNativeToken(
             ethers.utils.parseUnits(amountNeeded, 18).toString(),
             (liquidityPair as any).poolAddress,
             'sell'
@@ -121,7 +121,6 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           amountERC20 = amountNeeded
           amountNative = amount
           ERC20Side = 'sell'
-          await response.wait();
           if (response.hash != undefined && response.hash != null) {
             showAlert(response.hash, "Swap token successfully")
           }
@@ -172,7 +171,6 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           amountERC20 = amount
           amountNative = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString()
           ERC20Side = "sell"
-          await response.wait();
           if (response.hash != undefined && response.hash != null) {
             showAlert(response.hash, "Swap token successfully")
           }
@@ -185,7 +183,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
     }
 
     await response.wait(1)
-    await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
+    const newTrade = await axiosInstance.post(POST_API.CREATE_NEW_TRADE(), {
       liquidityPairId: (liquidityPair as any)._id,
       price: amountNative,
       tokenId: (liquidityPair as any).tokenA._id,
@@ -195,6 +193,8 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
       creator: userAddress,
       transactionHash: response.hash
     })
+
+    console.log("newTrade", newTrade)
 
     const { reserve, collateral } = await getLiquidityPoolReserve((liquidityPair as any).poolAddress)
     await axiosInstance.patch(PATCH_API.UPDATE_LIQUIDITY_PAIR((liquidityPair as any).poolAddress), {
