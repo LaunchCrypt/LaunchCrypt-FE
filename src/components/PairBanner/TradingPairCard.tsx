@@ -71,7 +71,6 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
   const navigate = useNavigate()
   const onClick = async () => {
     const liquidityPair = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contract))
-    console.log("liquidityPair", liquidityPair)
     navigate(`/trade/${contract}`, {
       state: {
         liquidityPairId: (liquidityPair as any).data.id,
@@ -91,7 +90,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
       <div className="flex items-center gap-1 mb-4">
         <div className='flex flex-row align-middle items-center justify-center -translate-x-6'>
           <img src={avaxLogo} alt="" className='h-11 w-11 z-10 translate-x-6' />
-          <img src={base64toUrl((token2Icon as any).buffer)} alt="" className='w-11 h-11 z-0' />
+          <img src={base64toUrl((token2Icon as any).buffer)} alt="" className='w-11 h-11 z-0 rounded-full overflow-hidden' />
         </div>
         <div>
           <p className="text-lg text-[#21px] leading-6 tracking-[.44px] text-textPrimary font-medium ">{token1Name} - {token2Name}</p>
@@ -128,7 +127,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
-              <img src={base64toUrl((token2Icon as any).buffer)} alt={token2Name} className="w-8 h-8" />
+              <img src={base64toUrl((token2Icon as any).buffer)} alt={token2Name} className="w-8 h-8 rounded-full overflow-hidden" />
             </div>
           </div>
           <span className="font-normal text-[15px] leading-[25px]">{formatBalance(token2Reservers, 12)} {token2Name}</span>

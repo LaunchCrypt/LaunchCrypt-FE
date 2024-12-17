@@ -24,7 +24,7 @@ const CoinsHeldTab = () => {
             <div className="w-10 h-10 rounded-full flex items-center justify-center">
               <div className="flex items-center gap-2">
                 <img src={base64toUrl((row.original.image as any).buffer)}
-                  alt={row.original.symbol} className="w-8 h-8" />
+                  alt={row.original.symbol} className="w-8 h-8 rounded-full overflow-hidden" />
               </div>
             </div>
             <div>

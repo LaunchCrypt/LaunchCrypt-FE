@@ -30,12 +30,10 @@ export const useChat = (liquidityPairId: string) => {
 
         // Message event handlers
         socketInstance.on('previousMessages', (previousMessages: IMessage[]) => {
-            console.log('Received previous messages:', previousMessages);
             setMessages(previousMessages);
         });
 
         socketInstance.on('newMessage', (message: IMessage) => {
-            console.log('Received new message:', message);
             setMessages(prev => [message, ...prev]);
         });
 

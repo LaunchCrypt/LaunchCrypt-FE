@@ -2,6 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 import { FUJI_CHAIN_ID, FUJI_PROVIDER, NETWORK_LIST } from '../constant';
 import { axiosInstance, PATCH_API } from '../apis/api';
 import Swal from 'sweetalert2';
+import { useSelector } from 'react-redux';
 
 export const formatAddress = (address: string) => {
     if (!address) return '';
@@ -63,7 +64,6 @@ export const estimateFee = async (provider: any, contractAddress: string, encode
     });
 
     const gasPrice = await provider.getGasPrice();
-    console.log(gasPrice.toString());
 
     const gasCostInWei = gasEstimate.mul(gasPrice);
 
@@ -135,7 +135,6 @@ export const getERC20Balance = async (account: string, contractAddress: string):
     const contract = new ethers.Contract(contractAddress, ['function balanceOf(address) view returns (uint)'], FUJI_PROVIDER);
     let balance = await contract.balanceOf(account);
     balance = BigNumber.from(balance._hex);
-    console.log(ethers.utils.formatEther(balance));
     return ethers.utils.formatEther(balance);
 }
 
@@ -147,6 +146,7 @@ export const swapWithNativeToken = async (
     if (!window.ethereum) {
         throw new Error("Ethereum provider is not available");
     }
+
     const provider = new ethers.providers.Web3Provider(window.ethereum as any);
     const signer = provider.getSigner();
     let contract;
@@ -159,7 +159,6 @@ export const swapWithNativeToken = async (
             contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
             tx = await contract.sell(amount);
         }
-        console.log('tx', tx);
         return tx;
     } catch (error) {
         console.log('error', error);
@@ -194,7 +193,7 @@ export const getLiquidityPoolReserve = async (address: string) => {
 export const calculateAmountReceived = (amountIn, reserveIn, reserveOut) => {
     let res = (reserveOut * amountIn * 997 / 1000) / (reserveIn + amountIn * 997 / 1000)
     if (res == 0) {
-        return 0
+        return '0'
     }
     return res.toFixed(9)
 }

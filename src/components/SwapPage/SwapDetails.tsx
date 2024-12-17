@@ -31,7 +31,6 @@ function SwapDetails() {
                     ))
                 ) :
                     allLiquidityPair.map((pair: any, index) => {
-                        console.log("pair", pair)
                         return (
                             <TradingPairCard
                                 key={index}

@@ -135,7 +135,6 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                             if (tokenImage) {
                                 formData.append('image', tokenImage);
                             }
-                            console.log("formData", formData)
                             try {
                                 const response = await axiosInstance.post(POST_API.CREATE_NEW_TOKEN(), formData, {
                                     headers: {

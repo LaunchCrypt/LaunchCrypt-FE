@@ -8,6 +8,8 @@ import { ethers } from 'ethers';
 import { axiosInstance, PATCH_API, POST_API } from '../../apis/api';
 import { useSelector } from 'react-redux';
 import Loading from '../common/Loading';
+import Modal from '../Modal/Modal';
+import WalletWarning from '../common/WalletWarning';
 
 
 const holders = [
@@ -67,6 +69,8 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
   const userAddress = useSelector((state: any) => state.user.address)
   const [amountOut, setAmountOut] = useState('0');
   const [isError, setError] = useState(false)
+  const [isWalletWarning, setIsWalletWarning] = useState(false)
+
 
   // if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
   //   response = await swapWithNativeToken(firstValue, (liquidityPair as any).poolAddress, 'buy')
@@ -92,6 +96,10 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
     let amountNative
     let ERC20Side
     // amount out, reserveIn, reserveOut
+    if (userAddress == "") {
+      setIsWalletWarning(true)
+      return;
+    }
     if (side == 'buy') {
       if (currentSelectedToken == currentNetwork?.symbol) {
         // sell ERC20 to get AVAX (input = AVAX)
@@ -201,6 +209,10 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
   }, [side, currentSelectedToken])
 
   return (<>
+    {isWalletWarning && <Modal isVisible={isWalletWarning}
+      onClose={() => setIsWalletWarning(false)}
+      children={<WalletWarning closeModal={() => setIsWalletWarning(false)} />} />
+    }
     {waitForApproving && Loading({ title: 'Wait for approve ERC20 process', message: 'Please confirm the swap transaction in your wallet' })}
     <div className="w-[380px] h-fit pb-4">
       <div className="w-[380px] space-y-6 bg-slate-900 p-4 border-l border-slate-800 rounded-xl">
@@ -246,7 +258,14 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
                         ? (liquidityPair as any).tokenAReserve
                         : (liquidityPair as any).tokenBReserve
 
-                      setAmountOut(calculateAmountReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut)).toString())
+                      const amountOut = calculateAmountReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut))
+                      if (currentSelectedToken == tokenSymbol && parseFloat(reserveOut) - parseFloat(amountOut) < VIRTUAL_LIQUIDITY) {
+                        setError(true)
+                      }
+                      else {
+                        setError(false)
+                      }
+                      setAmountOut(amountOut.toString())
                     }
                     else if (side === 'buy') {
                       const reserveIn = currentSelectedToken == currentNetwork?.symbol ?
