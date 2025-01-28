@@ -32,6 +32,7 @@ export interface IqueryAll {
     limit?: number;
     sortField?: string;
     sortOrder?: 'asc' | 'desc';
+    keyword?: string;
 }
 
 export interface IUserProfile {

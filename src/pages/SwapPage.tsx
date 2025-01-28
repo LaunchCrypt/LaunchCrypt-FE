@@ -13,16 +13,17 @@ function SwapPage() {
     return (
         <div className="flex flex-col items-center justify-center w-full">
             <div className="flex flex-col items-center w-[1200px]">
-            <SwapHeader
-                currentPoolTabs={currentPoolTab}
-                currentPoolTypes={currentPoolType}
-                setPoolTabs={(value)=>setCurrentPoolTab(value)}
-                setPoolTypes={(value)=>setCurrentPoolType(value)} />
+                <SwapHeader
+                    currentPoolTabs={currentPoolTab}
+                    currentPoolTypes={currentPoolType}
+                    setPoolTabs={(value) => setCurrentPoolTab(value)}
+                    setPoolTypes={(value) => setCurrentPoolType(value)}
+                    setSearchKeyword={(keyword: string) => setSearchKeyword(keyword)} />
             </div>
-            <SwapDetails/>
+            <SwapDetails searchKeyword={searchKeyword} />
 
 
-            
+
         </div>
     )
 }

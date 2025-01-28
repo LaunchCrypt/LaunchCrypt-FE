@@ -7,13 +7,15 @@ interface SwapHeaderProps {
   currentPoolTypes: string;
   setPoolTabs: (value: string) => void;
   setPoolTypes: (value: string) => void;
+  setSearchKeyword: (keyword: string) => void;
 }
 
 function SwapHeader({
   currentPoolTabs,
   currentPoolTypes,
   setPoolTabs,
-  setPoolTypes
+  setPoolTypes,
+  setSearchKeyword
 }: SwapHeaderProps) {
   return (
     <div className="flex flex-col align-middle justify-evenly w-full">
@@ -80,6 +82,9 @@ function SwapHeader({
           <input
             type="text"
             placeholder="Search Pools"
+            onChange={(e) => {
+              setSearchKeyword(e.target.value)
+            }}
             className="w-full h-[52px] bg-[#28253E] rounded-lg pl-11 pr-4 py-2.5 text-white text-sm
               placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#9747FF] 
               outline-none outline-offset-0 focus:shadow-[0_0_0_0.2rem_#c4b5fd80] focus:border-[#c4b5fd]"

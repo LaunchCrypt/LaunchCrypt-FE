@@ -1,16 +1,24 @@
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import TradingPairCard from "../PairBanner/TradingPairCard"
 import { useLiquidityPair } from "../../hooks/useLiquidityPair";
 import { IqueryAll } from "../../interfaces";
 
-function SwapDetails() {
+function SwapDetails({ searchKeyword }: { searchKeyword: string }) {
     const [searchQuery, setSearchQuery] = useState<IqueryAll>({
         page: 1,
         limit: 20,
         sortField: "createdAt",
-        sortOrder: 'asc'
+        sortOrder: 'asc',
+        keyword: ""
     });
-    const { allLiquidityPair, isLoading, error, getAllLiquidityPairs } = useLiquidityPair({ searchQuery });
+    const updatedSearchQuery = { ...searchQuery, keyword: searchKeyword };
+    const { allLiquidityPair, isLoading, error, getAllLiquidityPairs } = useLiquidityPair(
+        {searchQuery: updatedSearchQuery}
+    );
+    useEffect(() => {
+        console.log("searchKeyword", searchKeyword)
+        getAllLiquidityPairs();
+    }, [searchKeyword]);
     const skeletonArray = Array(8).fill(null); // Show 8 skeleton cards while loading
     return (
         <div className="w-[1200px] pt-6">
