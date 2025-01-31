@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { approveERC20, calculateAmountNeeded, calculateAmountReceived, get_network, getLiquidityPoolReserve, showAlert, showFailedAlert, swapWithNativeToken } from '../../utils';
+import { 
+  approveERC20,
+  calculateAmountNeededReceiveAvax, 
+  calculateAmountNeededReceiveToken, 
+  calculateAmountERC20Received, 
+  calculateAmountAVAXReceived,
+  get_network, 
+  getLiquidityPoolReserve, 
+  showAlert, 
+  showFailedAlert, 
+  swapWithNativeToken 
+} from '../../utils';
 import { useLocation } from 'react-router-dom';
 import { useLiquidityPair } from '../../hooks/useLiquidityPair';
 import { DEFAULT_QUERY_ALL, VIRTUAL_LIQUIDITY } from '../../constant';
@@ -103,7 +114,12 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
     if (side == 'buy') {
       if (currentSelectedToken == currentNetwork?.symbol) {
         // sell ERC20 to get AVAX (input = AVAX)
-        const amountNeeded = calculateAmountNeeded(parseFloat(amount), parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString()
+        const amountNeeded = calculateAmountNeededReceiveAvax(
+          parseFloat(amount),
+          parseFloat((liquidityPair as any).tokenAReserve),
+          parseFloat((liquidityPair as any).tokenBReserve),
+          parseFloat((liquidityPair as any).poolFee)
+        ).toString()
         const tx = await approveERC20(
           (liquidityPair as any).tokenA.contractAddress,
           (liquidityPair as any).poolAddress,
@@ -115,6 +131,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         try {
           response = await swapWithNativeToken(
             ethers.utils.parseUnits(amountNeeded, 18).toString(),
+            "0",
             (liquidityPair as any).poolAddress,
             'sell'
           )
@@ -132,11 +149,16 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
       }
       if (currentSelectedToken == tokenSymbol) {
         // buy ERC20 with AVAX (input = ERC20)
-        const amountNeeded = calculateAmountNeeded(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
+        const amountNeeded = calculateAmountNeededReceiveToken(
+          parseFloat(amount),
+          parseFloat((liquidityPair as any).tokenBReserve),
+          parseFloat((liquidityPair as any).tokenAReserve),
+          parseFloat((liquidityPair as any).poolFee)
+        ).toString()
         amountERC20 = amount
         amountNative = amountNeeded
         ERC20Side = 'buy'
-        response = await swapWithNativeToken(amountNeeded, (liquidityPair as any).poolAddress, 'buy')
+        response = await swapWithNativeToken(amountNeeded, "0", (liquidityPair as any).poolAddress, 'buy')
         if (response.hash != undefined && response.hash != null) {
           showAlert(response.hash, "Swap token successfully")
         }
@@ -145,10 +167,15 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
     else if (side == 'sell') {
       if (currentSelectedToken == currentNetwork?.symbol) {
         // buy ERC20 with AVAX (input = AVAX)
-        amountERC20 = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenBReserve), parseFloat((liquidityPair as any).tokenAReserve)).toString()
+        amountERC20 = calculateAmountERC20Received(
+          parseFloat(amount),
+          parseFloat((liquidityPair as any).tokenBReserve),
+          parseFloat((liquidityPair as any).tokenAReserve),
+          parseFloat((liquidityPair as any).poolFee)
+        ).toString()
         amountNative = amount
         ERC20Side = 'buy'
-        response = await swapWithNativeToken(amount, (liquidityPair as any).poolAddress, 'buy')
+        response = await swapWithNativeToken(amount, "0", (liquidityPair as any).poolAddress, 'buy')
         if (response.hash != undefined && response.hash != null) {
           showAlert(response.hash, "Swap token successfully")
         }
@@ -165,11 +192,17 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         try {
           response = await swapWithNativeToken(
             ethers.utils.parseUnits(amount, 18).toString(),
+            "0",
             (liquidityPair as any).poolAddress,
             'sell'
           )
           amountERC20 = amount
-          amountNative = calculateAmountReceived(parseFloat(amount), parseFloat((liquidityPair as any).tokenAReserve), parseFloat((liquidityPair as any).tokenBReserve)).toString()
+          amountNative = calculateAmountAVAXReceived(
+            parseFloat(amount), 
+            parseFloat((liquidityPair as any).tokenAReserve), 
+            parseFloat((liquidityPair as any).tokenBReserve),
+            parseFloat((liquidityPair as any).poolFee)
+          ).toString()
           ERC20Side = "sell"
           if (response.hash != undefined && response.hash != null) {
             showAlert(response.hash, "Swap token successfully")
@@ -258,7 +291,10 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
                         ? (liquidityPair as any).tokenAReserve
                         : (liquidityPair as any).tokenBReserve
 
-                      const amountOut = calculateAmountReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut))
+                      const amountOut = currentSelectedToken == currentNetwork?.symbol ?
+                      calculateAmountERC20Received(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut),(liquidityPair as any).poolFee)
+                      :
+                      calculateAmountAVAXReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut),(liquidityPair as any).poolFee)
                       if (currentSelectedToken == tokenSymbol && parseFloat(reserveOut) - parseFloat(amountOut) < VIRTUAL_LIQUIDITY) {
                         setError(true)
                       }
@@ -279,7 +315,12 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
                       }
                       else {
                         setError(false)
-                        setAmountOut(calculateAmountNeeded(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut)).toString())
+                        const amountOut = currentSelectedToken == currentNetwork?.symbol
+                        ? 
+                        calculateAmountNeededReceiveAvax(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
+                        :
+                        calculateAmountNeededReceiveToken(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
+                        setAmountOut(amountOut.toString())
                       }
                     }
                   }

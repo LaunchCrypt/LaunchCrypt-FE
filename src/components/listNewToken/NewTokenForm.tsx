@@ -88,13 +88,14 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                     //TODO: change back to ETH_RPC_URL 
 
                     const abiCoder = new ethers.utils.Interface([
-                        "function createToken(string memory name, string memory ticker, uint256 maxSupply)"
+                        "function createToken(string memory name, string memory ticker, uint256 maxSupply, uint256 fee)"
                     ]);
 
                     const encodedData = abiCoder.encodeFunctionData("createToken", [
                         "Your Token Name",
                         "TKN",
-                        ethers.utils.parseUnits("1000000000", 18)
+                        ethers.utils.parseUnits("1000000000", 18),
+                        3, // 0.3% fee
                     ]);
 
 
@@ -122,11 +123,11 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
                                 name: newTokenInfo.name,
                                 symbol: newTokenInfo.symbol,
                                 description: newTokenInfo.description,
-                                fee: newTokenInfo.fee,
+                                fee: newTokenInfo.fee * 10,
                                 socialLinks: newTokenInfo.socialLinks,
                                 tokenFee: newTokenInfo.tokenFee,
                                 chainId: newTokenInfo.chainId,
-                                totalSupply: newTokenInfo.totalSupply.toString()
+                                totalSupply: newTokenInfo.totalSupply.toString(),
                             };
 
                             formData.append('data', JSON.stringify(tokenData));

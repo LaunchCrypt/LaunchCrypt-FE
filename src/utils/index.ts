@@ -140,6 +140,7 @@ export const getERC20Balance = async (account: string, contractAddress: string):
 
 export const swapWithNativeToken = async (
     amount: string,
+    amountOutMin: string,
     contractAddress: string,
     type: 'buy' | 'sell'
 ) => {
@@ -153,16 +154,18 @@ export const swapWithNativeToken = async (
     let tx;
     try {
         if (type === 'buy') {
-            contract = new ethers.Contract(contractAddress, ['function buy() payable'], signer);
-            tx = await contract.buy({ value: ethers.utils.parseEther(amount) });
+            contract = new ethers.Contract(contractAddress, ['function buy(uint) payable'], signer);
+            tx = await contract.buy(
+                amountOutMin,
+                { value: ethers.utils.parseEther(amount) }
+            );
         } else {
-            contract = new ethers.Contract(contractAddress, ['function sell(uint)'], signer);
-            tx = await contract.sell(amount);
+            contract = new ethers.Contract(contractAddress, ['function sell(uint,uint)'], signer);
+            tx = await contract.sell(amount, amountOutMin);
         }
         return tx;
     } catch (error) {
-        console.log('error', error);
-        return error;
+        throw error;
     }
 }
 
@@ -190,8 +193,8 @@ export const getLiquidityPoolReserve = async (address: string) => {
     };
 }
 
-export const calculateAmountReceived = (amountIn, reserveIn, reserveOut) => {
-    let res = (reserveOut * amountIn * 997 / 1000) / (reserveIn + amountIn * 997 / 1000)
+export const calculateAmountReceived = (amountIn, reserveIn, reserveOut, poolFee) => {
+    let res = (reserveOut * amountIn * (1000 - poolFee) / 1000) / (reserveIn + amountIn * (1000 - poolFee) / 1000)
     if (res == 0) {
         return '0'
     }
@@ -199,14 +202,60 @@ export const calculateAmountReceived = (amountIn, reserveIn, reserveOut) => {
 }
 
 
-
-export const calculateAmountNeeded = (amountOut, reserveIn, reserveOut) => {
-    let res = 1000 / 997 * (amountOut * reserveIn) / (reserveOut - amountOut);
+// input: AVAX (needed), Token In: ERC20 
+export const calculateAmountNeededReceiveAvax = (amountOut, reserveIn, reserveOut, poolFee) => {
+    const actualAvaxOut = amountOut * 1000 / (1000 - poolFee);
+    // (y-dy)(x+dx) = xy
+    // (y-dy')(x+dx) = xy ( y' is actualAvaxOut)
+    // -xdy' + ydx - dxdy' = 0
+    // dx ( y - dy' ) = xdy'
+    // dx = xdy' / ( y-dy')
+    const res = (reserveIn * actualAvaxOut) / (reserveOut - actualAvaxOut);
     if (res == 0) {
-        return 0
+        return "0"
     }
     return res.toFixed(9)
 }
+
+// input = ERC20 (needed), Token In: AVAX 
+export const calculateAmountNeededReceiveToken = (amountOut, reserveIn, reserveOut, poolFee) => {
+    // (x+dx')(y-dy) = xy (user input dy, find dx) 
+    // ydx' - xdy - dx'dy = 0 
+    // dx' ( y-dy) = xdy
+    // dx' = xdy / (y-dy)
+    // dx = dx' * 1000 / (1000-fee)
+    const amountNeededAfterFee = (reserveIn * amountOut) / (reserveOut - amountOut);
+    const res = amountNeededAfterFee * 1000 / (1000 - poolFee);
+    if (res == 0) {
+        return "0"
+    }
+    return res.toFixed(9)
+}
+
+// input AVAX => Token in: AVAX, receive: ERC20
+export const calculateAmountERC20Received = (amountIn, reserveIn, reserveOut, poolFee) => {
+    // (x+dx')(y-dy) = xy (user input dx, find dy)
+    // dy = ydx' / (x+dx')
+    // dy = y(dx * (1000-fee) / 1000) / (x + dx * (1000-fee) / 1000)
+    const amountReceived = (reserveOut * amountIn * (1000 - poolFee) / 1000) / (reserveIn + amountIn * (1000 - poolFee) / 1000);
+    if (amountReceived == 0) {
+        return "0"
+    }
+    return amountReceived.toFixed(9)
+}
+
+// input ERC20 => Token in: ERC20, receive: AVAX
+export const calculateAmountAVAXReceived = (amountIn, reserveIn, reserveOut, poolFee) => {
+    // (x+dx)(y-dy) = xy (user input dx, find dy')
+    // dy = ydx/(x+dx)
+    // dy' = dy * (1000-fee) / 1000
+    const amountReceived = (reserveOut * amountIn * (1000 - poolFee) / 1000) / (reserveIn + amountIn);
+    if (amountReceived == 0) {
+        return "0"
+    }
+    return amountReceived.toFixed(9)
+}
+
 
 
 export function showAlert(transactionHash: string, message: string) {

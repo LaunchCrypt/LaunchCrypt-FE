@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { approveERC20, calculateAmountNeeded, calculateAmountReceived, get_network, getETHBalance, getLiquidityPoolReserve, showAlert, showFailedAlert, swapWithNativeToken } from '../../utils'
+import {
+  approveERC20,
+  calculateAmountAVAXReceived,
+  calculateAmountERC20Received,
+  calculateAmountNeededReceiveAvax,
+  calculateAmountNeededReceiveToken,
+  get_network,
+  getETHBalance,
+  getLiquidityPoolReserve,
+  showAlert,
+  showFailedAlert,
+  swapWithNativeToken
+} from '../../utils'
 import { Itoken } from '../../interfaces'
 import { useDispatch, useSelector } from 'react-redux'
 import WalletWarning from "../common/WalletWarning"
@@ -9,10 +21,10 @@ import { useLiquidityPair } from '../../hooks/useLiquidityPair'
 import { updateUserBalance } from '../../redux/slice/userSlice'
 import { ethers } from 'ethers'
 import { axiosInstance, PATCH_API, POST_API } from '../../apis/api'
-import "./styles.css"
 import Loading from '../common/Loading'
 import { DEFAULT_QUERY_ALL, VIRTUAL_LIQUIDITY } from '../../constant'
-import { AlertTriangle } from 'lucide-react'
+
+import "./styles.css"
 
 function Swap() {
   const [firstToken, setFirstToken] = useState<Itoken>()
@@ -49,8 +61,13 @@ function Swap() {
     else {
       let response;
       if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
-        response = await swapWithNativeToken(firstValue, (liquidityPair as any).poolAddress, 'buy')
-        showAlert(response.hash, "Swap token successfully")
+        try{
+          response = await swapWithNativeToken(firstValue, "0", (liquidityPair as any).poolAddress, 'buy')
+          showAlert(response.hash, "Swap token successfully")
+        }
+        catch(error){
+          return;
+        }
       }
       else if (firstToken?.type === 'ERC20' && secondToken?.type === 'native') {
         const tx = await approveERC20(firstToken.contractAddress as any, (liquidityPair as any).poolAddress, firstValue)
@@ -58,7 +75,7 @@ function Swap() {
         await tx.wait()
         setWaitForApproving(false)
         try {
-          response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), (liquidityPair as any).poolAddress, 'sell')
+          response = await swapWithNativeToken(ethers.utils.parseUnits(firstValue, 18).toString(), "0", (liquidityPair as any).poolAddress, 'sell')
           await response.wait();
           showAlert(response.hash, "Swap token successfully")
         } catch (error) {
@@ -131,7 +148,13 @@ function Swap() {
         setSecondValue("")
       }
       else {
-        setSecondValue(calculateAmountReceived(amountIn, reserveIn, reserveOut).toString())
+        const amountOut = firstToken?.type === 'native'
+          ?
+          calculateAmountERC20Received(amountIn, reserveIn, reserveOut, (liquidityPair as any).poolFee).toString()
+          :
+          calculateAmountAVAXReceived(amountIn, reserveIn, reserveOut, (liquidityPair as any).poolFee).toString()
+
+        setSecondValue(amountOut)
       }
     }
   }
@@ -153,7 +176,12 @@ function Swap() {
       }
       else {
         setError(false)
-        setFirstValue(calculateAmountNeeded(amountOut, reserveIn, reserveOut).toString())
+        const amountIn = secondToken?.type === 'native'
+          ?
+          calculateAmountNeededReceiveAvax(inputValue, reserveIn, reserveOut, (liquidityPair as any).poolFee).toString()
+          :
+          calculateAmountNeededReceiveToken(inputValue, reserveIn, reserveOut, (liquidityPair as any).poolFee).toString()
+        setFirstValue(amountIn)
       }
     }
   }
