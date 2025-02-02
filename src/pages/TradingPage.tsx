@@ -7,8 +7,7 @@ import { useLocation } from 'react-router-dom';
 
 const TradingPage = () => {
   const location = useLocation();
-  const { liquidityPairId, liquidityPairAddress, tokenSymbol } = location.state || {};
-  const [selectedSize, setSelectedSize] = useState('0.5 SOL');
+  const {tokenSymbol } = location.state || {};
   const userAddress = useSelector((state: any) => state.user.address);
 
 

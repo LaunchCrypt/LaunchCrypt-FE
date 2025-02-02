@@ -21,5 +21,8 @@ export const GET_API = {
     },
     GET_USER_BY_PUBLIC_KEY: (publicKey: string) => {
         return `user/${publicKey}`;
+    },
+    GET_STAKE_BY_USER: (publicKey: string) => {
+        return `stake/${publicKey}`;
     }
 };

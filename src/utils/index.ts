@@ -180,6 +180,23 @@ export const approveERC20 = async (contractAddress: string, spender: string, amo
     return tx;
 }
 
+export const callStakeContract = async (contractAddress: string, amount: number, duration: number) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    console.log("contractAddress", contractAddress)
+    console.log("amount", amount)
+    console.log("duration", duration)
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function stake(uint) payable'], signer);
+    const tx = await contract.stake(
+        duration,
+        { value: ethers.utils.parseEther(amount.toString()) }
+    );
+    return tx;
+}
+
 export const getLiquidityPoolReserve = async (address: string) => {
     if (!window.ethereum) {
         throw new Error("Ethereum provider is not available");
@@ -306,3 +323,18 @@ export function showFailedAlert(message: string) {
         html: `<p class="mb-2 text-red-500">${message}</p>`
     });
 }
+
+export const convertUnixTimestampToTime = (timestamp: number) => {
+    const seconds = timestamp % 60;
+    const minutes = Math.floor((timestamp / 60) % 60);
+    const hours = Math.floor((timestamp / 3600) % 24);
+    const days = Math.floor(timestamp / (3600 * 24));
+
+    const timeComponents: string[] = [];
+    if (days > 0) timeComponents.push(`${days} days`);
+    if (hours > 0) timeComponents.push(`${hours} hours`);
+    if (minutes > 0) timeComponents.push(`${minutes} minutes`);
+    if (seconds > 0 && timeComponents.length === 0) timeComponents.push(`${seconds} seconds`);
+
+    return timeComponents.join(' ');
+};
