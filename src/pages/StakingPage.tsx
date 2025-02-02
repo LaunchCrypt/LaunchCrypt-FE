@@ -1,127 +1,122 @@
-import React from 'react';
-import { Copy, ExternalLink } from 'lucide-react';
-
-const ValidatorCard = ({ data }) => {
-  const truncateAddress = (address) => `${address.slice(0, 10)}...${address.slice(-8)}`;
-
-  return (
-    <div className="bg-[#1a1b2a] rounded-xl p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <span className="text-gray-400">Rank</span>
-          <span className="text-white text-lg">{data.rank}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-400">Validator</span>
-          <div className="flex items-center gap-2">
-            <code className="text-gray-300">{truncateAddress(data.address)}</code>
-            <button className="text-gray-400 hover:text-gray-300">
-              <Copy className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Grid Info */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div>
-          <div className="text-gray-400 mb-1">Status</div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 m-auto mr-0"></div>
-            <div className="text-white m-auto ml-0">Active</div>
-          </div>
-        </div>
-        <div>
-          <div className="text-gray-400 mb-1">Commission</div>
-          <div className="text-white">{data.commission}%</div>
-        </div>
-        <div>
-          <div className="text-gray-400 mb-1">Active Delegators</div>
-          <div className="text-white">{data.activeDelegators}</div>
-        </div>
-        <div>
-          <div className="text-gray-400 mb-1">Total Staked</div>
-          <div className="text-white">{data.totalStaked.toLocaleString()}AVAX</div>
-        </div>
-      </div>
-
-      {/* Next Unlock */}
-      <div>
-        <div className="text-gray-400 mb-1">Next Unlock in</div>
-        <div className="text-white">{data.nextUnlock}</div>
-      </div>
-
-      {/* Stake Button */}
-      <button className="w-full mt-6 py-3 px-6 rounded-lg bg-[#2f3146] hover:bg-[#3f4166] 
-        transition-colors text-white font-medium">
-        Stake
-      </button>
-    </div>
-  );
-};
+import React, { useState } from 'react';
+import { Trophy, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 
 const StakingPage = () => {
-  // Sample data
-  const validators = [
-    {
-      rank: 1,
-      address: "0xa651c7c5...837c66db",
-      status: "Active",
-      commission: 8,
-      activeDelegators: 4299,
-      totalStaked: 29867924.87,
-      nextUnlock: "5d 22h 23m"
-    },
-    {
-      rank: 2,
-      address: "0xf0d49cff...1510c218",
-      status: "Active",
-      commission: 10,
-      activeDelegators: 407,
-      totalStaked: 23913748.78,
-      nextUnlock: "3d 16h 15m"
-    },
-    // Add more validators as needed
-  ];
+  const [stakeAmount, setStakeAmount] = useState('');
+  const [stakedBalance, setStakedBalance] = useState(0);
+  const [rewardsBalance, setRewardsBalance] = useState(0);
+  const [isStaking, setIsStaking] = useState(false);
+
+  const handleStake = () => {
+    const amount = parseFloat(stakeAmount);
+    if (isNaN(amount) || amount <= 0) return;
+    setIsStaking(true);
+    setTimeout(() => {
+      setStakedBalance(prev => prev + amount);
+      setStakeAmount('');
+      setIsStaking(false);
+    }, 1000);
+  };
+
+  const handleUnstake = () => {
+    if (stakedBalance <= 0) return;
+    setIsStaking(true);
+    setTimeout(() => {
+      setStakedBalance(0);
+      setIsStaking(false);
+    }, 1000);
+  };
+
+  const claimRewards = () => {
+    if (rewardsBalance <= 0) return;
+    setRewardsBalance(0);
+  };
 
   return (
-    <div className="bg-[#13141F] p-8 align-middle rounded-3xl max-w-[1200px] mx-auto">
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className="text-2xl font-medium text-white mb-2">
-              Avalanche Delegated Staking
-            </h1>
-            <p className="text-gray-400">
-              Stake AVAX to earn rewards
-            </p>
-          </div>
-          <div className="bg-[#1a1b2a] rounded-lg p-4">
-            <div className="text-gray-400 mb-1">Staking Balance</div>
-            <div className="text-white text-lg">
-              332,649.82 AVAX
+    <div className="max-w-lg mx-auto p-4">
+      <div className="bg-gray-900/40 backdrop-blur-xl border border-purple-500/20 shadow-2xl rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-purple-600/90 to-purple-800/90 backdrop-blur-sm p-8">
+          <h1 className="text-3xl font-bold text-center text-white">Staking Pool</h1>
+          <p className="text-center text-purple-200/90">Earn rewards by staking your tokens</p>
+        </div>
+        
+        <div className="px-6 py-8">
+          <div className="space-y-8">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-gray-800/40 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Wallet className="text-purple-400" size={20} />
+                  <p className="text-sm text-gray-300">Staked Balance</p>
+                </div>
+                <p className="text-2xl font-bold text-white">{stakedBalance.toFixed(2)}</p>
+                <p className="text-sm text-purple-300/70">TOKEN</p>
+              </div>
+              <div className="bg-gray-800/40 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <Trophy className="text-purple-400" size={20} />
+                  <p className="text-sm text-gray-300">Rewards</p>
+                </div>
+                <p className="text-2xl font-bold text-white">{rewardsBalance.toFixed(2)}</p>
+                <p className="text-sm text-purple-300/70">TOKEN</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-300">
+                Amount to Stake
+              </label>
+              <div className="flex space-x-2">
+                <input
+                  type="number"
+                  value={stakeAmount}
+                  onChange={(e) => setStakeAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="flex-1 h-12 text-lg bg-gray-800/40 backdrop-blur-sm border border-purple-500/20 rounded-lg px-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent"
+                  min="0"
+                />
+                <button 
+                  onClick={handleStake}
+                  disabled={isStaking || !stakeAmount}
+                  className="h-12 px-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                >
+                  {isStaking ? 'Staking...' : 'Stake Now'}
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button
+                onClick={handleUnstake}
+                disabled={isStaking || stakedBalance <= 0}
+                className="h-12 bg-gray-800/40 backdrop-blur-sm hover:bg-gray-700/40 text-white font-semibold rounded-lg border border-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+              >
+                <ArrowDownRight className="mr-2" size={18} />
+                Unstake All
+              </button>
+              <button
+                onClick={claimRewards}
+                disabled={rewardsBalance <= 0}
+                className="h-12 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
+              >
+                <ArrowUpRight className="mr-2" size={18} />
+                Claim Rewards
+              </button>
+            </div>
+
+            <div className="bg-gray-800/40 backdrop-blur-sm p-6 rounded-xl border border-purple-500/20">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium text-gray-300">Current APR</p>
+                  <p className="text-xs text-purple-300/70">Annual Percentage Rate</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-purple-400">12.5%</p>
+                  <p className="text-sm text-purple-300">+2.3% this week</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* Navigation */}
-        <div className="flex gap-6 border-b border-[#2f3146]">
-          <button className="px-4 py-3 text-purple-400 border-b-2 border-purple-400">
-            Validators
-          </button>
-          <button className="px-4 py-3 text-gray-400 hover:text-gray-300">
-            My Holdings
-          </button>
-        </div>
-      </div>
-
-      {/* Validators Grid */}
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
-        {validators.map((validator) => (
-          <ValidatorCard key={validator.address} data={validator} />
-        ))}
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ import { formatAddress } from '../../utils';
 function TradeItem({ creator, side, amount, transactionHash, timestamp, price }) {
     const formatTimeAgo = (timestamp) => {
         const seconds = Math.floor((new Date() - new Date(timestamp)) / 1000);
-
+        if (seconds < 10) return 'now';
         if (seconds < 60) return `${seconds}s ago`;
         const minutes = Math.floor(seconds / 60);
         if (minutes < 60) return `${minutes}m ago`;
