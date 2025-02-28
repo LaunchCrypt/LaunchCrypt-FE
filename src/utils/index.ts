@@ -197,6 +197,17 @@ export const callStakeContract = async (contractAddress: string, amount: number,
     return tx;
 }
 
+export const callUnstakeContract = async (contractAddress: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function withdraw()'], signer);
+    const tx = await contract.withdraw();
+    return tx;
+}
+
 export const getLiquidityPoolReserve = async (address: string) => {
     if (!window.ethereum) {
         throw new Error("Ethereum provider is not available");

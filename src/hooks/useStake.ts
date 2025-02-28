@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { axiosInstance, GET_API, POST_API } from '../apis/api';
+import { axiosInstance, DELETE_API, GET_API, POST_API } from '../apis/api';
 
 export const useStake = () => {
     const [stake, setStake] = useState({
@@ -42,11 +42,31 @@ export const useStake = () => {
             setIsLoading(false);
         }
     }
+
+    const callUnstakeBackend = async (staker: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await axiosInstance.delete(DELETE_API.DELETE_STAKE(staker),{
+            });
+            setStake({
+                amount: 0,
+                startTime: 0,
+                duration: 0
+            });
+
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    }
     return {
         stake,
         isLoading,
         error,
         getStakeByStaker,
-        callStakeBackend
+        callStakeBackend,
+        callUnstakeBackend
     };
 }

@@ -3,7 +3,7 @@ import { Trophy, Wallet, ArrowUpRight, ArrowDownRight, Clock } from 'lucide-reac
 import { STAKE_CONTRACT_ADDRESS } from '../constant';
 import { useStake } from '../hooks/useStake';
 import { useSelector } from 'react-redux';
-import { callStakeContract, convertUnixTimestampToTime, showAlert, showFailedAlert } from '../utils';
+import { callStakeContract, callUnstakeContract, convertUnixTimestampToTime, showAlert, showFailedAlert } from '../utils';
 import Modal from '../components/Modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import WalletWarning from '../components/common/WalletWarning';
@@ -17,7 +17,7 @@ const StakingPage = () => {
   const [remainingTime, setRemainingTime] = useState('');
   const [progressPercent, setProgressPercent] = useState(30); // Demo value
   const userAddress = useSelector((state: any) => state.user.address);
-  const { stake, isLoading, error, getStakeByStaker, callStakeBackend } = useStake();
+  const { stake, isLoading, error, getStakeByStaker, callStakeBackend, callUnstakeBackend } = useStake();
   const navigate = useNavigate();
 
 
@@ -43,17 +43,27 @@ const StakingPage = () => {
   };
 
 
-  const handleUnstake = () => {
+  const handleUnstake = async() => {
     if (stakedBalance <= 0) return;
     setIsStaking(true);
-    setTimeout(() => {
-      setStakedBalance(0);
-      setTimeStaked('');
-      setIsStaking(false);
-    }, 1000);
+    try {
+      let response = await callUnstakeContract(STAKE_CONTRACT_ADDRESS);
+      await response.wait();
+      showAlert(response.hash, 'Unstake successfully');
+      try {
+        await callUnstakeBackend(userAddress);
+      } catch (err) {
+        console.error('Unstake failed:', err);
+      }
+    }
+    catch (err) {
+      console.error('Unstake failed:', err);
+      showFailedAlert('Unstake failed');
+      return;
+    }
   };
 
-  const claimRewards = () => {
+  const claimRewards = () => { 
     if (rewardsBalance <= 0) return;
     setRewardsBalance(0);
   };
@@ -76,13 +86,20 @@ const StakingPage = () => {
   }
 
   useEffect(() => {
-    getStakeByStaker(userAddress);
-    console.log('stake', stake);
-    setTimeStaked(`${stake.duration as any} days`)
-    setRemainingTime(convertUnixTimestampToTime(
-      Math.floor(new Date().getTime() / 1000) - stake.startTime,
-    ));
-  }, [stake]);
+    if(userAddress){
+      getStakeByStaker(userAddress);
+    }  
+  }, [userAddress]);
+
+  useEffect(() => {
+    if (stake?.startTime != 0 && stake?.duration != 0 && stake) {
+      setStakedBalance(stake.amount);
+      setTimeStaked(`${stake.duration as any} days`)
+      setRemainingTime(convertUnixTimestampToTime(
+        Math.floor(new Date().getTime() / 1000) - stake.startTime,
+      ));
+    }
+  }, [stake])
 
   return (
     userAddress == "" ?
@@ -138,7 +155,7 @@ const StakingPage = () => {
                     <Trophy className="text-purple-400" size={20} />
                     <p className="text-sm text-gray-300">Rewards</p>
                   </div>
-                  <p className="text-2xl font-bold text-white">{rewardsBalance.toFixed(2)}</p>
+                  <p className="text-2xl font-bold text-white">{rewardsBalance?.toFixed(2)}</p>
                   <p className="text-sm text-purple-300/70">AVAX</p>
                 </div>
               </div>
