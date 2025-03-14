@@ -18,6 +18,7 @@ export const FUJI_PROVIDER = new ethers.providers.JsonRpcProvider(FUJI_RPC_URL)
 export const BACKEND_URL = "http://localhost:3000"
 export const VIRTUAL_LIQUIDITY = 100;
 
+
 export const DEFAULT_QUERY_ALL: IqueryAll = {
     page: 1,
     limit: 20,

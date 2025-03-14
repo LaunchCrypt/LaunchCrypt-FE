@@ -184,9 +184,6 @@ export const callStakeContract = async (contractAddress: string, amount: number,
     if (!window.ethereum) {
         throw new Error("Ethereum provider is not available");
     }
-    console.log("contractAddress", contractAddress)
-    console.log("amount", amount)
-    console.log("duration", duration)
     const provider = new ethers.providers.Web3Provider(window.ethereum as any);
     const signer = provider.getSigner();
     const contract = new ethers.Contract(contractAddress, ['function stake(uint) payable'], signer);
@@ -194,6 +191,17 @@ export const callStakeContract = async (contractAddress: string, amount: number,
         duration,
         { value: ethers.utils.parseEther(amount.toString()) }
     );
+    return tx;
+}
+
+export const callClaimRewardContract = async (contractAddress: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function claimRewards()'], signer);
+    const tx = await contract.claimRewards();
     return tx;
 }
 

@@ -4,5 +4,8 @@ export const PATCH_API = {
     },
     UPDATE_USER: (publicKey: string) => {
         return `user/${publicKey}`;
+    },
+    UPDATE_USER_STAKE: (publicKey: string) => {
+        return `stake/${publicKey}`;
     }
 };

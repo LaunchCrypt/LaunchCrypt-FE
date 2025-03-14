@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { axiosInstance, DELETE_API, GET_API, POST_API } from '../apis/api';
+import { axiosInstance, DELETE_API, GET_API, PATCH_API, POST_API } from '../apis/api';
 
 export const useStake = () => {
     const [stake, setStake] = useState({
@@ -61,12 +61,37 @@ export const useStake = () => {
             setIsLoading(false);
         }
     }
+
+    const callClaimRewardBackend = async (staker: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await axiosInstance.patch(PATCH_API.UPDATE_USER_STAKE(staker),
+                {
+                    startTime: Math.floor(new Date().getTime() / 1000),
+                }
+            );
+            setStake({
+                ...stake,
+                
+                startTime: Math.floor(new Date().getTime() / 1000),
+            })
+
+        } catch (err) {
+            setError(err instanceof Error? err.message : 'An unexpected error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    
     return {
         stake,
         isLoading,
         error,
         getStakeByStaker,
         callStakeBackend,
-        callUnstakeBackend
+        callUnstakeBackend,
+        callClaimRewardBackend
     };
 }

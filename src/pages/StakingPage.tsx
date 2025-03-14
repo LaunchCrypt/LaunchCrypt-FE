@@ -3,7 +3,7 @@ import { Trophy, Wallet, ArrowUpRight, ArrowDownRight, Clock } from 'lucide-reac
 import { STAKE_CONTRACT_ADDRESS } from '../constant';
 import { useStake } from '../hooks/useStake';
 import { useSelector } from 'react-redux';
-import { callStakeContract, callUnstakeContract, convertUnixTimestampToTime, showAlert, showFailedAlert } from '../utils';
+import { callStakeContract, callUnstakeContract, convertUnixTimestampToTime, showAlert, showFailedAlert, callClaimRewardContract } from '../utils';
 import Modal from '../components/Modal/Modal';
 import { useNavigate } from 'react-router-dom';
 import WalletWarning from '../components/common/WalletWarning';
@@ -11,17 +11,19 @@ const StakingPage = () => {
   const [stakeAmount, setStakeAmount] = useState('');
   const [stakedBalance, setStakedBalance] = useState(0);
   const [rewardsBalance, setRewardsBalance] = useState(0);
-  const [isStaking, setIsStaking] = useState(false);
   const [stakeDuration, setStakeDuration] = useState(30);
   const [timeStaked, setTimeStaked] = useState('');
-  const [remainingTime, setRemainingTime] = useState('');
-  const [progressPercent, setProgressPercent] = useState(30); // Demo value
+  const [timeFromStartStaking, setTimeFromStartStaking] = useState(0);
+  const [progressPercent, setProgressPercent] = useState(83); // Demo value
   const userAddress = useSelector((state: any) => state.user.address);
-  const { stake, isLoading, error, getStakeByStaker, callStakeBackend, callUnstakeBackend } = useStake();
+  const { stake, isLoading, error, getStakeByStaker, callStakeBackend, callUnstakeBackend, callClaimRewardBackend } = useStake();
   const navigate = useNavigate();
 
-
   const handleStake = async () => {
+    if (stake.amount > 0 ) {
+      showFailedAlert("Please unstake before stake again!")
+      return;
+    }
     try {
       let response = await callStakeContract(
         STAKE_CONTRACT_ADDRESS,
@@ -42,10 +44,31 @@ const StakingPage = () => {
     }
   };
 
+  const handleClaimReward = async () => {
+    try {
+      let response = await callClaimRewardContract(STAKE_CONTRACT_ADDRESS)
+      await response.wait();
+      showAlert(response.hash, 'Claim reward successfully');
+      try {
+        await callClaimRewardBackend(userAddress);
+      } catch (err) {
+        console.error('Claim reward failed:', err);
+      }
+    } catch (err) {
+      console.error('Claim reward failed:', err);
+      showFailedAlert('Claim reward failed');
+      return;
+    }
+  }
 
-  const handleUnstake = async() => {
+
+  const handleUnstake = async () => {
+    let minimumStakeRequiredTime = 60 * 60 * 24 * 3;
     if (stakedBalance <= 0) return;
-    setIsStaking(true);
+    if (timeFromStartStaking <= minimumStakeRequiredTime) {
+      showFailedAlert('Minimum staking time is 3 days');
+      return;
+    }
     try {
       let response = await callUnstakeContract(STAKE_CONTRACT_ADDRESS);
       await response.wait();
@@ -63,9 +86,11 @@ const StakingPage = () => {
     }
   };
 
-  const claimRewards = () => { 
-    if (rewardsBalance <= 0) return;
-    setRewardsBalance(0);
+  const claimRewards = () => {
+    if (rewardsBalance <= 0) {
+      return;
+    };
+    handleClaimReward();
   };
 
   const handleChangeStakeAmount = (e) => {
@@ -86,18 +111,27 @@ const StakingPage = () => {
   }
 
   useEffect(() => {
-    if(userAddress){
+    if (userAddress) {
       getStakeByStaker(userAddress);
-    }  
+    }
   }, [userAddress]);
 
   useEffect(() => {
     if (stake?.startTime != 0 && stake?.duration != 0 && stake) {
+      console.log(stake)
       setStakedBalance(stake.amount);
       setTimeStaked(`${stake.duration as any} days`)
-      setRemainingTime(convertUnixTimestampToTime(
-        Math.floor(new Date().getTime() / 1000) - stake.startTime,
-      ));
+      let timeStake = Math.floor(new Date().getTime() / 1000) - stake.startTime
+      let stakeDurationInSecond = stake.duration * 24 * 60 * 60
+      let remainningTime = stakeDurationInSecond - timeStake >= 0 ? stakeDurationInSecond - timeStake : 0
+      setTimeFromStartStaking(timeStake);
+      setProgressPercent(100 * (stakeDurationInSecond - remainningTime) / stakeDurationInSecond);
+      if (remainningTime == 0) {
+        setRewardsBalance(stake.amount * getAPRForDuration(stakeDuration) / 100);
+      }
+      else {
+        setRewardsBalance(0);
+      }
     }
   }, [stake])
 
@@ -129,7 +163,7 @@ const StakingPage = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-400">Lock Period Progress</span>
-                      <span className="text-purple-300">{remainingTime || `${stakeDuration} days remaining`}</span>
+                      <span className="text-purple-300">{timeFromStartStaking != 0 ? convertUnixTimestampToTime(timeFromStartStaking) : `${stakeDuration} days remaining`}</span>
                     </div>
                     <div className="w-full h-2 bg-gray-700/50 rounded-full">
                       <div
@@ -176,10 +210,9 @@ const StakingPage = () => {
                   </div>
                   <button
                     onClick={handleStake}
-                    disabled={isStaking || !stakeAmount}
                     className="h-12 px-6 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
                   >
-                    {isStaking ? 'Staking...' : 'Stake Now'}
+                    Stake now
                   </button>
                 </div>
               </div>
@@ -207,7 +240,7 @@ const StakingPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={handleUnstake}
-                  disabled={isStaking || stakedBalance <= 0}
+                  disabled={stakedBalance <= 0}
                   className="h-12 bg-gray-800/40 backdrop-blur-sm hover:bg-gray-700/40 text-white font-semibold rounded-lg border border-purple-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors duration-200"
                 >
                   <ArrowDownRight className="mr-2" size={18} />

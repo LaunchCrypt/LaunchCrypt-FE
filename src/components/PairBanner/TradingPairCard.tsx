@@ -102,7 +102,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
         <div className="flex justify-between items-center">
           <span className="font-normal text-[14px] leading-[25px] text-textPrimary opacity-60">Market Cap: </span>
           <div className="flex items-center gap-2">
-            <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketCap ? marketCap : 0}</span>
+            <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketCap ? marketCap : 2300}</span>
           </div>
         </div>
 
