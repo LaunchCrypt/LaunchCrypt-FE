@@ -92,7 +92,7 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
                             group-hover:from-purple-500/30 group-hover:to-purple-500/20
                             transition-all duration-200">
                   {token.image ? (
-                    <img src={base64toUrl((token.image as any).buffer)} alt={token.symbol} className="w-full h-full" />
+                    <img src={base64toUrl((token.image as any).buffer, (token.image as any).mimetype)} alt={token.symbol} className="w-full h-full" />
                   ) : (
                     <span className="text-purple-400 font-bold text-xl">{token.symbol[0]}</span>
                   )}

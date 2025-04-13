@@ -77,7 +77,7 @@ const UserProfile = () => {
               <div className="flex gap-6">
                 {/* Avatar */}
                 <div className="w-20 h-20 rounded-full bg-[#1A1B2A] flex items-center justify-center overflow-hidden">
-                  {userInfo.image ? <img src={base64toUrl((userInfo?.image as any).buffer)} className="w-full h-full" />
+                  {userInfo.image ? <img src={base64toUrl((userInfo?.image as any).buffer, (userInfo?.image as any).mimetype)} className="w-full h-full" />
                     : <User className="w-10 h-10 text-gray-500" />}
                 </div>
 

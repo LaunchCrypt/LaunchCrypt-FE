@@ -89,8 +89,8 @@ export async function urlToFile(imageUrl) {
     }
 }
 
-export const base64toUrl = (base64: string) => {
-    return `data:image/svg+xml;base64,${base64}`
+export const base64toUrl = (base64: string, mimeType: string) => {
+    return `data:${mimeType};base64,${base64}`;
 }
 
 export const checkFujiNetwork = async () => {

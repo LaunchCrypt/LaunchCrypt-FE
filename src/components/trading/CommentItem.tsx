@@ -8,7 +8,7 @@ function CommentItem({ creator, creatorInfo, time, content, likes, onLove, onRep
         <div className="group p-4 rounded-lg transition-colors bg-slate-800">
             <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden ring-2 ring-slate-700/30">
-                    {creatorInfo.image.buffer ? <img src={base64toUrl(creatorInfo.image.buffer)} className="w-full h-full" />
+                    {creatorInfo.image.buffer ? <img src={base64toUrl(creatorInfo.image.buffer, creatorInfo.image.mimetype)} className="w-full h-full" />
                         : <User className="w-10 h-10 text-gray-500" />}
                 </div>
                 <div className="flex-1 items-start">
