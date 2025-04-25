@@ -72,6 +72,7 @@ function Tokenomics() {
           </label>
           <div className="relative">
             <input
+              disabled={true}
               type="text"
               value={totalSupply}
               onChange={e => handleChange(e, "supply")}

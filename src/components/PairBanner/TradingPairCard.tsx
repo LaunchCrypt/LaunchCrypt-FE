@@ -58,11 +58,11 @@ const TradingPairCardSkeleton = () => {
 };
 
 
-function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Icon, token1Reservers, token2Reservers, isLoading }: {
+function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Icon, token1Reservers, token2Reservers, isLoading }: {
   contract: string,
   token1Name: string,
   token2Name: string,
-  marketCap?: string,
+  marketcap?: string,
   token2Icon: string,
   token1Reservers: string,
   token2Reservers: string,
@@ -102,7 +102,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketCap, token2Ic
         <div className="flex justify-between items-center">
           <span className="font-normal text-[14px] leading-[25px] text-textPrimary opacity-60">Market Cap: </span>
           <div className="flex items-center gap-2">
-            <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketCap ? marketCap : 2300}</span>
+            <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketcap ? marketcap.toFixed(2) : 2300}</span>
           </div>
         </div>
 

@@ -23,9 +23,9 @@ export const useLiquidityPair = ({
         setIsLoading(true);
         setError(null);
         try {
-            console.log("searchQuery", searchQuery)
             const response = await axiosInstance.get(GET_API.GET_ALL_LIQUIDITY_PAIRS(searchQuery));
             setAllLiquidityPair(response.data);
+            console.log("response", response)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {

@@ -49,6 +49,7 @@ function SwapDetails({ searchKeyword }: { searchKeyword: string }) {
                                 token1Reservers={pair.tokenBReserve}
                                 token2Reservers={pair.tokenAReserve}
                                 isLoading={false}
+                                marketcap={pair.marketcap}
                             />
                         )
                     })
