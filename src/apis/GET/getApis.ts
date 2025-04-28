@@ -24,5 +24,12 @@ export const GET_API = {
     },
     GET_STAKE_BY_USER: (publicKey: string) => {
         return `stake/${publicKey}`;
+    },
+    GET_STATS: () => {
+        return `stats`;
+    },
+    
+    GET_USER_TABLE_DATA: () => {
+        return `user/tableData`
     }
 };
