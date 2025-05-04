@@ -43,7 +43,7 @@ function TradeItem({ creator, side, amount, transactionHash, timestamp, price })
             {/* Price */}
             <div className="w-[17.5%] text-left">
                 <span className="text-gray-300">
-                    {price.toLocaleString()}
+                    {price}
                 </span>
             </div>
 

@@ -10,5 +10,8 @@ export const POST_API = {
     },
     CREATE_NEW_STAKE: () => {
         return `stake`;
+    },
+    CREATE_NEW_TRADING_PAIR: () => {
+        return `trading-pairs`;
     }
 };

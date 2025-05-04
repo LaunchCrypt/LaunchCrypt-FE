@@ -3,8 +3,6 @@ import { base64toUrl, copyToClipboard, formatAddressLong, formatBalance, truncat
 import avaxLogo from "../../../assets/icons/Avalanche-logo.svg"
 import copyIcon from "../../../assets/icons/copy.svg";
 import { useNavigate } from 'react-router-dom';
-import { DEFAULT_QUERY_ALL } from '../../constant';
-import { useLiquidityPair } from '../../hooks/useLiquidityPair';
 import { axiosInstance, GET_API } from '../../apis/api';
 
 
@@ -76,7 +74,13 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
         liquidityPairId: (liquidityPair as any).data.id,
         liquidityPairAddress: contract,
         tokenSymbol: token2Name,
-        tokenId: (liquidityPair as any).data.tokenA._id
+        tokenId: (liquidityPair as any).data.tokenA._id,
+        collateral: (liquidityPair as any).data.tokenBReserve,
+        comments: (liquidityPair as any).data.comments,
+        creator: (liquidityPair as any).data.creator,
+        createdAt: (liquidityPair as any).data.createdAt,
+        marketcap: marketcap ? Number(marketcap).toFixed(2) : 0 ,
+        tokenA: (liquidityPair as any).data.tokenA,
       }
     })
   }
@@ -102,7 +106,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
         <div className="flex justify-between items-center">
           <span className="font-normal text-[14px] leading-[25px] text-textPrimary opacity-60">Market Cap: </span>
           <div className="flex items-center gap-2">
-            <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketcap ? marketcap.toFixed(2) : 2300}</span>
+            <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketcap ? Number(marketcap).toFixed(2) : 2300}</span>
           </div>
         </div>
 

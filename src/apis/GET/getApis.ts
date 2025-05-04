@@ -25,10 +25,15 @@ export const GET_API = {
     GET_STAKE_BY_USER: (publicKey: string) => {
         return `stake/${publicKey}`;
     },
+    GET_TOKEN_BY_SYMBOL: (symbol: string) => {
+        return `token/${symbol}`;
+    },
+    GET_TOKEN_BY_ADDRESS: (address: string) => {
+        return `token/contractAddress?contractAddress=${address}`;
+    },
     GET_STATS: () => {
         return `stats`;
     },
-    
     GET_USER_TABLE_DATA: () => {
         return `user/tableData`
     }

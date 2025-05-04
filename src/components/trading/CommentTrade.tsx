@@ -54,7 +54,6 @@ const CommentTrade = ({ userAddress, tokenSymbol }) => {
 
     const { trades } = userTrade(liquidityPairId, tokenId);
     const postMessageRef = useRef(null);
-    console.log('message', messages)
     const handleSendMessage = async (e) => {
         if (userAddress == "") {
             setWalletWarning(true)

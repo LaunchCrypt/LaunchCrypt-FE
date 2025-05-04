@@ -1,59 +1,62 @@
 import React, { useMemo } from 'react';
 import { useTable, useSortBy, useGlobalFilter, usePagination } from 'react-table';
 import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Search } from 'lucide-react';
+import { copyToClipboard, formatAddressLong } from '../../utils';
+import Swal from 'sweetalert2';
 
-const UserStatsTable = () => {
+function UserStatsTable({ userTableData }: { userTableData: any }) {
+    console.log("userTableData", userTableData)
     // Sample user data
-    const data = useMemo(
-        () => [
-            {
-                id: '1',
-                userName: 'alex.eth',
-                totalTrades: 1234,
-                tradeVolume: 456789,
-                avgTradeSize: 370.17,
-                successRate: 92.5,
-                lastActive: '2024-12-09'
-            },
-            {
-                id: '2',
-                userName: 'trader.sol',
-                totalTrades: 987,
-                tradeVolume: 876543,
-                avgTradeSize: 888.09,
-                successRate: 88.3,
-                lastActive: '2024-12-10'
-            },
-            {
-                id: '3',
-                userName: 'crypto_whale',
-                totalTrades: 2345,
-                tradeVolume: 1234567,
-                avgTradeSize: 526.47,
-                successRate: 94.1,
-                lastActive: '2024-12-10'
-            },
-            {
-                id: '4',
-                userName: 'defi_master',
-                totalTrades: 1567,
-                tradeVolume: 678901,
-                avgTradeSize: 433.25,
-                successRate: 91.8,
-                lastActive: '2024-12-08'
-            },
-            {
-                id: '5',
-                userName: 'web3_guru',
-                totalTrades: 789,
-                tradeVolume: 345678,
-                avgTradeSize: 438.12,
-                successRate: 89.7,
-                lastActive: '2024-12-10'
-            }
-        ],
-        []
-    );
+    // const data = useMemo(
+    //     () => [
+    //         {
+    //             id: '1',
+    //             userName: 'alex.eth',
+    //             totalTrades: 1234,
+    //             tradeVolume: 456789,
+    //             avgTradeSize: 370.17,
+    //             successRate: 92.5,
+    //             lastActive: '2024-12-09'
+    //         },
+    //         {
+    //             id: '2',
+    //             userName: 'trader.sol',
+    //             totalTrades: 987,
+    //             tradeVolume: 876543,
+    //             avgTradeSize: 888.09,
+    //             successRate: 88.3,
+    //             lastActive: '2024-12-10'
+    //         },
+    //         {
+    //             id: '3',
+    //             userName: 'crypto_whale',
+    //             totalTrades: 2345,
+    //             tradeVolume: 1234567,
+    //             avgTradeSize: 526.47,
+    //             successRate: 94.1,
+    //             lastActive: '2024-12-10'
+    //         },
+    //         {
+    //             id: '4',
+    //             userName: 'defi_master',
+    //             totalTrades: 1567,
+    //             tradeVolume: 678901,
+    //             avgTradeSize: 433.25,
+    //             successRate: 91.8,
+    //             lastActive: '2024-12-08'
+    //         },
+    //         {
+    //             id: '5',
+    //             userName: 'web3_guru',
+    //             totalTrades: 789,
+    //             tradeVolume: 345678,
+    //             avgTradeSize: 438.12,
+    //             successRate: 89.7,
+    //             lastActive: '2024-12-10'
+    //         }
+    //     ],
+    //     []
+    // );
 
     // Format numbers with appropriate suffixes and decimals
     const formatNumber = (value, type) => {
@@ -85,17 +88,22 @@ const UserStatsTable = () => {
         () => [
             {
                 Header: 'User',
-                accessor: 'userName',
+                accessor: 'name',
                 Cell: ({ value }) => <span className="text-emerald-400">{value}</span>
             },
             {
+                Header: 'Address',
+                accessor: 'address',
+                Cell: ({ value }) => <span onClick={() => copyToClipboardSuccessfully(value)} className="cursor-pointer">{formatAddressLong(value, 6)}</span>
+            },
+            {
                 Header: 'Total Trades',
-                accessor: 'totalTrades',
+                accessor: 'totalTrade',
                 Cell: ({ value }) => formatNumber(value, 'trades')
             },
             {
                 Header: 'Volume',
-                accessor: 'tradeVolume',
+                accessor: 'totalTradeVolume',
                 Cell: ({ value }) => formatNumber(value, 'volume')
             },
             {
@@ -104,13 +112,8 @@ const UserStatsTable = () => {
                 Cell: ({ value }) => formatNumber(value, 'avgSize')
             },
             {
-                Header: 'Success Rate',
-                accessor: 'successRate',
-                Cell: ({ value }) => formatNumber(value, 'percentage')
-            },
-            {
                 Header: 'Last Active',
-                accessor: 'lastActive',
+                accessor: 'lastTrade',
                 Cell: ({ value }) => formatDate(value)
             }
         ],
@@ -134,7 +137,7 @@ const UserStatsTable = () => {
     } = useTable(
         {
             columns,
-            data,
+            data: userTableData,
             initialState: { pageSize: 5 }
         },
         useGlobalFilter,
@@ -245,5 +248,22 @@ const UserStatsTable = () => {
         </div>
     );
 };
+
+const copyToClipboardSuccessfully = (text: string) => {
+    copyToClipboard(text);
+    Swal.fire({
+        icon: 'success',
+        title: 'Copied',
+        showConfirmButton: false,
+        timer: 1000,
+        iconColor: "#7b37c6",
+        width: "16rem",
+        background: "#28253e",
+        customClass: {
+            popup: 'rounded-[32px] bg-[#28253e] border border-[#35354b] shadow-lg',
+            title: 'text-white font-semibold text-2xl',
+        },
+    });
+}
 
 export default UserStatsTable;

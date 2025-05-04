@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 
 const TradingPage = () => {
   const location = useLocation();
-  const {tokenSymbol } = location.state || {};
+  const { tokenSymbol, creator, createdAt, collateral, comments, marketcap, tokenA } = location.state || {};
   const userAddress = useSelector((state: any) => state.user.address);
 
 
@@ -16,12 +16,12 @@ const TradingPage = () => {
       {/* Chart Area */}
       <div className="flex w-full justify-around gap-8 px-8">
         <div className='flex flex-col w-full h-fit'>
-        <CandleStickChart tokenSymbol={tokenSymbol}/>
-        <CommentTrade userAddress={userAddress} tokenSymbol={tokenSymbol}/>
+          <CandleStickChart tokenSymbol={tokenSymbol} creator={creator} createdAt={createdAt} collateral={collateral} comments={comments} marketcap={marketcap} tokenA={tokenA} />
+          <CommentTrade userAddress={userAddress} tokenSymbol={tokenSymbol} />
         </div>
 
         {/* Right Trading Panel */}
-        <TradingSidebar tokenSymbol={tokenSymbol}/>
+        <TradingSidebar tokenSymbol={tokenSymbol} />
       </div>
     </div>
   );

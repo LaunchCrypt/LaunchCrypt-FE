@@ -1,6 +1,7 @@
 import { Search } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { POOL_TABS, POOL_TYPES } from '../../pages/SwapPage';
+import CreatePoolPanel from '../createPool/CreatePoolPanel';
 
 interface SwapHeaderProps {
   currentPoolTabs: string;
@@ -17,8 +18,26 @@ function SwapHeader({
   setPoolTypes,
   setSearchKeyword
 }: SwapHeaderProps) {
+  const [showCreatePool, setShowCreatePool] = useState(false);
+  
   return (
-    <div className="flex flex-col align-middle justify-evenly w-full">
+    <>
+    <div 
+        className={`fixed top-0 right-0 h-full w-96 bg-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out ${
+          showCreatePool ? 'translate-x-0 z-50' : 'translate-x-full'
+        }`}
+      >
+        <CreatePoolPanel onClose={() => setShowCreatePool(false)} />
+      </div>
+       {/* Backdrop - fades in */}
+       {showCreatePool && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-60 transition-opacity duration-300 ease-in-out z-10"
+          onClick={() => setShowCreatePool(false)}
+        />
+      )}
+
+      <div className="flex flex-col align-middle justify-evenly w-full">
       {/* Header section */}
       <div className="flex justify-between items-center mb-6 p-[22px_32px] bg-[#16162d] rounded-[20px] overflow-hidden">
         <div className='flex flex-col'>
@@ -52,7 +71,9 @@ function SwapHeader({
            hover:bg-[#8A3EFF] border-[1px] border-transparent hover:border-[1px] hover:border-white/50 transition-colors text-base font-medium">
             Add Liquidity
           </button>
-          <button className="px-6 py-2 min-w-[135px] h-[54px] bg-gradient-to-r from-[#6e42ca] to-[#8d29c1] text-white rounded-2xl  
+          <button
+           onClick={() => setShowCreatePool(true)}
+           className="px-6 py-2 min-w-[135px] h-[54px] bg-gradient-to-r from-[#6e42ca] to-[#8d29c1] text-white rounded-2xl  
            hover:bg-[#8A3EFF] border-[1px] border-transparent hover:border-[1px] hover:border-white/50 transition-colors text-base font-medium">
             Create Pool
           </button>
@@ -92,6 +113,8 @@ function SwapHeader({
         </div>
       </div>
     </div>
+    </>
+    
   );
 }
 

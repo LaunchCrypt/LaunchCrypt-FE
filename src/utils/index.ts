@@ -215,7 +215,23 @@ export const callUnstakeContract = async (contractAddress: string) => {
     const tx = await contract.withdraw();
     return tx;
 }
+export const callCreatePoolContract = async (contractAddress: string, firstTokenAddress: string, secondTokenAddress: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function deployNewTradingPair(address,address)'], signer);
+    const tx = await contract.deployNewTradingPair(
+        firstTokenAddress,
+        secondTokenAddress
+    );
+    return tx;
+}
 
+export const toEVMAddress = (address: string) => {
+    return ethers.utils.getAddress(address);
+}
 export const getLiquidityPoolReserve = async (address: string) => {
     if (!window.ethereum) {
         throw new Error("Ethereum provider is not available");
@@ -357,3 +373,43 @@ export const convertUnixTimestampToTime = (timestamp: number) => {
 
     return timeComponents.join(' ');
 };
+
+export const getPreciseTimeDifference = (dateString: string) => {
+    const givenDate = new Date(dateString);
+    const currentDate = new Date();
+
+    const differenceMs = currentDate.getTime() - givenDate.getTime();
+
+    // Calculate each unit while accounting for remainders
+    const secondsTotal = Math.floor(differenceMs / 1000);
+
+    const years = Math.floor(secondsTotal / (365.25 * 24 * 60 * 60));
+    const remainingSecondsAfterYears = secondsTotal % (365.25 * 24 * 60 * 60);
+
+    const days = Math.floor(remainingSecondsAfterYears / (24 * 60 * 60));
+    const remainingSecondsAfterDays = remainingSecondsAfterYears % (24 * 60 * 60);
+
+    const hours = Math.floor(remainingSecondsAfterDays / (60 * 60));
+    const remainingSecondsAfterHours = remainingSecondsAfterDays % (60 * 60);
+
+    const minutes = Math.floor(remainingSecondsAfterHours / 60);
+    const seconds = remainingSecondsAfterHours % 60;
+
+    const parts: string[] = [];
+    if (years > 0) {
+        parts.push(`${years} year${years > 1 ? 's' : ''}`);
+        return parts.join(', ') + ' ago';
+    }
+    if (days > 0) {
+        parts.push(`${days} day${days > 1 ? 's' : ''}`);
+        return parts.join(', ') + ' ago';
+    }
+    if (hours > 0) {
+        parts.push(`${hours} hour${hours > 1 ? 's' : ''}`);
+        return parts.join(', ') + ' ago';
+    }
+    if (minutes > 0) {
+        parts.push(`${minutes} minute${minutes > 1 ? 's' : ''}`);
+        return parts.join(', ') + ' ago';
+    }
+}

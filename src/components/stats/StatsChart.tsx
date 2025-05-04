@@ -1,7 +1,7 @@
 import React from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-function StatsChart() {
+function StatsChart({ tradingVolumeData }: { tradingVolumeData: any }) {
     const tradingData = Array(30).fill(null).map((_, index) => {
         const date = new Date(2024, 10, 9 + index); // Starting from Nov 9
         return {
@@ -36,7 +36,7 @@ function StatsChart() {
 
                 <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={tradingData} barGap={0}>
+                        <BarChart data={tradingVolumeData} barGap={0}>
                             <XAxis
                                 dataKey="date"
                                 stroke="#6B7280"

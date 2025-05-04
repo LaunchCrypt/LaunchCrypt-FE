@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { 
+import {
   approveERC20,
-  calculateAmountNeededReceiveAvax, 
-  calculateAmountNeededReceiveToken, 
-  calculateAmountERC20Received, 
+  calculateAmountNeededReceiveAvax,
+  calculateAmountNeededReceiveToken,
+  calculateAmountERC20Received,
   calculateAmountAVAXReceived,
-  get_network, 
-  getLiquidityPoolReserve, 
-  showAlert, 
-  showFailedAlert, 
-  swapWithNativeToken 
+  get_network,
+  getLiquidityPoolReserve,
+  showAlert,
+  showFailedAlert,
+  swapWithNativeToken
 } from '../../utils';
 import { useLocation } from 'react-router-dom';
 import { useLiquidityPair } from '../../hooks/useLiquidityPair';
@@ -198,8 +198,8 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           )
           amountERC20 = amount
           amountNative = calculateAmountAVAXReceived(
-            parseFloat(amount), 
-            parseFloat((liquidityPair as any).tokenAReserve), 
+            parseFloat(amount),
+            parseFloat((liquidityPair as any).tokenAReserve),
             parseFloat((liquidityPair as any).tokenBReserve),
             parseFloat((liquidityPair as any).poolFee)
           ).toString()
@@ -292,9 +292,9 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
                         : (liquidityPair as any).tokenBReserve
 
                       const amountOut = currentSelectedToken == currentNetwork?.symbol ?
-                      calculateAmountERC20Received(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut),(liquidityPair as any).poolFee)
-                      :
-                      calculateAmountAVAXReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut),(liquidityPair as any).poolFee)
+                        calculateAmountERC20Received(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
+                        :
+                        calculateAmountAVAXReceived(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
                       if (currentSelectedToken == tokenSymbol && parseFloat(reserveOut) - parseFloat(amountOut) < VIRTUAL_LIQUIDITY) {
                         setError(true)
                       }
@@ -316,10 +316,10 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
                       else {
                         setError(false)
                         const amountOut = currentSelectedToken == currentNetwork?.symbol
-                        ? 
-                        calculateAmountNeededReceiveAvax(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
-                        :
-                        calculateAmountNeededReceiveToken(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
+                          ?
+                          calculateAmountNeededReceiveAvax(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
+                          :
+                          calculateAmountNeededReceiveToken(parseFloat(inputValue), parseFloat(reserveIn), parseFloat(reserveOut), (liquidityPair as any).poolFee)
                         setAmountOut(amountOut.toString())
                       }
                     }
@@ -335,9 +335,9 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
 
           {/* Quick Amount Buttons */}
           <div className="grid grid-cols-3 gap-2">
-            <Button variant="outline" className="w-full">0.1 {currentSelectedToken}</Button>
-            <Button variant="outline" className="w-full">0.5 {currentSelectedToken}</Button>
-            <Button variant="outline" className="w-full">1 {currentSelectedToken}</Button>
+            <Button variant="outline" className="w-full" onClick={() => setAmount(currentSelectedToken == currentNetwork?.symbol ? "0.1" : "1000")}> {currentSelectedToken == currentNetwork?.symbol ? "0.1" : "1000"} {currentSelectedToken}</Button>
+            <Button variant="outline" className="w-full" onClick={() => setAmount(currentSelectedToken == currentNetwork?.symbol ? "0.5" : "5000")}> {currentSelectedToken == currentNetwork?.symbol ? "0.5" : "5000"} {currentSelectedToken}</Button>
+            <Button variant="outline" className="w-full" onClick={() => setAmount(currentSelectedToken == currentNetwork?.symbol ? "1" : "10000")}> {currentSelectedToken == currentNetwork?.symbol ? "1" : "10000"} {currentSelectedToken}</Button>
           </div>
         </div>
 
@@ -362,7 +362,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
 
             <div className='flex items-center gap-1'>
               <span className='text-sm font-medium text-white'>
-                {amountOut}
+                {parseFloat(amountOut).toFixed(2)}
               </span>
               <span className='text-sm text-gray-400'>
                 {currentSelectedToken == currentNetwork?.symbol ? tokenSymbol : currentNetwork?.symbol}
@@ -381,7 +381,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         {/* Bonding Curve Progress */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <span className="text-slate-400 text-sm">bonding curve progress: 6%</span>
+            <span className="text-slate-400 text-sm">bonding curve progress: {(((liquidityPair as any).tokenBReserve / 1150) * 100).toFixed(2) + "%"}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -393,7 +393,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
           <div className="w-full bg-slate-800 rounded-full h-2">
             <div
               className="bg-[#c97dff] h-2 rounded-full transition-all duration-300"
-              style={{ width: '6%' }}
+              style={{ width: (((liquidityPair as any).tokenBReserve / 1150) * 100).toFixed(2) + '%' }}
             />
           </div>
         </div>

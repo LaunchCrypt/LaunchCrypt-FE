@@ -1,10 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createChart, CrosshairMode, LineStyle } from 'lightweight-charts';
+import { axiosInstance, GET_API } from '../../apis/api';
+import { getPreciseTimeDifference } from '../../utils';
+import Modal from '../Modal/Modal';
+import TokenInfomation from './TokenInfomation';
 
-const CandleStickChart = ({ tokenSymbol }: { tokenSymbol: string }) => {
+const CandleStickChart = ({ tokenSymbol, creator, createdAt, comments, marketcap, tokenA }: { tokenSymbol: string, creator: string, createdAt: string, collateral: string, comments: string, marketcap: string, tokenA: any }) => {
   const chartContainerRef = useRef(null);
-  const chartRef = useRef(null);
   const [timeframe, setTimeframe] = useState('15m');
+  const [userName, setUserName] = useState('');
+  const [isTokenInformationOpen, setIsTokenInformationOpen] = useState(false);
+  useEffect(() => {
+    const getUser = async () => {
+      const user = await axiosInstance.get(GET_API.GET_USER_BY_PUBLIC_KEY(creator))
+      setUserName((user as any).data.name)
+    }
+
+    console.log("tokenA", tokenA)
+    getUser()
+  }, []);
 
   useEffect(() => {
     if (!chartContainerRef.current) return;
@@ -155,50 +169,57 @@ const CandleStickChart = ({ tokenSymbol }: { tokenSymbol: string }) => {
   ];
 
   return (
-    <div className="bg-[#0F172A] flex flex-col flex-1 h-fit px-2 py-4 rounded-xl">
-      <div className="w-full flex flex-row gap-4 mb-4 justify-between">
-        {/* Token Info Panel */}
-        <div className="flex flex-row text-sm ml-2">
-          <div className="flex items-center gap-2">
-            <span className="text-white text-base font-medium mr-3">{tokenSymbol}</span>
-          </div>
-          <div className="flex flex-row gap-1 text-[#848e9c]">
-            <div className="flex items-center gap-1 mr-3">
-              <span>By:</span>
-              <span className="text-textPrimary cursor-pointer hover:underline italic">
-                {"ctb0k33"}
-              </span>
-              <span>{"15d ago"}</span>
-            </div>
-            <div className="flex items-center gap-2 mr-3">
-              <span>Market Cap:</span>
-              <span className="text-textPrimary">{"12.5M"}</span>
-            </div>
+    <>
+      {isTokenInformationOpen && <Modal isVisible={isTokenInformationOpen} onClose={() => setIsTokenInformationOpen(false)}>
+        <TokenInfomation name={tokenA.name} symbol={tokenA.symbol} description={tokenA.description} totalSupply={tokenA.totalSupply} fee={tokenA.fee} socialLinks={tokenA.socialLinks} />
+      </Modal>}
+      <div className="bg-[#0F172A] flex flex-col flex-1 h-fit px-2 py-4 rounded-xl">
+        <div className="w-full flex flex-row gap-4 mb-4 justify-between">
+          {/* Token Info Panel */}
+          <div className="flex flex-row text-sm ml-2">
             <div className="flex items-center gap-2">
-              <span>Comments:</span>
-              <span className="text-textPrimary">{"67"}</span>
+              <span className="text-white text-base font-medium mr-3 cursor-pointer hover:underline" onClick={() => {
+                setIsTokenInformationOpen(true)
+              }}>{tokenSymbol}</span>
+            </div>
+            <div className="flex flex-row gap-1 text-[#848e9c]">
+              <div className="flex items-center gap-1 mr-3">
+                <span>By:</span>
+                <span className="text-textPrimary cursor-pointer hover:underline italic mr-2">
+                  {userName}
+                </span>
+                <span>{getPreciseTimeDifference(createdAt)}</span>
+              </div>
+              <div className="flex items-center gap-2 mr-3">
+                <span>Market Cap:</span>
+                <span className="text-textPrimary">{"$" + marketcap}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>Comments:</span>
+                <span className="text-textPrimary">{comments}</span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Timeframe Buttons */}
-        <div className="flex gap-2 justify-end self-end">
-          {timeframes.map((tf) => (
-            <button
-              key={tf.value}
-              onClick={() => setTimeframe(tf.value)}
-              className={`px-3 py-1 rounded ${timeframe === tf.value
-                ? 'bg-[#c97dff] text-white'
-                : 'bg-[#363a45] text-[#848e9c] hover:bg-[#9c5af3] hover:text-white'
-                } transition-colors duration-200`}
-            >
-              {tf.label}
-            </button>
-          ))}
+          {/* Timeframe Buttons */}
+          <div className="flex gap-2 justify-end self-end">
+            {timeframes.map((tf) => (
+              <button
+                key={tf.value}
+                onClick={() => setTimeframe(tf.value)}
+                className={`px-3 py-1 rounded ${timeframe === tf.value
+                  ? 'bg-[#c97dff] text-white'
+                  : 'bg-[#363a45] text-[#848e9c] hover:bg-[#9c5af3] hover:text-white'
+                  } transition-colors duration-200`}
+              >
+                {tf.label}
+              </button>
+            ))}
+          </div>
         </div>
+        <div ref={chartContainerRef} className="h-[400px]" />
       </div>
-      <div ref={chartContainerRef} className="h-[400px]" />
-    </div>
+    </>
   );
 };
 
