@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Settings } from 'lucide-react';
-import { callCreatePoolContract, showAlert, toEVMAddress } from '../../utils';
+import { callCreatePoolContract, showAlert, showFailedAlert, formatEthereumAddress } from '../../utils';
 import { TRADING_PAIR_CONTRACT_ADDRESS } from '../../constant';
 import { axiosInstance } from '../../apis/api';
 import { POST_API } from '../../apis/POST/postApis';
@@ -12,32 +12,36 @@ export default function CreatePoolPanel({ onClose }: { onClose: () => void }) {
   const userAddress = useSelector((state: any) => state.user.address);
 
   const createPool = async () => {
-    const tx = await callCreatePoolContract(TRADING_PAIR_CONTRACT_ADDRESS,firstTokenAddress, secondTokenAddress)
+    try{
+      const tx = await callCreatePoolContract(TRADING_PAIR_CONTRACT_ADDRESS,firstTokenAddress, secondTokenAddress)
     showAlert(tx.hash, "Create pool successfully")
     const receipt = await tx.wait()
     const poolAddress = receipt.events[0].topics[1]
-    console.log("receipt", receipt)
-    console.log(poolAddress)
-    setFirstTokenAddress('')
-    setSecondTokenAddress('')
     
-    await axiosInstance.post(POST_API.CREATE_NEW_TRADING_PAIR(), {
+    const res = await axiosInstance.post(POST_API.CREATE_NEW_TRADING_PAIR(), {
       creator: userAddress,
       tokenA: firstTokenAddress,
       tokenB: secondTokenAddress,
       tokenAReserve: '0',
       tokenBReserve: '0',
       chainId: 43113,
-      poolAddress: toEVMAddress(poolAddress),
+      poolAddress: formatEthereumAddress(poolAddress),
       totalLP: '0',
     })
+    console.log(res)
+    }
+    catch(error){
+      console.log(error)
+      showFailedAlert("Create pool failed")
+    }
   }
+
     
   return (
     <div className="flex flex-col h-full w-full bg-[#16162d] text-white mt-[4px]">
       {/* Header */}
       <div className="flex justify-between items-center p-4 border-b border-gray-800">
-        <h2 className="text-2xl font-bold">Create Pool</h2>
+        <h2 className="text-2xl font-bold text-iconPrimary">Create Pool</h2>
         <div className="flex items-center gap-4">
           <button className="p-2 text-gray-400 hover:text-white">
             <Settings size={20} />

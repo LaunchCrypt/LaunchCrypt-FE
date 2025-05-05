@@ -3,7 +3,7 @@ import SwapHeader from "../components/SwapPage/SwapHeader";
 import SwapDetails from "../components/SwapPage/SwapDetails";
 
 export const POOL_TABS = ["Pools", "My Pools"]
-export const POOL_TYPES = ["ERC20 to ERC20", "Native to ERC20"]
+export const POOL_TYPES = ["Native to ERC20", "ERC20 to ERC20"]
 
 function SwapPage() {
     const [currentPoolTab, setCurrentPoolTab] = useState(POOL_TABS[0]);
@@ -20,10 +20,7 @@ function SwapPage() {
                     setPoolTypes={(value) => setCurrentPoolType(value)}
                     setSearchKeyword={(keyword: string) => setSearchKeyword(keyword)} />
             </div>
-            <SwapDetails searchKeyword={searchKeyword} />
-
-
-
+            <SwapDetails searchKeyword={searchKeyword} poolType={currentPoolType}/>
         </div>
     )
 }

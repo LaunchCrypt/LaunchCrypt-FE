@@ -1,6 +1,7 @@
 import React from 'react';
 import { base64toUrl, copyToClipboard, formatAddressLong, formatBalance, truncateText } from '../../utils';
 import avaxLogo from "../../../assets/icons/Avalanche-logo.svg"
+import rocketLogo from "../../../assets/images/rocket-logo1.png"
 import copyIcon from "../../../assets/icons/copy.svg";
 import { useNavigate } from 'react-router-dom';
 import { axiosInstance, GET_API } from '../../apis/api';
@@ -56,18 +57,19 @@ const TradingPairCardSkeleton = () => {
 };
 
 
-function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Icon, token1Reservers, token2Reservers, isLoading }: {
+function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Icon, token1Reservers, token2Reservers, isLoading, type }: {
   contract: string,
   token1Name: string,
   token2Name: string,
   marketcap?: string,
-  token2Icon: string,
+  token2Icon?: string,
   token1Reservers: string,
   token2Reservers: string,
   isLoading?: boolean
+  type: "ERC20 to ERC20" | "Native to ERC20"
 }) {
   const navigate = useNavigate()
-  const onClick = async () => {
+  const tradeNativeToERC20 = async () => {
     const liquidityPair = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contract))
     navigate(`/trade/${contract}`, {
       state: {
@@ -79,7 +81,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
         comments: (liquidityPair as any).data.comments,
         creator: (liquidityPair as any).data.creator,
         createdAt: (liquidityPair as any).data.createdAt,
-        marketcap: marketcap ? Number(marketcap).toFixed(2) : 0 ,
+        marketcap: marketcap ? Number(marketcap).toFixed(2) : 0,
         tokenA: (liquidityPair as any).data.tokenA,
       }
     })
@@ -92,10 +94,11 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
     shadow-[0_0_1px_#00000003,0_4px_8px_#0000000a,0_16px_24px_#0000000a,0_24px_32px_#00000003]">
       {/* Header */}
       <div className="flex items-center gap-1 mb-4">
-        <div className='flex flex-row align-middle items-center justify-center -translate-x-6'>
+        {type === "Native to ERC20" && <div className='flex flex-row align-middle items-center justify-center -translate-x-6'>
           <img src={avaxLogo} alt="" className='h-11 w-11 z-10 translate-x-6' />
-          <img src={base64toUrl((token2Icon as any).buffer, (token2Icon as any).mimetype)} alt="" className='w-11 h-11 z-0 rounded-full overflow-hidden' />
-        </div>
+          <img src={
+            type === "Native to ERC20" ? base64toUrl((token2Icon as any).buffer, (token2Icon as any).mimetype) : rocketLogo} alt="" className='w-11 h-11 z-0 rounded-full overflow-hidden' />
+        </div>}
         <div>
           <p className="text-lg text-[#21px] leading-6 tracking-[.44px] text-textPrimary font-medium ">{token1Name} - {token2Name}</p>
         </div>
@@ -103,12 +106,12 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
 
       {/* Pool Info */}
       <div className="space-y-4 mb-4">
-        <div className="flex justify-between items-center">
+        {type === "Native to ERC20" && <div className="flex justify-between items-center">
           <span className="font-normal text-[14px] leading-[25px] text-textPrimary opacity-60">Market Cap: </span>
           <div className="flex items-center gap-2">
             <span className="font-medium leading-[25px] text-textPrimary text-[15px]">${marketcap ? Number(marketcap).toFixed(2) : 2300}</span>
           </div>
-        </div>
+        </div>}
 
         <div className="flex justify-between items-center">
           <span className="font-normal text-[14px] leading-[25px] text-textPrimary opacity-60">Contract: </span>
@@ -123,7 +126,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
 
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <img src={avaxLogo} alt={token1Name} className="w-8 h-8" />
+            <img src={type === "Native to ERC20" ? avaxLogo : rocketLogo} alt={token1Name} className="w-8 h-8" />
           </div>
           <span className="font-normal text-[15px] leading-[25px]">{formatBalance(token1Reservers, 6)} {token1Name}</span>
         </div>
@@ -131,7 +134,8 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2">
-            <img src={base64toUrl((token2Icon as any).buffer, (token2Icon as any).mimetype)} alt={token2Name} className="w-8 h-8 rounded-full overflow-hidden" />
+              <img src={
+                type === "Native to ERC20" ? base64toUrl((token2Icon as any).buffer, (token2Icon as any).mimetype) : rocketLogo} alt={token2Name} className="w-8 h-8 rounded-full overflow-hidden" />
             </div>
           </div>
           <span className="font-normal text-[15px] leading-[25px]">{formatBalance(token2Reservers, 12)} {token2Name}</span>
@@ -140,7 +144,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">
-        <button onClick={onClick}
+        <button onClick={tradeNativeToERC20}
           className="px-4 py-3 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[15px] font-medium transition-colors duration-200">
           Trade
         </button>

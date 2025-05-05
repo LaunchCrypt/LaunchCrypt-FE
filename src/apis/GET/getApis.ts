@@ -36,5 +36,8 @@ export const GET_API = {
     },
     GET_USER_TABLE_DATA: () => {
         return `user/tableData`
+    },
+    GET_ALL_TRADING_PAIRS: (queryAll?: IqueryAll) => {
+        return `trading-pairs?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}&keyword=${queryAll?.keyword}`;
     }
 };

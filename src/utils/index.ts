@@ -2,7 +2,6 @@ import { BigNumber, ethers } from 'ethers';
 import { FUJI_CHAIN_ID, FUJI_PROVIDER, NETWORK_LIST } from '../constant';
 import { axiosInstance, PATCH_API } from '../apis/api';
 import Swal from 'sweetalert2';
-import { useSelector } from 'react-redux';
 
 export const formatAddress = (address: string) => {
     if (!address) return '';
@@ -229,9 +228,7 @@ export const callCreatePoolContract = async (contractAddress: string, firstToken
     return tx;
 }
 
-export const toEVMAddress = (address: string) => {
-    return ethers.utils.getAddress(address);
-}
+
 export const getLiquidityPoolReserve = async (address: string) => {
     if (!window.ethereum) {
         throw new Error("Ethereum provider is not available");
@@ -413,3 +410,28 @@ export const getPreciseTimeDifference = (dateString: string) => {
         return parts.join(', ') + ' ago';
     }
 }
+
+export function formatEthereumAddress(paddedAddress) {
+    // Validate input
+    if (!paddedAddress || typeof paddedAddress !== 'string') {
+      throw new Error('Invalid address: Input must be a non-empty string');
+    }
+    
+    // Check if the address starts with '0x'
+    const hasPrefix = paddedAddress.startsWith('0x');
+    const addressWithoutPrefix = hasPrefix ? paddedAddress.slice(2) : paddedAddress;
+    
+    // Regular expression to match a standard Ethereum address (40 hex characters)
+    const ethAddressRegex = /^(0{0,24})([0-9a-fA-F]{40})$/;
+    const match = addressWithoutPrefix.match(ethAddressRegex);
+    
+    if (!match) {
+      throw new Error('Invalid Ethereum address format');
+    }
+    
+    // Extract the actual address part (without padding)
+    const actualAddress = match[2];
+    
+    // Return with the 0x prefix
+    return '0x' + actualAddress;
+  }
