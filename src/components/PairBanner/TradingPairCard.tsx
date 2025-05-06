@@ -86,6 +86,23 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
       }
     })
   }
+  // const tradeERC20ToERC20 = async () => {
+  //   const tradingPair = await axiosInstance.get(GET_API.GETR(token1Name, token2Name))
+  //   navigate(`/trade/${contract}`, {
+  //     state: {
+  //       liquidityPairId: (liquidityPair as any).data.id,
+  //       liquidityPairAddress: contract,
+  //       tokenSymbol: token2Name,
+  //       tokenId: (liquidityPair as any).data.tokenA._id,
+  //       collateral: (liquidityPair as any).data.tokenBReserve,
+  //       comments: (liquidityPair as any).data.comments,
+  //       creator: (liquidityPair as any).data.creator,
+  //       createdAt: (liquidityPair as any).data.createdAt,
+  //       marketcap: marketcap ? Number(marketcap).toFixed(2) : 0,
+  //       tokenA: (liquidityPair as any).data.tokenA,
+  //     }
+  //   })
+  // }
   if (isLoading) {
     return <TradingPairCardSkeleton />
   }
@@ -144,7 +161,7 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-4">
-        <button onClick={tradeNativeToERC20}
+        <button onClick={type === "Native to ERC20" ? tradeNativeToERC20 : tradeERC20ToERC20}
           className="px-4 py-3 bg-[#43395b] rounded-[100px] hover:bg-[#483a6b] text-white text-[15px] font-medium transition-colors duration-200">
           Trade
         </button>

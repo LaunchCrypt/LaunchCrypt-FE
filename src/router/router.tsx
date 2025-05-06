@@ -12,6 +12,7 @@ import TradingPage from '../pages/TradingPage';
 import StatsPage from '../pages/StatsPage';
 import UserProfile from '../pages/UserProfile';
 import StakingPage from '../pages/StakingPage';
+import SwapExternalTokenPage from '../pages/SwapExternalTokenPage';
 
 const Layout = () => {
     return (
@@ -46,6 +47,10 @@ export const router = createBrowserRouter([
             {
                 path: "/trade/:liquidityPairId",
                 element: <TradingPage/>
+            },
+            {
+                path: "/swap-external/:tradingPairId",
+                element: <SwapExternalTokenPage/>
             },
             {
                 path: "/stats",

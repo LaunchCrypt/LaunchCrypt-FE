@@ -39,5 +39,8 @@ export const GET_API = {
     },
     GET_ALL_TRADING_PAIRS: (queryAll?: IqueryAll) => {
         return `trading-pairs?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}&keyword=${queryAll?.keyword}`;
+    },
+    GET_TRADING_PAIR_BY_TOKEN:(tokenA:string, tokenB:string) => {
+        return `trading-pairs/token-pair?tokenA=${tokenA}&tokenB=${tokenB}`;
     }
 };

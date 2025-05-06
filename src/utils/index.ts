@@ -435,3 +435,16 @@ export function formatEthereumAddress(paddedAddress) {
     // Return with the 0x prefix
     return '0x' + actualAddress;
   }
+
+export const calculateAmountOutExternalToken = (amountIn, reserveIn, reserveOut) => {
+    const amountInAfterFee = amountIn * 997 / 1000;
+    const amountOut = amountInAfterFee * reserveOut / (reserveIn + amountInAfterFee);
+    return amountOut.toFixed(9)
+}
+
+export const calculateAmountInNeededExternalToken = (amountOut, reserveIn, reserveOut) => {
+    const amountInAfterFee = amountOut * reserveIn / (reserveOut - amountOut)
+    const amountIn = amountInAfterFee * 1000 / 997
+    return amountIn.toFixed(9)
+}
+    
