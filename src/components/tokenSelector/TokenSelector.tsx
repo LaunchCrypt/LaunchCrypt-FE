@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import useTokens from "../../hooks/useToken";
 import { base64toUrl } from "../../utils";
-import { Loader2 } from "lucide-react";
+import useExternalToken from "../../hooks/useExternalToken";
+import rocketLogo from "../../../assets/images/rocket-logo1.png"
 
-function TokenSelector({ isOpen, onClose, onSelect }) {
+function TokenSelector({ isOpen, onClose, onSelect, type }) {
   const [searchQuery, setSearchQuery] = useState({
     page: 1,
     limit: 20,
@@ -11,11 +12,18 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
     sortOrder: 'asc'
   });
   const { tokens, loading, error, refetch } = useTokens(searchQuery);
+  const { allExternalToken, loading: externalLoading, error: externalError, refetch: refetchExternalToken } = useExternalToken(searchQuery);
   useEffect(() => {
     if (isOpen) {
-      refetch()
+      if (type == "Native to ERC20") {
+        refetch()
+      } else if (type == "ERC20 to ERC20") {
+        refetchExternalToken()
+      }
     }
   }, [isOpen])
+
+
 
 
   return (
@@ -76,7 +84,8 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
               <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
             </div>
           ): */}
-          {tokens.map((token) => (
+          {type == "Native to ERC20" ? (
+            tokens.map((token) => (
               <button
                 key={token.contractAddress}
                 onClick={() => {
@@ -107,7 +116,35 @@ function TokenSelector({ isOpen, onClose, onSelect }) {
                 </div>
               </button>
             ))
-          }
+          ) : (
+            allExternalToken.map((token) => (
+              <button
+                key={token.contractAddress}
+                onClick={() => {
+                  onSelect(token);
+                  onClose();
+                }}
+                className="w-full p-4 my-2 flex items-center rounded-xl
+                         hover:bg-purple-500/10 active:bg-purple-500/20
+                         transition-all duration-200 group"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-purple-500/10
+                            rounded-full flex items-center justify-center mr-4 overflow-hidden
+                            group-hover:from-purple-500/30 group-hover:to-purple-500/20
+                            transition-all duration-200">
+                  <img src={rocketLogo} alt={token.symbol} className="w-full h-full" />
+                </div>
+                <div className="flex-1 text-left">
+                  <div className="text-white font-semibold text-lg group-hover:text-purple-300 transition-colors">
+                    {token.symbol}
+                  </div>
+                  <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                    {token.name}
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
 
         </div>
 

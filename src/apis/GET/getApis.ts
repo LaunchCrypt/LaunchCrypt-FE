@@ -42,5 +42,11 @@ export const GET_API = {
     },
     GET_TRADING_PAIR_BY_TOKEN:(tokenA:string, tokenB:string) => {
         return `trading-pairs/token-pair?tokenA=${tokenA}&tokenB=${tokenB}`;
+    },
+    GET_TRADING_PAIR_BY_ADDRESS: (contractAddress: string) => {
+        return `trading-pairs/contract?contractAddress=${contractAddress}`;
+    },
+    GET_ALL_EXTERNAL_TOKENS: (queryAll?: IqueryAll) => {
+        return `ex-token?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}&keyword=${queryAll?.keyword}`;
     }
 };

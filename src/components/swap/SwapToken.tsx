@@ -87,6 +87,7 @@ function SwapToken({ value, handleChange, token, setToken, balance, setBalance }
                     }
                     setIsTokenSelectorOpen(false);
                 }}
+                type="Native to ERC20"
             />
         </div>
     )

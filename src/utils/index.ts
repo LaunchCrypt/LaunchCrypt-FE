@@ -228,6 +228,20 @@ export const callCreatePoolContract = async (contractAddress: string, firstToken
     return tx;
 }
 
+export const callAddLiquidityContract = async (contractAddress: string, amountA: string, amountB: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function addLiquidity(uint256,uint256)'], signer);
+    const tx = await contract.addLiquidity(
+        ethers.utils.parseEther(amountA),
+        ethers.utils.parseEther(amountB)
+    );
+    return tx;
+}
+
 
 export const getLiquidityPoolReserve = async (address: string) => {
     if (!window.ethereum) {

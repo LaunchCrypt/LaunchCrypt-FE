@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react'
-import downArrow from '../../../assets/icons/down-arrow.svg'
 import { Itoken } from '../../interfaces';
 import TokenSelector from '../tokenSelector/TokenSelector';
-import { base64toUrl, getERC20Balance } from '../../utils';
+import {getERC20Balance } from '../../utils';
 import rocketLogo from "../../../assets/images/rocket-logo1.png"
 import { useSelector } from 'react-redux';
-import './styles.css'
 
 
 const formatNumber = (num: string) => {
@@ -42,21 +40,19 @@ function SwapExternalToken({ value, handleChange, token, setToken, balance, setB
                     />
 
                     {token ?
-                        <button onClick={() => setIsTokenSelectorOpen(true)}
+                        <button 
                             className='swap-slot flex flex-row justify-center items-center align-middle 
                         text-white bg-[#1c1c33] min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
                             <img src={rocketLogo} className='w-6 h-6 mr-2' />
                             <div className='mr-auto font-medium'>
                                 {token?.symbol}
                             </div>
-                            <img src={downArrow} className='w-4 h-4 font-medium -translate-y-[2px]' />
+                          
                         </button> :
                         <button className='swap-slot flex flex-row justify-center items-center align-middle bg-gradient-to-r from-[#327474]
                          to-emerald-400 hover:from-teal-600 hover:to-emerald-500 text-white font-medium transition-all duration-30
-                         min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'
-                            onClick={() => setIsTokenSelectorOpen(true)}>
+                         min-w-[140px] text-base h-12 p-[0_12px] rounded-xl'>
                             <p className='mr-auto'>Select token</p>
-                            <img src={downArrow} className='w-4 h-4 font-medium -translate-y-[2px]' />
                         </button>
                     }
                 </div>
@@ -75,6 +71,7 @@ function SwapExternalToken({ value, handleChange, token, setToken, balance, setB
                     setBalance(balance);
                     setIsTokenSelectorOpen(false);
                 }}
+                type="ERC20 to ERC20"
             />
         </div>
     )

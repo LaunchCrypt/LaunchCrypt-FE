@@ -86,23 +86,25 @@ function TradingPairCard({ contract, token1Name, token2Name, marketcap, token2Ic
       }
     })
   }
-  // const tradeERC20ToERC20 = async () => {
-  //   const tradingPair = await axiosInstance.get(GET_API.GETR(token1Name, token2Name))
-  //   navigate(`/trade/${contract}`, {
-  //     state: {
-  //       liquidityPairId: (liquidityPair as any).data.id,
-  //       liquidityPairAddress: contract,
-  //       tokenSymbol: token2Name,
-  //       tokenId: (liquidityPair as any).data.tokenA._id,
-  //       collateral: (liquidityPair as any).data.tokenBReserve,
-  //       comments: (liquidityPair as any).data.comments,
-  //       creator: (liquidityPair as any).data.creator,
-  //       createdAt: (liquidityPair as any).data.createdAt,
-  //       marketcap: marketcap ? Number(marketcap).toFixed(2) : 0,
-  //       tokenA: (liquidityPair as any).data.tokenA,
-  //     }
-  //   })
-  // }
+  const tradeERC20ToERC20 = async () => {
+    console.log(contract)
+    const tradingPair = await axiosInstance.get(GET_API.GET_TRADING_PAIR_BY_ADDRESS(contract))
+    navigate(`/swap-external/${contract}`, {
+      state: {
+        liquidityPairId: (tradingPair as any).data.id,
+        tokenA: tradingPair.data.tokenA,
+        tokenB: tradingPair.data.tokenB,
+        tokenAReserve: tradingPair.data.tokenAReserve,
+        tokenBReserve: tradingPair.data.tokenBReserve,
+        totalLP: tradingPair.data.totalLP,
+        poolAddress: contract        
+      }
+    })
+  }
+
+  const addLiquidity = async () => {
+    
+  }
   if (isLoading) {
     return <TradingPairCardSkeleton />
   }

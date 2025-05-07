@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     approveERC20,
     calculateAmountAVAXReceived,
@@ -22,8 +22,10 @@ import Loading from '../common/Loading';
 import Modal from '../Modal/Modal';
 import WalletWarning from '../common/WalletWarning';
 import SwapExternalToken from './SwapExternalToken';
+import { useLocation } from 'react-router-dom';
 
 function SwapExternal() {
+    const location = useLocation();
     const [firstToken, setFirstToken] = useState<Itoken>()
     const [firstValue, setFirstValue] = useState(''); // value in the input field
     const [firstTokenValue, setFirstTokenValue] = useState('0'); // token balance
@@ -38,6 +40,14 @@ function SwapExternal() {
     const [isError, setError] = useState(false)
     const { allTradingPair, getAllTradingPairs, tradingPair, getTradingPair } = useTradingPair({ ...searchParams, searchQuery: DEFAULT_QUERY_ALL })
 
+    const { tokenA, tokenB, tokenAReserve, tokenBReserve, totalLP, poolAddress } = location.state || {};
+    useEffect(() => {
+        console.log("tradingPair", tradingPair)
+        if (tokenA && tokenB) {
+            setFirstToken(tokenA)
+            setSecondToken(tokenB)
+        }
+    },[])
     const handleSwap = async () => {
         if (userAddress == '') {
             setIsWalletWarningVisible(true)

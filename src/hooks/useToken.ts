@@ -21,7 +21,6 @@ const useTokens = (searchQuery?:{}): UseTokensReturn => {
       setLoading(true);
       setError(null);
       const response = await axiosInstance.get(GET_API.GET_ALL_TOKENS(searchQuery));
-      console.log(response)
       setTokens(response.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tokens');
