@@ -7,6 +7,7 @@ import {
     calculateAmountNeededReceiveAvax,
     calculateAmountNeededReceiveToken,
     calculateAmountOutExternalToken,
+    callSwapExternalTokenContract,
     get_network,
     getETHBalance,
     getLiquidityPoolReserve,
@@ -23,6 +24,7 @@ import Modal from '../Modal/Modal';
 import WalletWarning from '../common/WalletWarning';
 import SwapExternalToken from './SwapExternalToken';
 import { useLocation } from 'react-router-dom';
+import { axiosInstance, PATCH_API } from '../../apis/api';
 
 function SwapExternal() {
     const location = useLocation();
@@ -42,10 +44,12 @@ function SwapExternal() {
 
     const { tokenA, tokenB, tokenAReserve, tokenBReserve, totalLP, poolAddress } = location.state || {};
     useEffect(() => {
-        console.log("tradingPair", tradingPair)
+        console.log("location", location)
         if (tokenA && tokenB) {
             setFirstToken(tokenA)
             setSecondToken(tokenB)
+            setFirstValue('0');
+            setSecondValue('0');
         }
     },[])
     const handleSwap = async () => {
@@ -57,6 +61,13 @@ function SwapExternal() {
             alert('Cannot swap same token')
             return;
         }
+        const tx = await callSwapExternalTokenContract(poolAddress, tokenA?.contractAddress, tokenB?.contractAddress, firstValue)
+        const txHash = await tx.wait()
+        showAlert(txHash.transactionHash, "Swap successful")
+        const res = await axiosInstance.patch(PATCH_API.UPDATE_TRADING_PAIR_RESERVE(poolAddress), {
+            tokenAAddress: tokenA?.contractAddress,
+            tokenBAddress: tokenB?.contractAddress,
+        })
     }
 
     const handleSwitchTokens = () => {
@@ -73,8 +84,8 @@ function SwapExternal() {
     const handleChangeFirstValue = (e) => {
         const inputValue = e.target.value.replace(/,/g, '');
         const amountIn = parseFloat(inputValue);
-        const reserveIn = firstToken?.contractAddress == tradingPair.tokenA.contractAddress ? parseFloat(tradingPair.tokenAReserve) : parseFloat(tradingPair.tokenBReserve)
-        const reserveOut = firstToken?.contractAddress == tradingPair.tokenA.contractAddress ? parseFloat(tradingPair.tokenBReserve) : parseFloat(tradingPair.tokenAReserve)
+        const reserveIn = firstToken?.contractAddress == tokenA?.contractAddress ? parseFloat(tokenAReserve) : parseFloat(tokenBReserve)
+        const reserveOut = firstToken?.contractAddress == tokenA?.contractAddress ? parseFloat(tokenBReserve) : parseFloat(tokenAReserve)
 
         setFirstValue(inputValue);
 
@@ -112,18 +123,16 @@ function SwapExternal() {
     }
 
     return (
-        <>
+        <div className='w-full h-full flex flex-col align-middle items-center justify-center'>
             {waitForApproving && Loading({ title: 'Wait for approve ERC20 process', message: 'Please confirm the swap transaction in your wallet' })}
             {isWalletWarningVisible && <Modal isVisible={isWalletWarningVisible}
                 onClose={() => setIsWalletWarningVisible(false)}
                 children={<WalletWarning closeModal={() => setIsWalletWarningVisible(false)} />} />
             }
-            <div className='swap-container relative flex flex-col align-middle items-center justify-center p-2 rounded-3xl bg-[#16162d] mt-5 w-[480px] h-fit gap-2'>
+            <div className='swap-container relative flex flex-col align-middle items-center justify-center p-3 rounded-3xl bg-[#16162d] mt-5 w-[520px] h-fit gap-2'>
                 <div className='w-full h-full flex flex-row items-center align-middle'>
-                    <p className='self-start text-xl font-semibold text-textPrimary ml-3 mb-1 mt-1 mr-2'>Swap</p>
+                    <p className='self-start text-xl font-semibold text-textPrimary mb-1 mt-1 ml-2'>Swap</p>
                     <div className="relative group">
-                        <span className="text-purple-400 cursor-help">ⓘ</span>
-
                         {/* Tooltip */}
                         <div className="absolute left-0 top-6 w-64 opacity-0 invisible group-hover:opacity-100 
             group-hover:visible transition-all duration-200 z-50">
@@ -227,7 +236,7 @@ function SwapExternal() {
                 )}
             </div>
 
-        </>
+        </div>
     )
 }
 

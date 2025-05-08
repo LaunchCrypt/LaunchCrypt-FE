@@ -234,7 +234,7 @@ export const callAddLiquidityContract = async (contractAddress: string, amountA:
     }
     const provider = new ethers.providers.Web3Provider(window.ethereum as any);
     const signer = provider.getSigner();
-    const contract = new ethers.Contract(contractAddress, ['function addLiquidity(uint256,uint256)'], signer);
+    const contract = new ethers.Contract(contractAddress, ['function addLiquidity(uint,uint)'], signer);
     const tx = await contract.addLiquidity(
         ethers.utils.parseEther(amountA),
         ethers.utils.parseEther(amountB)
@@ -453,12 +453,23 @@ export function formatEthereumAddress(paddedAddress) {
 export const calculateAmountOutExternalToken = (amountIn, reserveIn, reserveOut) => {
     const amountInAfterFee = amountIn * 997 / 1000;
     const amountOut = amountInAfterFee * reserveOut / (reserveIn + amountInAfterFee);
-    return amountOut.toFixed(9)
+    return amountOut.toFixed(2)
 }
 
 export const calculateAmountInNeededExternalToken = (amountOut, reserveIn, reserveOut) => {
     const amountInAfterFee = amountOut * reserveIn / (reserveOut - amountOut)
     const amountIn = amountInAfterFee * 1000 / 997
-    return amountIn.toFixed(9)
+    return amountIn.toFixed(2)
+}
+
+export const callSwapExternalTokenContract = async (contractAddress: string, tokenIn: string, tokenOut: string, amountIn: string) => {
+    if (!window.ethereum) {
+        throw new Error("Ethereum provider is not available");
+    }
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    const signer = provider.getSigner();
+    const contract = new ethers.Contract(contractAddress, ['function swap(address,address,uint,uint)'], signer);
+    const tx = await contract.swap(tokenIn, tokenOut, ethers.utils.parseEther(amountIn), 0);
+    return tx;
 }
     

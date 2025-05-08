@@ -1,12 +1,16 @@
 import React from 'react';
 import { X, Settings } from 'lucide-react';
 import { callCreatePoolContract, showAlert, showFailedAlert, formatEthereumAddress } from '../../utils';
-import { TRADING_PAIR_CONTRACT_ADDRESS } from '../../constant';
+import { DEFAULT_QUERY_ALL, TRADING_PAIR_CONTRACT_ADDRESS } from '../../constant';
 import { axiosInstance } from '../../apis/api';
 import { POST_API } from '../../apis/POST/postApis';
 import { useSelector } from 'react-redux';
+import { useTradingPair } from '../../hooks/useTradingPair';
 
 export default function CreatePoolPanel({ onClose }: { onClose: () => void }) {
+  const { getAllTradingPairs } = useTradingPair(
+    { searchQuery: DEFAULT_QUERY_ALL }
+);
   const [firstTokenAddress, setFirstTokenAddress] = React.useState('');
   const [secondTokenAddress, setSecondTokenAddress] = React.useState('');
   const userAddress = useSelector((state: any) => state.user.address);
@@ -28,7 +32,8 @@ export default function CreatePoolPanel({ onClose }: { onClose: () => void }) {
       poolAddress: formatEthereumAddress(poolAddress),
       totalLP: '0',
     })
-    console.log(res)
+    getAllTradingPairs();
+    
     }
     catch(error){
       console.log(error)
