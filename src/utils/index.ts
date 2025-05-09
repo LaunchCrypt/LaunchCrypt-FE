@@ -451,12 +451,16 @@ export function formatEthereumAddress(paddedAddress) {
   }
 
 export const calculateAmountOutExternalToken = (amountIn, reserveIn, reserveOut) => {
-    const amountInAfterFee = amountIn * 997 / 1000;
+    let amountInAfterFee = +amountIn * 997 / 1000;
+    reserveIn = reserveIn / 10 ** 18
+    reserveOut = reserveOut / 10 ** 18 ;
     const amountOut = amountInAfterFee * reserveOut / (reserveIn + amountInAfterFee);
     return amountOut.toFixed(2)
 }
 
 export const calculateAmountInNeededExternalToken = (amountOut, reserveIn, reserveOut) => {
+    reserveIn = reserveIn / 10 ** 18
+    reserveOut = reserveOut / 10 ** 18;
     const amountInAfterFee = amountOut * reserveIn / (reserveOut - amountOut)
     const amountIn = amountInAfterFee * 1000 / 997
     return amountIn.toFixed(2)

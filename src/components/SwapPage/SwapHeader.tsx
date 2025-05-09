@@ -5,7 +5,9 @@ import CreatePoolPanel from '../createPool/CreatePoolPanel';
 import { useSelector } from 'react-redux';
 import WalletWarning from '../common/WalletWarning';
 import Modal from "../Modal/Modal"
-
+import { useTradingPair } from '../../hooks/useTradingPair';
+import { DEFAULT_QUERY_ALL } from '../../constant';
+import { useLiquidityPair } from '../../hooks/useLiquidityPair';
 interface SwapHeaderProps {
   currentPoolTabs: string;
   currentPoolTypes: string;
@@ -24,6 +26,8 @@ function SwapHeader({
   const [showCreatePool, setShowCreatePool] = useState(false);
   const [showWalletWarning, setShowWalletWarning] = useState(false);
   const userAddress = useSelector((state: any) => state.user.address);
+  const {getAllTradingPairs} = useTradingPair({searchQuery: DEFAULT_QUERY_ALL})
+  const {getAllLiquidityPairs} = useLiquidityPair({searchQuery: DEFAULT_QUERY_ALL})
 
   return (
     <>
@@ -100,14 +104,20 @@ function SwapHeader({
             ${currentPoolTypes === 'Native to ERC20'
                 ? 'bg-[#2d2e49] text-white'
                 : 'hover:text-white hover:bg-[rgba(255,255,255,.03)]'}`}
-              onClick={() => setPoolTypes('Native to ERC20')}>
+              onClick={() => {
+                setPoolTypes('Native to ERC20')
+                getAllLiquidityPairs()
+              }}>
               Native to ERC20
             </button>
             <button className={`w-[160px] px-6 py-2 text-sm font-medium transition-all duration-200 rounded-[0px_12px_12px_0px]
             ${currentPoolTypes === 'ERC20 to ERC20'
                 ? 'bg-[#2d2e49] text-white'
                 : 'hover:text-white hover:bg-[rgba(255,255,255,.03)]'}`}
-              onClick={() => setPoolTypes('ERC20 to ERC20')}>
+              onClick={() => {
+                setPoolTypes('ERC20 to ERC20')
+                getAllTradingPairs()
+              }}>
               ERC20 to ERC20
             </button>
           </div>

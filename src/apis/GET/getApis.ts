@@ -48,5 +48,8 @@ export const GET_API = {
     },
     GET_ALL_EXTERNAL_TOKENS: (queryAll?: IqueryAll) => {
         return `ex-token?page=${queryAll?.page}&limit=${queryAll?.limit}&sortField=${queryAll?.sortField}&sortOrder=${queryAll?.sortOrder}&keyword=${queryAll?.keyword}`;
+    },
+    GET_TOKEN_DISTRIBUTION: (tokenAddress: string) => {
+        return `token/token-distribution?tokenAddress=${tokenAddress}`;
     }
 };

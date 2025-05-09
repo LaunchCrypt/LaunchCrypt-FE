@@ -159,7 +159,7 @@ function TradingPairCard({ contract, token1Name, token2Name, token1Contract, tok
             <span className="font-normal text-[14px] leading-[25px] text-textPrimary opacity-60">Contract: </span>
             <div className="flex items-center gap-2">
               <img src={copyIcon} onClick={() => copyToClipboard(contract)}
-                className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
+              className="w-6 h-6 bg-inherit inline ml-20 mb-1 cursor-pointer" />
               <span className="leading-[25px] text-textPrimary text-[15px]">{formatAddressLong(contract, 5)}</span>
             </div>
           </div>

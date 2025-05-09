@@ -5,7 +5,6 @@ import { copyToClipboard, formatAddressLong } from '../../utils';
 import Swal from 'sweetalert2';
 
 function UserStatsTable({ userTableData }: { userTableData: any }) {
-    console.log("userTableData", userTableData)
     // Sample user data
     // const data = useMemo(
     //     () => [
@@ -63,10 +62,10 @@ function UserStatsTable({ userTableData }: { userTableData: any }) {
         if (type === 'volume') {
             if (value >= 1e6) return `$${(value / 1e6).toFixed(1)}M`;
             if (value >= 1e3) return `$${(value / 1e3).toFixed(1)}K`;
-            return `$${value.toFixed(2)}`;
+            return `${value.toFixed(2)} AVAX`;
         }
         if (type === 'trades') return value.toLocaleString();
-        if (type === 'avgSize') return `$${value.toFixed(2)}`;
+        if (type === 'avgSize') return `${value.toFixed(2)} AVAX`;
         if (type === 'percentage') return `${value}%`;
         return value;
     };

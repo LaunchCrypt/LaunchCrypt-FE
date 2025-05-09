@@ -9,18 +9,22 @@ import {
   getLiquidityPoolReserve,
   showAlert,
   showFailedAlert,
-  swapWithNativeToken
+  swapWithNativeToken,
+  formatAddress,
+  formatAddressLong,
+  copyToClipboard
 } from '../../utils';
 import { useLocation } from 'react-router-dom';
 import { useLiquidityPair } from '../../hooks/useLiquidityPair';
 import { DEFAULT_QUERY_ALL, VIRTUAL_LIQUIDITY } from '../../constant';
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
 import { ethers } from 'ethers';
-import { axiosInstance, PATCH_API, POST_API } from '../../apis/api';
+import { axiosInstance, GET_API, PATCH_API, POST_API } from '../../apis/api';
 import { useSelector } from 'react-redux';
 import Loading from '../common/Loading';
 import Modal from '../Modal/Modal';
 import WalletWarning from '../common/WalletWarning';
+import TradingPairCard from '../PairBanner/TradingPairCard';
 
 
 const holders = [
@@ -45,6 +49,7 @@ const holders = [
 ];
 
 const currentNetwork = get_network();
+
 
 
 const Button = ({ children, variant = 'primary', className = '', ...props }) => {
@@ -73,7 +78,7 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
   const [currentSelectedToken, setCurrentSelectedToken] = useState(currentNetwork?.symbol)
   const [amount, setAmount] = useState('0');
   const [waitForApproving, setWaitForApproving] = useState(false)
-  const { liquidityPair } = useLiquidityPair({
+  const { liquidityPair, getLiquidityPair } = useLiquidityPair({
     contractAddress: liquidityPairAddress,
     searchQuery: DEFAULT_QUERY_ALL
   })
@@ -81,6 +86,20 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
   const [amountOut, setAmountOut] = useState('0');
   const [isError, setError] = useState(false)
   const [isWalletWarning, setIsWalletWarning] = useState(false)
+  const [holderData, setHolderData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (liquidityPair) {
+      const fetchHolderData = async () => {
+        setIsLoading(true)
+        const response = await axiosInstance.get(GET_API.GET_TOKEN_DISTRIBUTION((liquidityPair as any).tokenA.contractAddress))
+        setHolderData(response.data);
+        setIsLoading(false)
+      }
+      fetchHolderData()
+    }
+  }, [liquidityPair])
 
 
   // if (firstToken?.type === 'native' && secondToken?.type === 'ERC20') {
@@ -234,6 +253,8 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
       tokenAReserve: ethers.utils.formatUnits(reserve, 18),
       tokenBReserve: ethers.utils.formatUnits(collateral, 18)
     })
+
+    getLiquidityPair()
   }
 
   useEffect(() => {
@@ -408,23 +429,28 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
         </div>
 
         <div className="space-y-2">
-          {holders.map((holder, index) => (
+          {isLoading ? Array(4).fill(null).map((_, index) => (
+            // generate skeleton
             <div
-              key={holder.address}
+              key={`skeleton-${index}`}
+              className="flex items-center justify-between text-sm"
+            >
+              <div className="flex items-center space-x-2">
+                <div className="w-32 h-4 bg-gray-700 rounded animate-pulse"></div>
+              </div>
+              <div className="w-24 h-4 bg-gray-700 rounded animate-pulse"></div>
+            </div>
+          )) : holderData.map((holder, index) => (
+            <div
+              key={(holder as any).address}
               className="flex items-center justify-between text-sm"
             >
               <div className="flex items-center space-x-2">
                 <span className="text-slate-400">{index + 1}.</span>
-                <span className="text-slate-300">{holder.address}</span>
-                {holder.icon && <span>{holder.icon}</span>}
-                {holder.label && (
-                  <span className="text-slate-500 text-xs">
-                    {holder.label}
-                  </span>
-                )}
+                <span className="text-slate-300 cursor-pointer" onClick={() => copyToClipboard((holder as any).address)}>{formatAddress((holder as any).address)}</span>
               </div>
               <span className="text-slate-400">
-                {holder.value.toFixed(2)}%
+                {((holder as any).balance / 10000000).toFixed(2)}%
               </span>
             </div>
           ))}

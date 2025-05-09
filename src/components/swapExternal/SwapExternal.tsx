@@ -1,19 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import {
-    approveERC20,
-    calculateAmountAVAXReceived,
-    calculateAmountERC20Received,
     calculateAmountInNeededExternalToken,
-    calculateAmountNeededReceiveAvax,
-    calculateAmountNeededReceiveToken,
     calculateAmountOutExternalToken,
     callSwapExternalTokenContract,
-    get_network,
-    getETHBalance,
-    getLiquidityPoolReserve,
     showAlert,
-    showFailedAlert,
-    swapWithNativeToken
 } from '../../utils'
 import { Itoken } from '../../interfaces';
 import { useSelector } from 'react-redux';
@@ -25,6 +15,7 @@ import WalletWarning from '../common/WalletWarning';
 import SwapExternalToken from './SwapExternalToken';
 import { useLocation } from 'react-router-dom';
 import { axiosInstance, PATCH_API } from '../../apis/api';
+import { BigNumber } from 'ethers';
 
 function SwapExternal() {
     const location = useLocation();
@@ -42,7 +33,7 @@ function SwapExternal() {
     const [isError, setError] = useState(false)
     const { allTradingPair, getAllTradingPairs, tradingPair, getTradingPair } = useTradingPair({ ...searchParams, searchQuery: DEFAULT_QUERY_ALL })
 
-    const { tokenA, tokenB, tokenAReserve, tokenBReserve, totalLP, poolAddress } = location.state || {};
+    const [{ tokenA, tokenB, tokenAReserve, tokenBReserve, totalLP, poolAddress }, setPoolData] = useState(location.state || {});
     useEffect(() => {
         console.log("location", location)
         if (tokenA && tokenB) {
@@ -61,13 +52,16 @@ function SwapExternal() {
             alert('Cannot swap same token')
             return;
         }
-        const tx = await callSwapExternalTokenContract(poolAddress, tokenA?.contractAddress, tokenB?.contractAddress, firstValue)
-        const txHash = await tx.wait()
-        showAlert(txHash.transactionHash, "Swap successful")
+        if (firstToken != null && secondToken != null) {
+            const tx = await callSwapExternalTokenContract(poolAddress, (firstToken as any).contractAddress, (secondToken as any).contractAddress, firstValue)
+            await tx.wait()
+            showAlert(tx, "Swap successful")
         const res = await axiosInstance.patch(PATCH_API.UPDATE_TRADING_PAIR_RESERVE(poolAddress), {
             tokenAAddress: tokenA?.contractAddress,
             tokenBAddress: tokenB?.contractAddress,
         })
+        setPoolData(res.data)
+    }
     }
 
     const handleSwitchTokens = () => {
@@ -83,9 +77,9 @@ function SwapExternal() {
 
     const handleChangeFirstValue = (e) => {
         const inputValue = e.target.value.replace(/,/g, '');
-        const amountIn = parseFloat(inputValue);
-        const reserveIn = firstToken?.contractAddress == tokenA?.contractAddress ? parseFloat(tokenAReserve) : parseFloat(tokenBReserve)
-        const reserveOut = firstToken?.contractAddress == tokenA?.contractAddress ? parseFloat(tokenBReserve) : parseFloat(tokenAReserve)
+        const amountIn = parseFloat(inputValue)
+        const reserveIn = firstToken?.contractAddress == tokenA?.contractAddress ?  tokenAReserve :  tokenBReserve
+        const reserveOut = firstToken?.contractAddress == tokenA?.contractAddress ?  tokenBReserve :  tokenAReserve
 
         setFirstValue(inputValue);
 
@@ -104,9 +98,9 @@ function SwapExternal() {
 
     const handleChangeSecondValue = (e) => {
         const inputValue = e.target.value.replace(/,/g, '');
-        const amountOut = parseFloat(inputValue);
-        const reserveOut = secondToken?.contractAddress == tradingPair.tokenA.contractAddress ? parseFloat(tradingPair.tokenAReserve) : parseFloat(tradingPair.tokenBReserve)
-        const reserveIn = secondToken?.contractAddress == tradingPair.tokenA.contractAddress ? parseFloat(tradingPair.tokenBReserve) : parseFloat(tradingPair.tokenAReserve)
+        const amountOut = BigInt(inputValue)
+        const reserveOut = secondToken?.contractAddress == tradingPair.tokenA.contractAddress ? tokenAReserve : tokenBReserve
+        const reserveIn = secondToken?.contractAddress == tradingPair.tokenA.contractAddress ? tokenBReserve : tokenAReserve
 
         if (amountOut > reserveOut) {
             setFirstValue('0')
