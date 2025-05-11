@@ -27,7 +27,6 @@ function EditProfile({ currentProfile, onClose, setUserInfo }) {
         if (newImage) {
             formData.append('image', newImage);
         }
-        console.log("formData", formData)
 
         try {
             const newUser = await axiosInstance.patch(

@@ -118,7 +118,6 @@ const StakingPage = () => {
 
   useEffect(() => {
     if (stake?.startTime != 0 && stake?.duration != 0 && stake) {
-      console.log(stake)
       setStakedBalance(stake.amount);
       setTimeStaked(`${stake.duration as any} days`)
       let timeStake = Math.floor(new Date().getTime() / 1000) - stake.startTime

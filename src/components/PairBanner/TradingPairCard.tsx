@@ -122,7 +122,7 @@ function TradingPairCard({ contract, token1Name, token2Name, token1Contract, tok
         className={`fixed top-0 right-0 h-full w-96 bg-gray-900 shadow-xl transform transition-transform duration-300 ease-in-out ${showAddLiquidity ? 'translate-x-0 z-50' : 'translate-x-full'
           }`}
       >
-        <AddLiquidityPanel tokenAAddress={token1Contract as string} tokenBAddress={token2Contract as string} contractAddress={contract} onClose={() => setShowAddLiquidity(false)} getAllTradingPairs={()=>getAllTradingPairs} setWaitForApproving={setWaitForApproving} />
+        <AddLiquidityPanel tokenAAddress={token1Contract as string} tokenBAddress={token2Contract as string} contractAddress={contract} onClose={() => setShowAddLiquidity(false)} getAllTradingPairs={getAllTradingPairs || (() => {})} setWaitForApproving={setWaitForApproving} />
       </div>
       }
       {showAddLiquidity && (

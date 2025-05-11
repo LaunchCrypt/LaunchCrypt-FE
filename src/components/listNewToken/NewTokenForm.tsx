@@ -30,7 +30,6 @@ function NewTokenForm({ setCloseModal }: { setCloseModal: () => void }) {
     const validateFields = () => {
         const emptyFields = Object.entries(newTokenInfo)
             .filter(([_, value]) => {
-                console.log(value)
                 // Handle various empty cases
                 if (value === null || value === undefined) return true;
                 if (typeof value === 'string' && value.trim() === '') return true;

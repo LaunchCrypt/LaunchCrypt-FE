@@ -3,7 +3,6 @@ import React from "react";
 import { base64toUrl, formatAddress } from "../../utils";
 
 function CommentItem({ creator, creatorInfo, time, content, likes, onLove, onReply }) {
-    console.log(creatorInfo)
     return (
         <div className="group p-4 rounded-lg transition-colors bg-slate-800">
             <div className="flex items-start gap-3">

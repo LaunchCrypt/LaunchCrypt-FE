@@ -22,9 +22,15 @@ export const useTradingPair = ({
         setIsLoading(true);
         setError(null);
         try {
-            const response = await axiosInstance.get(GET_API.GET_ALL_TRADING_PAIRS(searchQuery));
+            let searchQueryAfterFormat
+            if (searchQuery?.keyword) {
+                searchQueryAfterFormat = searchQuery
+            }
+            else {
+                searchQueryAfterFormat = { ...searchQuery, keyword: "" }
+            }
+            const response = await axiosInstance.get(GET_API.GET_ALL_TRADING_PAIRS(searchQueryAfterFormat));
             setAllTradingPair(response.data);
-            console.log("response", response)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {
@@ -36,11 +42,11 @@ export const useTradingPair = ({
         setIsLoading(true);
         setError(null);
         try {
-            if(token0Address && token1Address){
+            if (token0Address && token1Address) {
                 const response = await axiosInstance.get(GET_API.GET_TRADING_PAIR_BY_TOKEN(token0Address, token1Address));
                 setTradingPair(response.data)
             }
-            
+
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {
@@ -48,8 +54,8 @@ export const useTradingPair = ({
         }
     }
 
-    useEffect(()=>{
-        if(token0Address && token1Address){
+    useEffect(() => {
+        if (token0Address && token1Address) {
             getTradingPair()
         }
     }, [token0Address, token1Address])
@@ -62,5 +68,5 @@ export const useTradingPair = ({
         error,
         getAllTradingPairs,
         getTradingPair,
-    }   
+    }
 }

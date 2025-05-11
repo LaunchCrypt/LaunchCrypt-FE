@@ -25,7 +25,6 @@ export const useLiquidityPair = ({
         try {
             const response = await axiosInstance.get(GET_API.GET_ALL_LIQUIDITY_PAIRS(searchQuery));
             setAllLiquidityPair(response.data);
-            console.log("response", response)
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {
@@ -43,8 +42,7 @@ export const useLiquidityPair = ({
             }
 
             if (contractAddress) {
-                const response = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contractAddress));
-                console.log("response", response)   
+                const response = await axiosInstance.get(GET_API.GET_LIQUIDITY_PAIR_BY_ADDRESS(contractAddress)); 
                 setLiquidityPair(response.data);
             }
         } catch (err) {

@@ -16,7 +16,6 @@ const CandleStickChart = ({ tokenSymbol, creator, createdAt, comments, marketcap
       setUserName((user as any).data.name)
     }
 
-    console.log("tokenA", tokenA)
     getUser()
   }, []);
 

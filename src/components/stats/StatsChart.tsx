@@ -13,7 +13,6 @@ function StatsChart({ tradingVolumeData }: { tradingVolumeData: any }) {
         };
     });
 
-    console.log("tradingData", tradingData)
 
     // Format large numbers with B/M suffix
     const formatNumber = (value) => {

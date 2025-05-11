@@ -111,7 +111,6 @@ const CoinsHeldTab = () => {
 
     getAllTokens().then((res) => {
       setIsLoading(false)
-      console.log("res", res.data)
       setData((res.data as any[]).filter(coin => coin.name !== "") as any);
     })
   }, [userAddress])

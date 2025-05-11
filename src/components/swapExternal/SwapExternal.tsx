@@ -35,7 +35,6 @@ function SwapExternal() {
 
     const [{ tokenA, tokenB, tokenAReserve, tokenBReserve, totalLP, poolAddress }, setPoolData] = useState(location.state || {});
     useEffect(() => {
-        console.log("location", location)
         if (tokenA && tokenB) {
             setFirstToken(tokenA)
             setSecondToken(tokenB)

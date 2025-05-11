@@ -24,7 +24,6 @@ import { useSelector } from 'react-redux';
 import Loading from '../common/Loading';
 import Modal from '../Modal/Modal';
 import WalletWarning from '../common/WalletWarning';
-import TradingPairCard from '../PairBanner/TradingPairCard';
 
 
 const holders = [
@@ -246,7 +245,6 @@ const TradingSidebar = ({ tokenSymbol }: { tokenSymbol: string }) => {
       transactionHash: response.hash
     })
 
-    console.log("newTrade", newTrade)
 
     const { reserve, collateral } = await getLiquidityPoolReserve((liquidityPair as any).poolAddress)
     await axiosInstance.patch(PATCH_API.UPDATE_LIQUIDITY_PAIR((liquidityPair as any).poolAddress), {

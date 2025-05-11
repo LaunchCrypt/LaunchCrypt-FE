@@ -27,7 +27,6 @@ export default function AddLiquidityPanel({ tokenAAddress, tokenBAddress, contra
       })
       getAllTradingPairs()
 
-      console.log(res)
     }
     catch (error) {
       console.log(error)
